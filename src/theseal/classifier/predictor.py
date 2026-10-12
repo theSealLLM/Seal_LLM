@@ -8,7 +8,7 @@ from typing import Protocol
 import numpy as np
 
 from .config import META_FILENAME, task_paths
-from .data import LabelSet
+from .data_loader import LabelSet
 from .metrics import load_json
 
 

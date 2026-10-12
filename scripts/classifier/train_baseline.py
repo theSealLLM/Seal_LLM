@@ -13,7 +13,7 @@ import _common
 
 from theseal.classifier.baseline import KIND, TfidfLogRegClassifier
 from theseal.classifier.config import BaselineConfig, display_path
-from theseal.classifier.data import load_task
+from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import LATENCY_SAMPLES, evaluate_classifier, save_json
 
 

@@ -20,7 +20,7 @@ from pathlib import Path
 import _common
 
 from theseal.classifier.config import META_FILENAME, display_path
-from theseal.classifier.data import load_task
+from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import (
     LATENCY_SAMPLES,
     PRIMARY_METRIC,

@@ -18,7 +18,7 @@ import numpy as np
 
 from theseal.classifier.bert import KIND, TransformerClassifier, train_classifier
 from theseal.classifier.config import BertConfig, display_path
-from theseal.classifier.data import load_task
+from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import LATENCY_SAMPLES, evaluate_classifier, save_json
 
 

@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
 
-from .data import LabelSet, Split
+from .data_loader import LabelSet, Split
 
 LATENCY_SAMPLES = 100
 LATENCY_WARMUP = 5

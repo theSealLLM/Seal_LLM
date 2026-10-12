@@ -23,7 +23,7 @@ from transformers import (
 )
 
 from .config import META_FILENAME, BertConfig
-from .data import LabelSet, Split
+from .data_loader import LabelSet, Split
 from .metrics import compute_metrics, load_json, now_iso, save_json
 
 KIND = "bert"

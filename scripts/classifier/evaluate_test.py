@@ -13,7 +13,7 @@ import argparse
 import _common
 
 from theseal.classifier.config import display_path
-from theseal.classifier.data import load_task
+from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import (
     LATENCY_SAMPLES,
     confusion_md,

@@ -12,7 +12,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
 from .config import META_FILENAME, BaselineConfig
-from .data import LabelSet
+from .data_loader import LabelSet
 from .metrics import load_json, now_iso, save_json
 
 KIND = "baseline"
