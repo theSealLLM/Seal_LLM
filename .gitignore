@@ -34,6 +34,11 @@ outputs/
 data/raw/
 data/processed/
 
+# ===== 분류 실험 결과 (runs/classifier/<task>/<이름>/) =====
+# 모델 파일만 제외하고 리포트(json/md)는 커밋한다
+runs/**/model/
+runs/**/final_model/
+
 # ===== 로그 =====
 logs/
 *.log
