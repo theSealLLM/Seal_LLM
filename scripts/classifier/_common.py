@@ -25,8 +25,8 @@ from theseal.classifier.metrics import environment_info, now_iso
 
 
 def add_common_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--task", required=True, choices=TASKS,
-                        help="data/ 아래 주제 폴더 (inquiries 또는 documents)")
+    parser.add_argument("--task", default="inquiries", choices=TASKS,
+                        help="data/ 아래 주제 폴더 (기본: inquiries)")
     parser.add_argument("--data-dir", type=Path, default=DATA_DIR,
                         help=f"데이터 루트 (기본: {display_path(DATA_DIR)})")
     parser.add_argument("--models-dir", type=Path, default=MODELS_DIR,
