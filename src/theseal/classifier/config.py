@@ -9,6 +9,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_ROOT / "data"
 # 학습/평가 결과: runs/classifier/<task>/<이름>/ 아래에 모델(model/)과 리포트를 함께 둔다
 RUNS_DIR = PROJECT_ROOT / "runs" / "classifier"
+# fetch_models.py가 사전학습 모델을 받아 두는 곳
+MODELS_DIR = PROJECT_ROOT / "models"
+
+# 파인튜닝 후보 (train_classifier_model.py의 번호 메뉴 순서이자 fetch_models.py의 목록)
+MODEL_CANDIDATES = (
+    "klue/roberta-base",
+    "klue/bert-base",
+    "monologg/koelectra-small-v3-discriminator",
+)
 
 # data/ 아래 주제 폴더 이름 (README 참고: 둘 중 하나를 골라 사용)
 TASKS = ("inquiries", "documents")
@@ -115,6 +124,11 @@ def task_paths(
         data_dir=Path(data_dir or DATA_DIR) / task,
         runs_dir=Path(runs_dir or RUNS_DIR) / task,
     )
+
+
+def local_model_dir(repo_id: str) -> Path:
+    """fetch_models.py가 내려받아 두는 위치: models/<저장소 이름의 /를 __로 바꾼 것>."""
+    return MODELS_DIR / repo_id.replace("/", "__")
 
 
 def display_path(path: Path) -> str:
