@@ -1,5 +1,10 @@
+import sys
 from pathlib import Path
+
 from huggingface_hub import HfApi, snapshot_download
+
+# 콘솔 코드페이지가 한글을 못 받는 환경(cp1252 등)에서 print가 죽지 않도록
+sys.stdout.reconfigure(errors="replace")
 
 CANDIDATES = [
     "klue/bert-base",
