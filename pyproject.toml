@@ -1,0 +1,52 @@
+[project]
+name = "theSeal"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "torch>=2.7,<3",
+  "transformers>=4.51,<5",
+  "safetensors>=0.5,<1",
+  "scikit-learn>=1.6,<2",
+  "numpy>=2,<3",
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.34,<1",
+  "httpx>=0.28,<1",
+  "pydantic>=2.10,<3",
+  "python-dotenv>=1.0,<2",
+  "langchain-core>=0.3.60,<2",
+  "openai>=2,<3",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[tool.uv]
+package = false
+# lock 파일을 만들 때 고려할 플랫폼 (Apple Silicon 맥 / 윈도우 / 리눅스)
+# Intel 맥은 torch 2.7+ 빌드가 없어서 제외
+environments = [
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "sys_platform == 'win32'",
+  "sys_platform == 'linux'",
+]
+
+# torch 설치 위치를 OS별로 분기
+# - 맥: PyPI 기본 빌드 (Apple Silicon GPU = MPS)
+# - 윈도우/리눅스: PyTorch 공식 CUDA 12.8 빌드
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu128", marker = "sys_platform == 'win32' or sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests/test_lesson_training.py", "tests/test_lesson_service.py"]
+pythonpath = ["steps"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
