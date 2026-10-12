@@ -1,0 +1,47 @@
+# ===== 가상환경 (uv sync로 각자 생성) =====
+.venv/
+
+# ===== 비밀 키 / 환경변수 (절대 커밋 금지) =====
+.env
+.env.*
+!.env.example
+
+# ===== Python 캐시 =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# ===== 도구 캐시 =====
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+
+# ===== 모델 / 데이터 (용량 큼, 필요하면 HF Hub나 드라이브로 공유) =====
+models/
+checkpoints/
+outputs/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+data/raw/
+data/processed/
+
+# ===== 로그 =====
+logs/
+*.log
+wandb/
+mlruns/
+
+# ===== IDE / OS =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
