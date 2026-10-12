@@ -1,23 +1,32 @@
 import pandas as pd
 
-train = pd.read_csv("train.csv")
+train_df = pd.read_csv("data/train.csv")
 
-print(train.head())
-print(train.shape)
-print(train["label"].value_counts())
+print(train_df.head())
+print(train_df.shape)
+print(train_df["label"].value_counts())
 
-valid = pd.read_csv("validation.csv")
+val_df = pd.read_csv("data/validation.csv")
 
-print(valid.head())
-print(valid.shape)
-print(valid["label"].value_counts())
+print(val_df.head())
+print(val_df.shape)
+print(val_df["label"].value_counts())
+
+test_df = pd.read_csv("data/test.csv")
+
+print(test_df.head())
+print(test_df.shape)
+print(test_df["label"].value_counts())
 
 from sklearn.model_selection import train_test_split
 
-X_train = train["text"]
-y_train = train["label"]
-X_valid = valid["text"]
-y_valid = valid["label"]
+X_train = train_df["text"]
+y_train = train_df["label"]
+X_val = val_df["text"]
+y_val = val_df["label"]
+X_test = test_df["text"]
+y_test = test_df["label"]
+
 
 
 # X_train, X_test, y_train, y_test = train_test_split(
@@ -41,10 +50,15 @@ model.fit(X_train, y_train)
 
 from sklearn.metrics import accuracy_score, classification_report
 
-y_pred = model.predict(X_test)
+val_pred = model.predict(X_val)
 
-print("정확도:", accuracy_score(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+print("검증 정확도:", accuracy_score(y_val, val_pred))
+print(classification_report(y_val, val_pred))
+
+test_pred = model.predict(X_test)
+
+print("테스트 정확도:", accuracy_score(y_test, test_pred))
+print(classification_report(y_test, test_pred))
 
 import joblib
 

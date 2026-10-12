@@ -6,9 +6,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 
 # 1. 데이터 불러오기 (이미 train / validation / test로 나뉘어 있음)
-train_df = pd.read_csv("train.csv")
-val_df = pd.read_csv("validation.csv")
-test_df = pd.read_csv("test.csv")
+train_df = pd.read_csv("data/train.csv")
+val_df = pd.read_csv("data/validation.csv")
+test_df = pd.read_csv("data/test.csv")
 
 print("train:", train_df.shape, "validation:", val_df.shape, "test:", test_df.shape)
 print(train_df["label"].value_counts())
