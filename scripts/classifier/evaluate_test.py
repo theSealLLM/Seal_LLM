@@ -1,6 +1,8 @@
 """④ 확정한 모델로 test를 평가한다. 모델과 조건을 정한 뒤 딱 한 번만 실행한다.
 
-uv run python scripts/classifier/evaluate_test.py --task inquiries
+uv run python scripts/classifier/evaluate_test.py
+
+--task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
 
 - compare.py가 만든 runs/classifier/<task>/selection.json과 final_model/이 있어야 실행된다.
 - 이미 test_report.json이 있으면 다시 실행하지 않는다 (--force로만 덮어쓰기).

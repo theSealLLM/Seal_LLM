@@ -13,6 +13,7 @@ if str(SRC_DIR) not in sys.path:
 
 from theseal.classifier.config import (
     DATA_DIR,
+    DEFAULT_TASK,
     FINAL_NAME,
     RUNS_DIR,
     TASKS,
@@ -24,8 +25,8 @@ from theseal.classifier.metrics import environment_info, now_iso
 
 
 def add_common_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--task", default="inquiries", choices=TASKS,
-                        help="data/ 아래 주제 폴더 (기본: inquiries)")
+    parser.add_argument("--task", default=DEFAULT_TASK, choices=TASKS,
+                        help=f"data/ 아래 주제 폴더 (기본: {DEFAULT_TASK})")
     parser.add_argument("--data-dir", type=Path, default=DATA_DIR,
                         help=f"데이터 루트 (기본: {display_path(DATA_DIR)})")
     parser.add_argument("--runs-dir", type=Path, default=RUNS_DIR,

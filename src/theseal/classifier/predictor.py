@@ -7,7 +7,7 @@ from typing import Protocol
 
 import numpy as np
 
-from .config import META_FILENAME, task_paths
+from .config import DEFAULT_TASK, META_FILENAME, task_paths
 from .data_loader import LabelSet
 from .metrics import load_json
 
@@ -53,8 +53,8 @@ class Predictor:
         self.classifier = load_classifier(self.model_dir, device=device)
 
     @classmethod
-    def from_final(cls, task: str, device: str | None = None) -> Predictor:
-        """compare.py가 확정한 runs/classifier/<task>/final_model 모델을 불러온다."""
+    def from_final(cls, task: str = DEFAULT_TASK, device: str | None = None) -> Predictor:
+        """compare.py가 확정한 runs/classifier/<task>/final_model 모델을 불러온다 (기본: inquiries)."""
         return cls(task_paths(task).final_dir, device=device)
 
     @property

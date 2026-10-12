@@ -1,6 +1,8 @@
 """① 베이스라인(TF-IDF + 로지스틱 회귀) 학습 → validation 평가.
 
-uv run python scripts/classifier/train_baseline.py --task inquiries
+uv run python scripts/classifier/train_baseline.py
+
+--task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
 """
 
 from __future__ import annotations

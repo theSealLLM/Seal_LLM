@@ -12,6 +12,8 @@ RUNS_DIR = PROJECT_ROOT / "runs" / "classifier"
 
 # data/ 아래 주제 폴더 이름 (README 참고: 둘 중 하나를 골라 사용)
 TASKS = ("inquiries", "documents")
+# task를 따로 주지 않으면 항상 이 주제를 쓴다
+DEFAULT_TASK = "inquiries"
 SPLITS = ("train", "validation", "test")
 
 SEED = 42
@@ -102,7 +104,7 @@ class TaskPaths:
 
 
 def task_paths(
-    task: str,
+    task: str = DEFAULT_TASK,
     *,
     data_dir: Path | None = None,
     runs_dir: Path | None = None,

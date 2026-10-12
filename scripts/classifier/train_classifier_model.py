@@ -1,7 +1,8 @@
 """② 사전학습 분류 모델 파인튜닝 → validation 평가 (GPU 권장).
 
-uv run python scripts/classifier/train_bert.py --task inquiries --model klue/roberta-base
+uv run python scripts/classifier/train_classifier_model.py --model klue/roberta-base
 
+--task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
 --model에는 HF Hub 이름이나 미리 받아 둔 로컬 폴더 경로를 넣는다.
 처음 실행할 때 Hub 이름을 주면 HF 캐시로 내려받는다. 이미 받아 둔 모델만 쓰려면 --local-files-only.
 """

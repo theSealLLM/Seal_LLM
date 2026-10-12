@@ -1,6 +1,8 @@
 """③ 후보 모델을 같은 기준으로 비교하고 최종 모델을 확정·저장한다.
 
-uv run python scripts/classifier/compare.py --task inquiries
+uv run python scripts/classifier/compare.py
+
+--task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
 
 - 후보: runs/classifier/<task>/<이름>/val_report.json 이 있는 폴더 전부
 - 모든 후보를 이 스크립트 안에서 validation으로 다시 평가한다 (같은 장치, 같은 지연 측정 방식).
