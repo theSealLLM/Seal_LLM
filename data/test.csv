@@ -1,0 +1,37 @@
+﻿id,text,label,group_id,source
+inquiries-shipping-family-37-v1,배송 조회에는 제가 모르는 사람이 인수자로 적혀 있습니다. 같은 건물 입주자인지도 확인되지 않아 인계 기록 조사를 요청합니다.,shipping,inquiries-shipping-family-37,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-37-v2,타인에게 인도됐다는 기록만 있고 물건은 못 받았습니다. 수령인 기록을 확인하고 싶습니다.,shipping,inquiries-shipping-family-37,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-38-v1,침수로 평소 도로가 통제되어 우회 배달이 필요한 지역입니다. 임시 인계 장소를 지정할 수 있는지 알아봐 주세요.,shipping,inquiries-shipping-family-38,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-38-v2,접근 도로가 막혔습니다. 가능한 대체 수령 지점을 택배사와 정하고 싶어요.,shipping,inquiries-shipping-family-38,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-39-v1,전시회 부스로 물건을 보내는데 반입 가능한 시간이 정해져 있습니다. 행사장 하역장 예약 정보를 운송 담당에게 전달하려고 합니다.,shipping,inquiries-shipping-family-39,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-39-v2,전시장 반입 시간에 맞춘 배송 절차가 필요합니다. 하역 예약 내용을 어디에 남기나요?,shipping,inquiries-shipping-family-39,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-40-v1,건물 엘리베이터에 대형 제품이 들어가지 않습니다. 배송 당일 계단 운반 가능 여부를 미리 확인하는 방법이 있나요?,shipping,inquiries-shipping-family-40,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-40-v2,큰 제품이 승강기에 안 들어갑니다. 운송 방식 사전 확인을 요청하고 싶어요.,shipping,inquiries-shipping-family-40,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-41-v1,서로 다른 두 주문이 같은 운송장 번호로 표시되지만 묶음 발송 안내는 없었습니다. 배송 정보가 중복 입력된 것인지 확인해 주세요.,shipping,inquiries-shipping-family-41,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-41-v2,주문 두 건의 송장 번호가 같습니다. 하나로 포장된 것인지 기록 오류인지 궁금합니다.,shipping,inquiries-shipping-family-41,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-42-v1,통관 보완이 필요하다는 배송 상태가 표시됩니다. 어떤 공식 창구에서 보완 항목과 이후 운송 절차를 확인해야 하나요?,shipping,inquiries-shipping-family-42,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-42-v2,해외 택배가 세관 확인 단계에서 멈췄습니다. 안전하게 보완 안내를 받는 경로를 알려 주세요.,shipping,inquiries-shipping-family-42,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-37-v1,해외 통화로 결제한 주문을 취소했는데 원화 반환액이 결제 당시와 다릅니다. 환급 통화와 적용 내역을 확인하고 싶습니다.,refund,inquiries-refund-family-37,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-37-v2,외화 주문 취소 후 환율 차이가 생겼습니다. 반환 금액의 산정 내역을 문의합니다.,refund,inquiries-refund-family-37,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-38-v1,공동 구매가 성사되지 않아 거래가 종료됐습니다. 모집 단계에 결제한 참가 금액의 환급 접수 여부를 확인해 주세요.,refund,inquiries-refund-family-38,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-38-v2,목표 인원 미달로 취소된 공동 구매 대금을 돌려받고 싶습니다.,refund,inquiries-refund-family-38,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-39-v1,대여 상품을 약정 전에 반납하려고 합니다. 이미 낸 이용료 중 반환 가능한 부분의 확인 절차를 알려 주세요.,refund,inquiries-refund-family-39,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-39-v2,조기 반납 시 선납 요금의 환급 기준을 문의합니다. 사용 기간 정산이 필요합니다.,refund,inquiries-refund-family-39,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-40-v1,사용하지 않은 디지털 이용권을 잘못 구입했습니다. 활성화 여부를 확인한 뒤 구매 취소를 검토받으려면 어떻게 하나요?,refund,inquiries-refund-family-40,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-40-v2,미사용 온라인 이용권의 결제를 취소하고 싶습니다. 환불 심사에 필요한 상태 정보가 궁금합니다.,refund,inquiries-refund-family-40,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-41-v1,결제 취소 후 세금계산서 수정이 필요하다는 안내를 받았습니다. 반환 거래와 연결된 수정 증빙을 요청하는 경로가 있나요?,refund,inquiries-refund-family-41,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-41-v2,환급된 사업용 구매의 수정 세금계산서 발급 절차를 문의합니다.,refund,inquiries-refund-family-41,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-42-v1,반품 신청 없이 판매자 주소로 물건을 먼저 보냈습니다. 도착한 물건을 새 환불 접수와 연결하려면 어떻게 해야 하나요?,refund,inquiries-refund-family-42,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-42-v2,반송부터 해 버려 접수 번호가 없습니다. 뒤늦게 구매 취소를 등록하는 절차를 알려 주세요.,refund,inquiries-refund-family-42,original-synthetic:synthetic-ko-v1
+inquiries-account-family-37-v1,사망한 회원의 계정 처리 절차를 가족이 문의하려고 합니다. 비밀번호 공유 없이 담당 지원 창구에서 안내받는 방법이 있나요?,account,inquiries-account-family-37,original-synthetic:synthetic-ko-v1
+inquiries-account-family-37-v2,고인 계정의 정식 처리 요청을 접수할 창구를 찾고 있습니다.,account,inquiries-account-family-37,original-synthetic:synthetic-ko-v1
+inquiries-account-family-38-v1,접근성 도구를 사용하면 로그인 화면의 인증 이미지 설명을 읽을 수 없습니다. 대체 인증 수단을 신청할 수 있나요?,account,inquiries-account-family-38,original-synthetic:synthetic-ko-v1
+inquiries-account-family-38-v2,화면 읽기 프로그램으로 가입 인증을 완료하기 어렵습니다. 접근 가능한 계정 인증 방법이 필요합니다.,account,inquiries-account-family-38,original-synthetic:synthetic-ko-v1
+inquiries-account-family-39-v1,법인 계정의 대표 담당자가 바뀌었습니다. 개인 암호를 넘기지 않고 관리 주체를 이전하는 공식 절차를 안내해 주세요.,account,inquiries-account-family-39,original-synthetic:synthetic-ko-v1
+inquiries-account-family-39-v2,조직 계정 운영 담당을 변경하고 싶습니다. 안전한 소유권 이전 절차가 궁금합니다.,account,inquiries-account-family-39,original-synthetic:synthetic-ko-v1
+inquiries-account-family-40-v1,계정에 등록한 복구 이메일을 최근 폐쇄했습니다. 현재 로그인 가능한 상태에서 복구 수단을 새로 등록하려면 어떻게 하나요?,account,inquiries-account-family-40,original-synthetic:synthetic-ko-v1
+inquiries-account-family-40-v2,접속은 되지만 비상 복구 주소가 더 이상 유효하지 않습니다. 복구 설정을 정비하려고 합니다.,account,inquiries-account-family-40,original-synthetic:synthetic-ko-v1
+inquiries-account-family-41-v1,계정 정보 사본을 내려받기 신청했는데 준비 상태를 볼 곳을 찾지 못했습니다. 회원 데이터 요청의 처리 단계를 확인하고 싶습니다.,account,inquiries-account-family-41,original-synthetic:synthetic-ko-v1
+inquiries-account-family-41-v2,내 계정 자료 내보내기를 요청했습니다. 다운로드 준비 진행 상황은 어디서 조회하나요?,account,inquiries-account-family-41,original-synthetic:synthetic-ko-v1
+inquiries-account-family-42-v1,여러 계정을 만든 뒤 하나로 통합할 수 있다는 메뉴를 찾지 못했습니다. 계정 합치기 지원 여부와 본인 확인 절차가 궁금합니다.,account,inquiries-account-family-42,original-synthetic:synthetic-ko-v1
+inquiries-account-family-42-v2,서로 다른 가입 계정을 정리해 하나로 쓰고 싶습니다. 회원 통합이 가능한지 확인해 주세요.,account,inquiries-account-family-42,original-synthetic:synthetic-ko-v1

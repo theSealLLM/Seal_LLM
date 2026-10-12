@@ -1,0 +1,181 @@
+﻿id,text,label,group_id,source
+inquiries-shipping-family-01-v1,주문한 지 사흘이 지났는데 상품 준비 중으로만 나옵니다. 출고가 지연되는 이유와 확인 절차를 안내해 주세요.,shipping,inquiries-shipping-family-01,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-01-v2,결제는 끝났고 아직 발송 전입니다. 어디에 출고 진행 상황을 문의하나요?,shipping,inquiries-shipping-family-01,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-02-v1,운송장 조회가 이틀째 같은 물류센터에서 멈춰 있습니다. 실제 이동이 없는지 조회 정보만 늦는지 확인하고 싶습니다.,shipping,inquiries-shipping-family-02,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-02-v2,택배가 중간 집하장에서 계속 그대로예요. 현재 위치를 확인하는 방법이 궁금합니다.,shipping,inquiries-shipping-family-02,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-03-v1,앱에는 배달 완료라고 뜨는데 문 앞과 경비실 모두 물건이 없습니다. 기사님에게 확인을 요청할 수 있을까요?,shipping,inquiries-shipping-family-03,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-03-v2,받지 못했는데 수령 완료 처리됐습니다. 미수령 조사를 부탁드립니다.,shipping,inquiries-shipping-family-03,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-04-v1,아직 출고 전인 주문의 목적지를 이전 집으로 잘못 선택했습니다. 새 배송지로 바꾸는 절차가 있나요?,shipping,inquiries-shipping-family-04,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-04-v2,발송 준비 단계에서 받을 주소를 정정하고 싶습니다.,shipping,inquiries-shipping-family-04,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-05-v1,같은 날 두 번 주문한 물건을 한 상자로 받고 싶습니다. 묶음 발송 가능 여부를 확인해 주세요.,shipping,inquiries-shipping-family-05,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-05-v2,따로 결제한 주문 두 건을 합쳐서 보내 주실 수 있나요?,shipping,inquiries-shipping-family-05,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-06-v1,주문 목록에는 세 품목인데 도착한 상자에는 두 품목만 있습니다. 남은 하나가 따로 발송되는지 궁금합니다.,shipping,inquiries-shipping-family-06,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-06-v2,일부 상품만 먼저 왔습니다. 빠진 품목의 별도 운송장을 확인하고 싶어요.,shipping,inquiries-shipping-family-06,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-07-v1,공동현관 호출기가 고장 나 택배기사가 건물 안으로 들어오지 못했습니다. 재방문 때 만날 장소를 전달하려면 어떻게 하나요?,shipping,inquiries-shipping-family-07,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-07-v2,건물 출입 문제로 배달을 못 받았어요. 다시 올 때의 인도 장소를 조정하고 싶습니다.,shipping,inquiries-shipping-family-07,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-08-v1,배송 요청란에 직접 받겠다고 적었는데 부재 예정입니다. 문 앞 보관 요청으로 변경할 수 있는지 알려 주세요.,shipping,inquiries-shipping-family-08,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-08-v2,대면 수령 대신 지정 장소에 두고 가도록 요청을 수정하려고 합니다.,shipping,inquiries-shipping-family-08,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-09-v1,받는 사람에게 주는 선물이라 현재 발송 상태를 알고 싶습니다. 행사 전에 받을 수 있는지 확인 가능한 범위만 안내해 주세요.,shipping,inquiries-shipping-family-09,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-09-v2,선물용 주문의 도착 예정을 문의합니다. 아직 확정되지 않은 날짜라면 그렇게 알려 주세요.,shipping,inquiries-shipping-family-09,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-10-v1,배송 안내에는 영업일 기준이라고 쓰여 있습니다. 토요일에도 배달하는 주문인지 확인하는 방법이 있나요?,shipping,inquiries-shipping-family-10,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-10-v2,주말이 운송 일정에 포함되는지 궁금합니다. 제 주문의 배송 기준을 어디서 보나요?,shipping,inquiries-shipping-family-10,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-11-v1,온라인 주문을 집으로 받는 대신 매장에서 찾아가고 싶습니다. 이미 결제한 주문의 수령 방식을 바꿀 수 있나요?,shipping,inquiries-shipping-family-11,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-11-v2,택배 주문을 매장 방문 수령으로 전환하려면 어떻게 해야 하나요?,shipping,inquiries-shipping-family-11,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-12-v1,국제 배송으로 발송됐다는 알림을 받았지만 국내 택배 조회에서는 번호를 찾지 못합니다. 어느 조회 서비스를 써야 하나요?,shipping,inquiries-shipping-family-12,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-12-v2,해외 출발 물건의 이동 상황을 보고 싶어요. 국내 운송장 검색에는 안 나옵니다.,shipping,inquiries-shipping-family-12,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-13-v1,섬 지역으로 받는 물건의 배송 안내에 추가 운송 기간이 적혀 있습니다. 일반 지역과 어떤 과정이 다른지 설명해 주세요.,shipping,inquiries-shipping-family-13,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-13-v2,도서 지역 주문은 배편을 기다리는 단계가 있나요? 운송 진행을 확인하고 싶습니다.,shipping,inquiries-shipping-family-13,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-14-v1,큰 가구를 주문했는데 설치 방문 시간을 미리 조율해야 한다고 합니다. 배송 예약 담당과 연결되는 절차가 궁금합니다.,shipping,inquiries-shipping-family-14,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-14-v2,가구 기사 방문 일정을 정하려고 합니다. 예약은 어디에서 하나요?,shipping,inquiries-shipping-family-14,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-15-v1,도착한 택배의 겉상자가 젖었지만 내용물 상태는 아직 확인하지 않았습니다. 운송 중 포장 손상 사실을 어디에 남기면 되나요?,shipping,inquiries-shipping-family-15,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-15-v2,상자 외부가 훼손된 상태로 도착했습니다. 배송 사고 접수 방법을 알려 주세요.,shipping,inquiries-shipping-family-15,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-16-v1,물건은 맞지만 상자에 다른 주문의 운송장 스티커가 붙어 있습니다. 제 배송 이력이 잘못 기록되지 않았는지 확인해 주세요.,shipping,inquiries-shipping-family-16,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-16-v2,상품은 제대로 받았는데 송장 표시가 이상합니다. 인도 기록을 확인하고 싶어요.,shipping,inquiries-shipping-family-16,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-17-v1,주소 불명으로 판매자에게 되돌아가는 중이라는 문자를 받았습니다. 다시 보내 달라고 요청할 수 있는 경로가 있나요?,shipping,inquiries-shipping-family-17,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-17-v2,택배가 반송 이동 중입니다. 재배송을 신청하려면 무엇을 확인해야 하나요?,shipping,inquiries-shipping-family-17,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-18-v1,기사님이 연락할 번호를 주문 후 바꿨습니다. 계정 정보는 그대로 두고 이번 주문의 배송 연락처만 수정하고 싶습니다.,shipping,inquiries-shipping-family-18,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-18-v2,이번 배달 건에 한해 연락받을 정보를 정정하려고 합니다. 변경 방법을 알려 주세요.,shipping,inquiries-shipping-family-18,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-19-v1,회사 물품의 수령 증빙을 제출해야 합니다. 실제 인도 일시가 기록된 배송 확인서를 받을 수 있나요?,shipping,inquiries-shipping-family-19,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-19-v2,물건을 받았다는 증명 자료가 필요합니다. 배달 완료 내역을 출력할 수 있나요?,shipping,inquiries-shipping-family-19,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-20-v1,예정된 방문일에 자리를 비우게 됐습니다. 이동 중인 택배를 다음 방문 회차에 받도록 조정할 수 있나요?,shipping,inquiries-shipping-family-20,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-20-v2,이미 발송된 물건의 배달 방문을 미루고 싶습니다. 일정 변경 문의 경로가 있나요?,shipping,inquiries-shipping-family-20,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-21-v1,일반 우편으로 발송되어 추적 번호가 없다고 안내받았습니다. 도착 여부를 확인할 때 어떤 정보를 살펴야 하나요?,shipping,inquiries-shipping-family-21,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-21-v2,등기 아닌 우편물은 어디까지 왔는지 조회할 수 없나요? 확인 절차가 궁금합니다.,shipping,inquiries-shipping-family-21,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-22-v1,폭설로 해당 지역의 운행이 중단됐다는 안내를 봤습니다. 제 물건도 보관 중인지 확인하고 싶습니다.,shipping,inquiries-shipping-family-22,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-22-v2,눈 때문에 운송이 지연되는 지역입니다. 주문의 현재 보관 상태를 알려면 어떻게 해야 하나요?,shipping,inquiries-shipping-family-22,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-23-v1,퇴근 후에만 물건을 받을 수 있어 야간 배달 서비스를 선택하려고 합니다. 현재 주문에 적용 가능한 옵션인지 궁금합니다.,shipping,inquiries-shipping-family-23,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-23-v2,저녁 시간 수령 옵션을 추가할 수 있는 배송 건인지 확인해 주세요.,shipping,inquiries-shipping-family-23,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-24-v1,한 주문에서 두 배송지로 나눠 보낼 수 있는지 궁금합니다. 아직 주문하기 전이며 수령 방법을 먼저 알아보고 있습니다.,shipping,inquiries-shipping-family-24,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-24-v2,장바구니 상품 일부만 다른 곳으로 받고 싶어요. 목적지를 나누는 배송이 가능한가요?,shipping,inquiries-shipping-family-24,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-25-v1,운송장 번호가 발급됐는데 택배사 사이트에서는 등록되지 않았다고 나옵니다. 조회가 시작되는 시점을 확인하고 싶습니다.,shipping,inquiries-shipping-family-25,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-25-v2,송장은 생겼지만 조회 결과가 없습니다. 접수와 실제 집하가 다른 단계인가요?,shipping,inquiries-shipping-family-25,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-26-v1,종이 영수증을 상자 안에 동봉해 달라는 요청을 남기려 합니다. 포장이 끝나기 전에 전달할 곳을 알려 주세요.,shipping,inquiries-shipping-family-26,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-26-v2,배송 상자에 구매 내역서를 넣어 받을 수 있는지 문의합니다.,shipping,inquiries-shipping-family-26,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-27-v1,새벽 배송 주문을 일반 낮 배송으로 받고 싶습니다. 서비스 유형을 변경하는 메뉴가 있나요?,shipping,inquiries-shipping-family-27,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-27-v2,이 주문은 새벽 대신 주간에 도착하도록 바꿀 수 있나요?,shipping,inquiries-shipping-family-27,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-28-v1,택배기사 방문 안내를 문자 대신 앱 알림으로 받고 싶습니다. 이번 운송 건의 알림 설정은 어디서 관리하나요?,shipping,inquiries-shipping-family-28,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-28-v2,배달 진행 알림을 받는 방식을 바꾸려고 합니다. 배송 알림 메뉴를 찾지 못했습니다.,shipping,inquiries-shipping-family-28,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-29-v1,배송기사가 지도를 따라 다른 동의 입구로 갔다고 합니다. 올바른 진입 경로를 메모로 남기는 방법을 알려 주세요.,shipping,inquiries-shipping-family-29,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-29-v2,동 이름이 비슷해 기사님이 입구를 못 찾습니다. 길 안내를 전달하고 싶어요.,shipping,inquiries-shipping-family-29,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-30-v1,인수 서명이 필요한 물건인데 동거인이 대신 받을 예정입니다. 대리 수령에 필요한 배송상 확인 사항이 있나요?,shipping,inquiries-shipping-family-30,original-synthetic:synthetic-ko-v1
+inquiries-shipping-family-30-v2,서명 배송 상품을 함께 사는 사람이 받아도 되는지 궁금합니다.,shipping,inquiries-shipping-family-30,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-01-v1,주문 버튼을 두 번 눌러 같은 상품을 중복 결제했습니다. 아직 준비 중인 한 건을 취소하고 결제액을 돌려받고 싶습니다.,refund,inquiries-refund-family-01,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-01-v2,실수로 두 번 산 주문 중 하나의 결제를 취소하려고 합니다.,refund,inquiries-refund-family-01,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-02-v1,받은 물건이 작동하지 않아 구매를 취소하고 싶습니다. 불량 상태를 확인받은 뒤 반품하는 절차를 알려 주세요.,refund,inquiries-refund-family-02,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-02-v2,전원이 들어오지 않는 제품을 받았습니다. 반환하고 환급받으려면 어떻게 접수하나요?,refund,inquiries-refund-family-02,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-03-v1,받아 보니 크기가 맞지 않아 사용하지 않은 채 보관하고 있습니다. 교환보다 반품 후 환불을 원합니다.,refund,inquiries-refund-family-03,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-03-v2,사이즈가 맞지 않는 미사용 상품의 구매 취소를 문의합니다.,refund,inquiries-refund-family-03,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-04-v1,환불이 완료됐다는 안내를 받았지만 카드 명세서에는 결제금액이 그대로 있습니다. 취소 반영 상태를 확인하고 싶습니다.,refund,inquiries-refund-family-04,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-04-v2,카드 환불 알림과 실제 청구 내역이 다릅니다. 어떤 자료로 처리 상태를 확인하나요?,refund,inquiries-refund-family-04,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-05-v1,반품 신청 후 회수 기사가 아직 오지 않았습니다. 물건을 돌려보내야 환급이 진행되는지와 회수 접수 상태를 확인해 주세요.,refund,inquiries-refund-family-05,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-05-v2,환불 접수한 물건을 아직 수거하지 않았어요. 반품 회수 건이 등록됐는지 궁금합니다.,refund,inquiries-refund-family-05,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-06-v1,주문한 세 상품 중 하나만 마음에 들지 않습니다. 해당 품목만 반품하고 나머지는 유지할 수 있나요?,refund,inquiries-refund-family-06,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-06-v2,묶어서 결제한 주문을 일부만 취소할 때 환급 절차가 궁금합니다.,refund,inquiries-refund-family-06,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-07-v1,포인트와 카드로 나눠 결제한 물건을 반품하려고 합니다. 환급이 각 결제 수단에 어떻게 나뉘는지 확인하고 싶습니다.,refund,inquiries-refund-family-07,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-07-v2,복합 결제 주문을 취소하면 포인트와 카드 금액을 어떤 방식으로 돌려받나요?,refund,inquiries-refund-family-07,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-08-v1,미개봉 상태로 반품하려는데 왕복 운송비가 차감되는지 모르겠습니다. 최종 환급액 산정 기준을 알려 주세요.,refund,inquiries-refund-family-08,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-08-v2,단순 변심 반품의 비용과 돌려받을 금액을 확인하고 싶어요.,refund,inquiries-refund-family-08,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-09-v1,결제 취소를 신청했지만 배송이 시작됐다는 안내가 왔습니다. 이미 출발한 상품을 어떻게 반환해야 하는지 궁금합니다.,refund,inquiries-refund-family-09,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-09-v2,취소 요청과 발송이 겹쳤습니다. 구매를 철회하려면 이제 어떤 절차가 필요한가요?,refund,inquiries-refund-family-09,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-10-v1,판매자가 품절로 주문을 취소했다고 합니다. 제가 별도로 환불을 신청해야 하는지 확인해 주세요.,refund,inquiries-refund-family-10,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-10-v2,재고 부족으로 거래가 취소됐는데 결제액 반환은 자동으로 접수되나요?,refund,inquiries-refund-family-10,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-11-v1,다른 색상의 상품을 받아 원래 주문을 취소하려고 합니다. 오배송 물건의 반환과 환불 신청 방법을 알려 주세요.,refund,inquiries-refund-family-11,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-11-v2,주문과 다른 물건이 왔습니다. 교환 없이 결제 취소를 원합니다.,refund,inquiries-refund-family-11,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-12-v1,반품 물건이 판매자에게 도착했다는 조회 결과는 있는데 환급 단계가 바뀌지 않습니다. 검수 진행 상태를 확인하고 싶습니다.,refund,inquiries-refund-family-12,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-12-v2,반송은 도착했는데 환불 대기 상태예요. 입고 확인이 됐는지 문의합니다.,refund,inquiries-refund-family-12,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-13-v1,구매에 사용한 쿠폰이 반품 후 복구되지 않았습니다. 결제액 환급과 별도로 쿠폰 반환 여부를 확인하고 싶습니다.,refund,inquiries-refund-family-13,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-13-v2,취소한 주문에 쓴 할인권을 다시 받을 수 있는지 궁금합니다.,refund,inquiries-refund-family-13,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-14-v1,선물 받은 상품을 구매자에게 부탁해 반품하려고 합니다. 돈이 누구에게 반환되는지와 접수 주체를 안내해 주세요.,refund,inquiries-refund-family-14,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-14-v2,선물 수령자가 반품할 때 환급은 원래 결제한 사람에게 가나요?,refund,inquiries-refund-family-14,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-15-v1,정기 주문의 다음 회차만 취소했는데 해당 회차가 이미 청구됐습니다. 그 결제분의 환급을 신청하고 싶습니다.,refund,inquiries-refund-family-15,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-15-v2,구독 전체 해지와 별개로 취소된 한 회차의 청구액을 돌려받고 싶어요.,refund,inquiries-refund-family-15,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-16-v1,무통장 입금 후 주문을 취소했습니다. 반환 계좌는 공개 채팅이 아닌 어떤 안전한 화면에 등록하나요?,refund,inquiries-refund-family-16,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-16-v2,계좌이체한 주문의 환불 계좌를 안전하게 제출하는 경로를 알려 주세요.,refund,inquiries-refund-family-16,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-17-v1,환불 예정 금액이 실제 결제액보다 적습니다. 할인과 반품 비용이 각각 어떻게 반영됐는지 내역을 요청합니다.,refund,inquiries-refund-family-17,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-17-v2,결제액 전부가 환급되지 않는 이유를 항목별로 확인하고 싶습니다.,refund,inquiries-refund-family-17,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-18-v1,반품한 상품 두 개 중 한 개 금액만 돌아왔습니다. 나머지 품목의 환불이 별도로 처리되는지 궁금합니다.,refund,inquiries-refund-family-18,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-18-v2,두 건을 함께 반환했는데 일부 금액만 환급됐어요. 누락 여부를 확인해 주세요.,refund,inquiries-refund-family-18,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-19-v1,시착만 했고 상품 택은 붙어 있습니다. 현재 상태가 반품 접수 기준에 맞는지 확인받고 싶습니다.,refund,inquiries-refund-family-19,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-19-v2,잠깐 입어 본 옷을 반환하고 싶습니다. 상태 확인 후 환불 가능 여부를 안내해 주세요.,refund,inquiries-refund-family-19,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-20-v1,주문 취소 요청을 철회하고 상품을 받으려 했지만 이미 카드 취소가 진행됐습니다. 환불 처리의 현재 단계를 알고 싶습니다.,refund,inquiries-refund-family-20,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-20-v2,취소 철회 전에 환급이 시작됐습니다. 지금 되돌릴 수 있는 단계인지 확인하고 싶어요.,refund,inquiries-refund-family-20,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-21-v1,예약 구매를 취소하려고 합니다. 아직 제작이 시작되지 않았는데 환급 신청에 필요한 확인 사항이 있나요?,refund,inquiries-refund-family-21,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-21-v2,예약 주문 대금을 돌려받고 싶습니다. 제작 진행 상태에 따라 절차가 달라지나요?,refund,inquiries-refund-family-21,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-22-v1,반품 신청 화면에 첨부한 사진이 열리지 않는다고 합니다. 환불 심사용 자료를 다시 제출할 방법을 알려 주세요.,refund,inquiries-refund-family-22,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-22-v2,반품 증빙 이미지 업로드가 실패했습니다. 보완 자료를 어디로 내야 하나요?,refund,inquiries-refund-family-22,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-23-v1,교환 재고가 없어 환불로 처리하겠다는 안내를 받았습니다. 기존 교환 접수를 따로 취소해야 하는지 문의합니다.,refund,inquiries-refund-family-23,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-23-v2,재고가 없어 교환 대신 결제 취소를 하려 합니다. 신청 유형을 바꾸는 절차가 궁금합니다.,refund,inquiries-refund-family-23,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-24-v1,현금성 적립금을 사용한 주문을 전부 취소했습니다. 환급된 적립금의 사용 가능 상태를 확인하고 싶습니다.,refund,inquiries-refund-family-24,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-24-v2,구매 취소로 반환된 충전 잔액이 아직 사용 불가로 나옵니다. 환급 처리를 확인해 주세요.,refund,inquiries-refund-family-24,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-25-v1,결제 직후 가격이 내려갔는데 자동 차액 보상이 있는지 모르겠습니다. 없다면 미출고 주문 취소 기준을 알려 주세요.,refund,inquiries-refund-family-25,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-25-v2,가격 차이만 반환받을 수 있나요? 가능한 환불 방식과 확인할 조건이 궁금합니다.,refund,inquiries-refund-family-25,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-26-v1,판매자와 반품 접수는 끝냈지만 택배 상자에 어떤 신청 번호를 적어야 하는지 모르겠습니다. 환급 건과 연결되도록 안내해 주세요.,refund,inquiries-refund-family-26,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-26-v2,환불용 반송 상자에 넣을 접수 정보를 확인하고 싶습니다.,refund,inquiries-refund-family-26,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-27-v1,취소한 주문의 영수증이 여전히 유효한 결제로 표시됩니다. 환불을 반영한 거래 증빙을 받을 수 있을까요?,refund,inquiries-refund-family-27,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-27-v2,결제 취소가 반영된 영수증이 필요합니다. 환급 증빙 발급 방법을 알려 주세요.,refund,inquiries-refund-family-27,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-28-v1,모바일 결제로 산 상품을 반환하려고 합니다. 이번 달 청구 취소인지 다음 달 조정인지 확인할 곳을 알려 주세요.,refund,inquiries-refund-family-28,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-28-v2,휴대전화 요금에 합산된 구매를 취소하면 어느 청구에 반영되는지 궁금합니다.,refund,inquiries-refund-family-28,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-29-v1,반품 신청이 닫혀 있는데 물건을 받은 날짜가 잘못 기록돼 있습니다. 수령일 정정 후 환불 신청을 검토받고 싶습니다.,refund,inquiries-refund-family-29,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-29-v2,잘못된 인도 날짜 때문에 구매 취소 접수가 막혔습니다. 확인 절차가 있나요?,refund,inquiries-refund-family-29,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-30-v1,반환한 물건의 검수 결과에 동의하기 어렵습니다. 환불 불가 사유와 재검토 요청 절차를 문서로 받고 싶습니다.,refund,inquiries-refund-family-30,original-synthetic:synthetic-ko-v1
+inquiries-refund-family-30-v2,반품 거절에 대한 근거를 확인하고 환급 재심사를 요청하려고 합니다.,refund,inquiries-refund-family-30,original-synthetic:synthetic-ko-v1
+inquiries-account-family-01-v1,비밀번호를 여러 번 틀린 뒤 로그인이 잠겼습니다. 본인 확인 후 접근을 복구하는 공식 절차를 알려 주세요.,account,inquiries-account-family-01,original-synthetic:synthetic-ko-v1
+inquiries-account-family-01-v2,로그인 실패가 누적되어 계정이 잠겼어요. 잠금 해제 방법을 찾고 있습니다.,account,inquiries-account-family-01,original-synthetic:synthetic-ko-v1
+inquiries-account-family-02-v1,가입할 때 사용한 이메일 주소가 기억나지 않습니다. 회원 정보를 찾을 수 있는 안전한 경로가 있나요?,account,inquiries-account-family-02,original-synthetic:synthetic-ko-v1
+inquiries-account-family-02-v2,어느 메일로 가입했는지 모르겠어요. 계정 찾기 절차를 안내해 주세요.,account,inquiries-account-family-02,original-synthetic:synthetic-ko-v1
+inquiries-account-family-03-v1,비밀번호 재설정 메일을 요청했지만 받은 편지함과 스팸함에 없습니다. 다시 요청하기 전에 확인할 항목이 궁금합니다.,account,inquiries-account-family-03,original-synthetic:synthetic-ko-v1
+inquiries-account-family-03-v2,암호 초기화 이메일이 도착하지 않아요. 공식 복구 화면에서 무엇을 확인하나요?,account,inquiries-account-family-03,original-synthetic:synthetic-ko-v1
+inquiries-account-family-04-v1,기존 전화번호를 더 이상 사용하지 않아 로그인 인증 문자를 받을 수 없습니다. 다른 본인 확인 절차가 있나요?,account,inquiries-account-family-04,original-synthetic:synthetic-ko-v1
+inquiries-account-family-04-v2,등록한 번호가 해지됐습니다. 인증 수단을 바꾸어 계정에 접근하려고 합니다.,account,inquiries-account-family-04,original-synthetic:synthetic-ko-v1
+inquiries-account-family-05-v1,외부 로그인 버튼으로 가입했는데 일반 비밀번호 입력으로는 접속되지 않습니다. 처음 사용한 가입 방식으로 들어가야 하나요?,account,inquiries-account-family-05,original-synthetic:synthetic-ko-v1
+inquiries-account-family-05-v2,소셜 가입 계정의 로그인 방식을 확인하고 싶습니다. 자체 비밀번호가 있는지 모르겠어요.,account,inquiries-account-family-05,original-synthetic:synthetic-ko-v1
+inquiries-account-family-06-v1,공용 컴퓨터에서 로그아웃을 누르지 않고 나왔습니다. 제 다른 기기에서 모든 접속을 종료하는 메뉴가 있나요?,account,inquiries-account-family-06,original-synthetic:synthetic-ko-v1
+inquiries-account-family-06-v2,이전에 사용한 공용 기기의 로그인 상태를 원격으로 끊고 싶습니다.,account,inquiries-account-family-06,original-synthetic:synthetic-ko-v1
+inquiries-account-family-07-v1,회원정보의 표시 이름을 바꿨는데 댓글에는 예전 이름이 보입니다. 계정 프로필 변경이 반영되는 범위를 알려 주세요.,account,inquiries-account-family-07,original-synthetic:synthetic-ko-v1
+inquiries-account-family-07-v2,프로필 이름 수정 후 일부 화면에 옛 이름이 남았습니다. 회원정보 반영 상태를 확인해 주세요.,account,inquiries-account-family-07,original-synthetic:synthetic-ko-v1
+inquiries-account-family-08-v1,새 이메일로 회원 연락처를 바꾸려고 합니다. 이전 주소도 확인해야 하는지와 변경 절차를 안내해 주세요.,account,inquiries-account-family-08,original-synthetic:synthetic-ko-v1
+inquiries-account-family-08-v2,계정에 연결된 메일 주소를 변경하는 공식 메뉴를 찾고 있습니다.,account,inquiries-account-family-08,original-synthetic:synthetic-ko-v1
+inquiries-account-family-09-v1,가입 인증 링크를 열었더니 유효 시간이 지났다고 합니다. 인증 메일을 새로 받는 방법이 있나요?,account,inquiries-account-family-09,original-synthetic:synthetic-ko-v1
+inquiries-account-family-09-v2,만료된 회원가입 확인 링크를 다시 발급받고 싶어요.,account,inquiries-account-family-09,original-synthetic:synthetic-ko-v1
+inquiries-account-family-10-v1,앱에서는 접속되는데 웹에서는 로그인 상태가 유지되지 않습니다. 계정 접근 문제를 확인할 순서를 알려 주세요.,account,inquiries-account-family-10,original-synthetic:synthetic-ko-v1
+inquiries-account-family-10-v2,브라우저에서 로그인 직후 다시 로그아웃됩니다. 계정 접속 점검이 필요합니다.,account,inquiries-account-family-10,original-synthetic:synthetic-ko-v1
+inquiries-account-family-11-v1,회원 탈퇴 신청 전에 저장된 프로필과 작성 기록의 처리 기준을 확인하고 싶습니다. 공식 안내 화면이 어디인가요?,account,inquiries-account-family-11,original-synthetic:synthetic-ko-v1
+inquiries-account-family-11-v2,계정을 없애려 합니다. 탈퇴 전 확인해야 하는 회원 데이터 안내를 찾습니다.,account,inquiries-account-family-11,original-synthetic:synthetic-ko-v1
+inquiries-account-family-12-v1,휴면 상태라는 안내 때문에 주문 기록을 볼 수 없습니다. 계정 활성화를 다시 신청하는 절차가 있나요?,account,inquiries-account-family-12,original-synthetic:synthetic-ko-v1
+inquiries-account-family-12-v2,오랫동안 접속하지 않아 회원 상태가 비활성으로 나옵니다. 다시 사용하고 싶어요.,account,inquiries-account-family-12,original-synthetic:synthetic-ko-v1
+inquiries-account-family-13-v1,알지 못하는 기기에서 로그인했다는 알림을 받았습니다. 비밀번호 변경과 접속 기록 확인을 어디서 해야 하나요?,account,inquiries-account-family-13,original-synthetic:synthetic-ko-v1
+inquiries-account-family-13-v2,제가 사용하지 않은 기기 접속 알림이 왔어요. 계정 보호 절차를 안내해 주세요.,account,inquiries-account-family-13,original-synthetic:synthetic-ko-v1
+inquiries-account-family-14-v1,인증 앱이 있던 휴대전화를 교체했는데 새 기기에 인증 정보가 없습니다. 계정 복구의 공식 창구를 알려 주세요.,account,inquiries-account-family-14,original-synthetic:synthetic-ko-v1
+inquiries-account-family-14-v2,기기 교체 후 이중 인증을 통과하지 못합니다. 안전한 복구 방법이 궁금합니다.,account,inquiries-account-family-14,original-synthetic:synthetic-ko-v1
+inquiries-account-family-15-v1,회원 등급은 일반으로 표시되지만 조직 관리자가 권한을 부여했다고 합니다. 제 접근 권한 상태를 확인하고 싶습니다.,account,inquiries-account-family-15,original-synthetic:synthetic-ko-v1
+inquiries-account-family-15-v2,초대받은 기능에 접근할 권한이 없다고 나옵니다. 계정 역할을 확인해 주세요.,account,inquiries-account-family-15,original-synthetic:synthetic-ko-v1
+inquiries-account-family-16-v1,회원가입 화면에서 이미 사용 중인 메일이라고 나옵니다. 새 계정을 만들지 않고 기존 계정을 찾으려면 어떻게 하나요?,account,inquiries-account-family-16,original-synthetic:synthetic-ko-v1
+inquiries-account-family-16-v2,메일이 중복 등록됐다고 합니다. 기존 회원 여부를 확인하는 절차가 필요해요.,account,inquiries-account-family-16,original-synthetic:synthetic-ko-v1
+inquiries-account-family-17-v1,필수 약관을 확인했는데 가입 완료 버튼이 활성화되지 않습니다. 등록 절차에서 빠진 항목을 확인하고 싶습니다.,account,inquiries-account-family-17,original-synthetic:synthetic-ko-v1
+inquiries-account-family-17-v2,회원 등록의 마지막 단계가 진행되지 않습니다. 가입 화면 점검 방법을 알려 주세요.,account,inquiries-account-family-17,original-synthetic:synthetic-ko-v1
+inquiries-account-family-18-v1,비밀번호를 바꾼 뒤 모바일 앱에서만 예전 자격 정보 오류가 납니다. 새 로그인 정보를 적용하는 방법이 있나요?,account,inquiries-account-family-18,original-synthetic:synthetic-ko-v1
+inquiries-account-family-18-v2,암호 변경 후 앱 접속만 실패합니다. 로그인 상태를 갱신하려고 합니다.,account,inquiries-account-family-18,original-synthetic:synthetic-ko-v1
+inquiries-account-family-19-v1,로그인 아이디에 오타를 넣어 가입했습니다. 표시 이름이 아니라 접속용 아이디 자체를 정정할 수 있나요?,account,inquiries-account-family-19,original-synthetic:synthetic-ko-v1
+inquiries-account-family-19-v2,가입 시 만든 계정 식별자를 수정하고 싶습니다. 프로필 별명 변경과 다른 기능인가요?,account,inquiries-account-family-19,original-synthetic:synthetic-ko-v1
+inquiries-account-family-20-v1,팀 초대 메일을 받았지만 링크에서 다른 계정으로 연결됐다고 나옵니다. 올바른 회원으로 초대를 수락하는 방법이 궁금합니다.,account,inquiries-account-family-20,original-synthetic:synthetic-ko-v1
+inquiries-account-family-20-v2,조직 초대가 현재 로그인한 계정과 맞지 않습니다. 초대 수락 절차를 확인하고 싶어요.,account,inquiries-account-family-20,original-synthetic:synthetic-ko-v1
+inquiries-account-family-21-v1,회원 페이지 언어 설정을 한국어로 바꾸고 싶습니다. 매번 접속할 때 유지되는 계정 설정은 어디에 있나요?,account,inquiries-account-family-21,original-synthetic:synthetic-ko-v1
+inquiries-account-family-21-v2,프로필에 저장되는 화면 언어를 변경하려고 합니다.,account,inquiries-account-family-21,original-synthetic:synthetic-ko-v1
+inquiries-account-family-22-v1,계정 알림 설정에서 홍보 메일 수신을 껐는데 저장 여부가 불분명합니다. 수신 동의를 확인하는 메뉴를 알려 주세요.,account,inquiries-account-family-22,original-synthetic:synthetic-ko-v1
+inquiries-account-family-22-v2,회원의 마케팅 동의 상태를 조회하고 수정하는 방법이 궁금합니다.,account,inquiries-account-family-22,original-synthetic:synthetic-ko-v1
+inquiries-account-family-23-v1,프로필 이미지를 바꿀 때 파일 크기 오류가 납니다. 계정 사진에 허용되는 형식을 어디서 확인하나요?,account,inquiries-account-family-23,original-synthetic:synthetic-ko-v1
+inquiries-account-family-23-v2,회원 사진 업로드가 거절됩니다. 프로필 이미지 등록 조건을 알고 싶어요.,account,inquiries-account-family-23,original-synthetic:synthetic-ko-v1
+inquiries-account-family-24-v1,로그인할 때 추가 인증이 매번 반복됩니다. 신뢰하는 기기 설정을 확인하는 계정 보안 메뉴가 있나요?,account,inquiries-account-family-24,original-synthetic:synthetic-ko-v1
+inquiries-account-family-24-v2,개인 기기인데도 접속할 때마다 인증을 다시 요구합니다. 설정 확인 방법을 문의합니다.,account,inquiries-account-family-24,original-synthetic:synthetic-ko-v1
+inquiries-account-family-25-v1,제 계정으로 작성한 문의 내역이 새 로그인 화면에서 보이지 않습니다. 다른 가입 방식으로 별도 계정에 들어간 것인지 확인하고 싶습니다.,account,inquiries-account-family-25,original-synthetic:synthetic-ko-v1
+inquiries-account-family-25-v2,이전 활동 기록이 사라진 것처럼 보입니다. 현재 접속한 회원이 맞는지 확인하려고 합니다.,account,inquiries-account-family-25,original-synthetic:synthetic-ko-v1
+inquiries-account-family-26-v1,탈퇴 요청을 넣었지만 아직 처리가 완료되지 않았습니다. 진행 상태와 철회 가능 여부를 회원 관리 화면에서 확인할 수 있나요?,account,inquiries-account-family-26,original-synthetic:synthetic-ko-v1
+inquiries-account-family-26-v2,계정 삭제 신청의 현재 단계를 확인하고 싶습니다.,account,inquiries-account-family-26,original-synthetic:synthetic-ko-v1
+inquiries-account-family-27-v1,자동 입력 기능이 오래된 비밀번호를 계속 넣어 로그인에 실패합니다. 공식 접속 화면에서 자격 정보를 새로 입력하려면 어떻게 하나요?,account,inquiries-account-family-27,original-synthetic:synthetic-ko-v1
+inquiries-account-family-27-v2,저장된 옛 암호 때문에 로그인 오류가 납니다. 계정 접속을 정상화하고 싶습니다.,account,inquiries-account-family-27,original-synthetic:synthetic-ko-v1
+inquiries-account-family-28-v1,본인 인증은 완료됐는데 회원정보 화면에 확인 전으로 표시됩니다. 인증 완료 상태를 다시 확인하는 절차가 필요합니다.,account,inquiries-account-family-28,original-synthetic:synthetic-ko-v1
+inquiries-account-family-28-v2,계정 인증 결과가 프로필에 반영되지 않았습니다. 확인을 요청하려고 합니다.,account,inquiries-account-family-28,original-synthetic:synthetic-ko-v1
+inquiries-account-family-29-v1,관리자 계정을 일반 계정으로 낮추려 합니다. 현재 권한과 변경을 요청할 담당을 확인할 수 있는 메뉴가 있나요?,account,inquiries-account-family-29,original-synthetic:synthetic-ko-v1
+inquiries-account-family-29-v2,더 이상 운영 권한이 필요하지 않습니다. 회원 역할 변경 절차를 알려 주세요.,account,inquiries-account-family-29,original-synthetic:synthetic-ko-v1
+inquiries-account-family-30-v1,서비스에 연결한 외부 앱의 접근을 해제하고 싶습니다. 계정에 승인된 앱 목록을 어디에서 볼 수 있나요?,account,inquiries-account-family-30,original-synthetic:synthetic-ko-v1
+inquiries-account-family-30-v2,연동 서비스가 제 계정에 접근하지 못하도록 권한을 취소하려고 합니다.,account,inquiries-account-family-30,original-synthetic:synthetic-ko-v1
