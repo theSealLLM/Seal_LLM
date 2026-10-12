@@ -2,8 +2,8 @@
 
 uv run python scripts/classifier/evaluate_test.py --task inquiries
 
-- compare.py가 만든 selection.json과 models/classifier/<task>/final/이 있어야 실행된다.
-- 이미 test_final.json이 있으면 다시 실행하지 않는다 (--force로만 덮어쓰기).
+- compare.py가 만든 runs/classifier/<task>/selection.json과 final_model/이 있어야 실행된다.
+- 이미 test_report.json이 있으면 다시 실행하지 않는다 (--force로만 덮어쓰기).
 """
 
 from __future__ import annotations

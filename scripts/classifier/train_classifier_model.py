@@ -24,7 +24,7 @@ from theseal.classifier.metrics import LATENCY_SAMPLES, evaluate_classifier, sav
 
 def default_name(model: str) -> str:
     base = Path(model.rstrip("/\\")).name or "model"
-    return "bert-" + re.sub(r"[^A-Za-z0-9._-]+", "-", base)
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", base)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -33,7 +33,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     _common.add_common_args(p)
     p.add_argument("--model", default=d.model_name,
                    help=f"HF Hub 이름 또는 로컬 경로 (기본: {d.model_name})")
-    p.add_argument("--name", default=None, help="모델/리포트 이름 (기본: bert-<모델 이름>)")
+    p.add_argument("--name", default=None, help="결과 폴더 이름 (기본: 모델 폴더/저장소 이름)")
     p.add_argument("--max-length", type=int, default=d.max_length)
     p.add_argument("--batch-size", type=int, default=d.batch_size)
     p.add_argument("--eval-batch-size", type=int, default=d.eval_batch_size)

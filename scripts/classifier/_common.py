@@ -14,8 +14,7 @@ if str(SRC_DIR) not in sys.path:
 from theseal.classifier.config import (
     DATA_DIR,
     FINAL_NAME,
-    MODELS_DIR,
-    REPORTS_DIR,
+    RUNS_DIR,
     TASKS,
     TaskPaths,
     display_path,
@@ -29,15 +28,12 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
                         help="data/ 아래 주제 폴더 (기본: inquiries)")
     parser.add_argument("--data-dir", type=Path, default=DATA_DIR,
                         help=f"데이터 루트 (기본: {display_path(DATA_DIR)})")
-    parser.add_argument("--models-dir", type=Path, default=MODELS_DIR,
-                        help=f"모델 저장 루트 (기본: {display_path(MODELS_DIR)})")
-    parser.add_argument("--reports-dir", type=Path, default=REPORTS_DIR,
-                        help=f"리포트 저장 루트 (기본: {display_path(REPORTS_DIR)})")
+    parser.add_argument("--runs-dir", type=Path, default=RUNS_DIR,
+                        help=f"모델/리포트 저장 루트 (기본: {display_path(RUNS_DIR)})")
 
 
 def paths_from_args(args: argparse.Namespace) -> TaskPaths:
-    return task_paths(args.task, data_dir=args.data_dir, models_dir=args.models_dir,
-                      reports_dir=args.reports_dir)
+    return task_paths(args.task, data_dir=args.data_dir, runs_dir=args.runs_dir)
 
 
 def check_name(name: str) -> str:

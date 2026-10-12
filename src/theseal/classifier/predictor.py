@@ -54,7 +54,7 @@ class Predictor:
 
     @classmethod
     def from_final(cls, task: str, device: str | None = None) -> Predictor:
-        """compare.py가 확정한 models/classifier/<task>/final 모델을 불러온다."""
+        """compare.py가 확정한 runs/classifier/<task>/final_model 모델을 불러온다."""
         return cls(task_paths(task).final_dir, device=device)
 
     @property

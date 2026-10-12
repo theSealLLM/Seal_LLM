@@ -2,12 +2,12 @@
 
 uv run python scripts/classifier/compare.py --task inquiries
 
-- 후보: reports/classifier/<task>/val_*.json 이 있는 모델 전부
+- 후보: runs/classifier/<task>/<이름>/val_report.json 이 있는 폴더 전부
 - 모든 후보를 이 스크립트 안에서 validation으로 다시 평가한다 (같은 장치, 같은 지연 측정 방식).
   학습 시간과 학습 GPU 피크 메모리는 학습 때 남긴 리포트 값을 쓴다.
 - 선택 규칙: macro-F1 최고값과의 차이가 --tolerance 이내인 후보 중
   지연 시간(중앙값)이 가장 짧은 모델 → 같으면 크기가 작은 모델.
-- 결과: comparison.md, selection.json, models/classifier/<task>/final/ (선택 모델 복사본)
+- 결과: runs/classifier/<task>/ 아래 comparison.md, selection.json, final_model/ (선택 모델 복사본)
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from pathlib import Path
 
 import _common
 
-from theseal.classifier.config import META_FILENAME, display_path
+from theseal.classifier.config import META_FILENAME, VAL_REPORT_FILENAME, display_path
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import (
     LATENCY_SAMPLES,
@@ -54,9 +54,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def collect_candidates(paths, args, val_split) -> list[dict]:
     reports = []
-    for report_path in sorted(paths.reports_dir.glob("val_*.json")):
+    for report_path in sorted(paths.runs_dir.glob(f"*/{VAL_REPORT_FILENAME}")):
         saved = load_json(report_path)
-        name = saved["name"]
+        name = report_path.parent.name
         model_dir = paths.model_dir(name)
         if not (model_dir / META_FILENAME).exists():
             print(f"[건너뜀] {name}: 모델 폴더가 없습니다 ({display_path(model_dir)})")
@@ -147,7 +147,7 @@ def main(argv: list[str] | None = None) -> dict:
     reports = collect_candidates(paths, args, splits["validation"])
     if not reports:
         raise SystemExit(f"[중단] 비교할 후보가 없습니다. 먼저 train_*.py를 실행하세요 "
-                         f"({display_path(paths.reports_dir)}).")
+                         f"({display_path(paths.runs_dir)}).")
 
     reports.sort(key=lambda r: -r["metrics"][PRIMARY_METRIC])
     chosen, reason = select(reports, args.tolerance, args.select)

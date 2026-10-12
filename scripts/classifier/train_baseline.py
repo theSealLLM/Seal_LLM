@@ -21,7 +21,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     d = BaselineConfig()
     p = argparse.ArgumentParser(description="TF-IDF + 로지스틱 회귀 베이스라인 학습")
     _common.add_common_args(p)
-    p.add_argument("--name", default="baseline", help="모델/리포트 이름 (기본: baseline)")
+    p.add_argument("--name", default="baseline", help="결과 폴더 이름 (기본: baseline)")
     p.add_argument("--analyzer", default=d.analyzer, choices=["char_wb", "char", "word"])
     p.add_argument("--ngram-min", type=int, default=d.ngram_min)
     p.add_argument("--ngram-max", type=int, default=d.ngram_max)

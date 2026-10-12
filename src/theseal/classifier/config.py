@@ -7,8 +7,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_ROOT / "data"
-MODELS_DIR = PROJECT_ROOT / "models" / "classifier"
-REPORTS_DIR = PROJECT_ROOT / "reports" / "classifier"
+# 학습/평가 결과: runs/classifier/<task>/<이름>/ 아래에 모델(model/)과 리포트를 함께 둔다
+RUNS_DIR = PROJECT_ROOT / "runs" / "classifier"
 
 # data/ 아래 주제 폴더 이름 (README 참고: 둘 중 하나를 골라 사용)
 TASKS = ("inquiries", "documents")
@@ -18,8 +18,11 @@ SEED = 42
 
 # 저장된 모델 폴더마다 들어가는 메타 파일 (predictor가 모델 종류를 판단할 때 사용)
 META_FILENAME = "classifier_meta.json"
-# compare.py가 확정한 모델을 복사해 두는 폴더 이름
-FINAL_NAME = "final"
+# 후보 폴더 안에서 모델 파일을 두는 하위 폴더 이름
+MODEL_SUBDIR = "model"
+# compare.py가 확정한 모델을 복사해 두는 폴더 이름 (runs/classifier/<task>/ 바로 아래)
+FINAL_NAME = "final_model"
+VAL_REPORT_FILENAME = "val_report.json"
 
 
 @dataclass
@@ -57,50 +60,58 @@ class BertConfig:
 
 @dataclass(frozen=True)
 class TaskPaths:
+    """runs/classifier/<task>/ 아래 구조.
+
+    <이름>/model/            학습된 모델 (gitignore)
+    <이름>/val_report.json   validation 결과
+    final_model/             compare.py가 확정한 모델 복사본 (gitignore)
+    comparison.md, selection.json, test_report.json, test_report.md
+    """
+
     data_dir: Path
-    models_dir: Path
-    reports_dir: Path
+    runs_dir: Path
+
+    def run_dir(self, name: str) -> Path:
+        return self.runs_dir / name
 
     def model_dir(self, name: str) -> Path:
-        return self.models_dir / name
+        return self.run_dir(name) / MODEL_SUBDIR
+
+    def val_report(self, name: str) -> Path:
+        return self.run_dir(name) / VAL_REPORT_FILENAME
 
     @property
     def final_dir(self) -> Path:
-        return self.models_dir / FINAL_NAME
-
-    def val_report(self, name: str) -> Path:
-        return self.reports_dir / f"val_{name}.json"
+        return self.runs_dir / FINAL_NAME
 
     @property
     def comparison_md(self) -> Path:
-        return self.reports_dir / "comparison.md"
+        return self.runs_dir / "comparison.md"
 
     @property
     def selection_json(self) -> Path:
-        return self.reports_dir / "selection.json"
+        return self.runs_dir / "selection.json"
 
     @property
     def test_json(self) -> Path:
-        return self.reports_dir / "test_final.json"
+        return self.runs_dir / "test_report.json"
 
     @property
     def test_md(self) -> Path:
-        return self.reports_dir / "test_final.md"
+        return self.runs_dir / "test_report.md"
 
 
 def task_paths(
     task: str,
     *,
     data_dir: Path | None = None,
-    models_dir: Path | None = None,
-    reports_dir: Path | None = None,
+    runs_dir: Path | None = None,
 ) -> TaskPaths:
     if task not in TASKS:
         raise ValueError(f"알 수 없는 task: {task!r} (가능: {', '.join(TASKS)})")
     return TaskPaths(
         data_dir=Path(data_dir or DATA_DIR) / task,
-        models_dir=Path(models_dir or MODELS_DIR) / task,
-        reports_dir=Path(reports_dir or REPORTS_DIR) / task,
+        runs_dir=Path(runs_dir or RUNS_DIR) / task,
     )
 
 
