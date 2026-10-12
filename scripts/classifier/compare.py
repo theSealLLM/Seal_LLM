@@ -21,6 +21,7 @@ from pathlib import Path
 
 import _common
 
+from theseal.classifier.classifier import load_classifier, read_meta
 from theseal.classifier.config import META_FILENAME, VAL_REPORT_FILENAME, display_path
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import (
@@ -35,7 +36,6 @@ from theseal.classifier.metrics import (
     save_json,
     summary_table_md,
 )
-from theseal.classifier.predictor import load_classifier, read_meta
 
 DEFAULT_TOLERANCE = 0.01
 

@@ -27,7 +27,7 @@ SPLITS = ("train", "validation", "test")
 
 SEED = 42
 
-# 저장된 모델 폴더마다 들어가는 메타 파일 (predictor가 모델 종류를 판단할 때 사용)
+# 저장된 모델 폴더마다 들어가는 메타 파일 (classifier가 모델 종류를 판단할 때 사용)
 META_FILENAME = "classifier_meta.json"
 # 후보 폴더 안에서 모델 파일을 두는 하위 폴더 이름
 MODEL_SUBDIR = "model"

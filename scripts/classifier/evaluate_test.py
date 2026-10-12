@@ -14,6 +14,7 @@ import argparse
 
 import _common
 
+from theseal.classifier.classifier import load_classifier, read_meta
 from theseal.classifier.config import display_path
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import (
@@ -26,7 +27,6 @@ from theseal.classifier.metrics import (
     save_json,
     summary_table_md,
 )
-from theseal.classifier.predictor import load_classifier, read_meta
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

@@ -19,8 +19,8 @@ from pathlib import Path
 import _common
 from huggingface_hub import HfApi, snapshot_download
 
+from theseal.classifier.classifier import read_meta
 from theseal.classifier.config import FINAL_NAME, META_FILENAME, display_path
-from theseal.classifier.predictor import read_meta
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
