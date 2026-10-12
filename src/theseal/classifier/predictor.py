@@ -36,11 +36,11 @@ def read_meta(model_dir: Path) -> dict:
 def load_classifier(model_dir: Path, device: str | None = None) -> Classifier:
     meta = read_meta(model_dir)
     if meta["kind"] == "baseline":
-        from .baseline import TfidfLogRegClassifier
+        from .tfidf_logreg import TfidfLogRegClassifier
 
         return TfidfLogRegClassifier.load(model_dir)
     if meta["kind"] == "bert":
-        from .bert import TransformerClassifier
+        from .classifier_models import TransformerClassifier
 
         return TransformerClassifier.load(model_dir, device=device)
     raise ValueError(f"알 수 없는 모델 종류: {meta['kind']!r}")
