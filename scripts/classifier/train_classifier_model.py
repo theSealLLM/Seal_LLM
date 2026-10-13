@@ -11,6 +11,9 @@ uv run python scripts/classifier/train_classifier_model.py
 결과: runs/classifier/<task>/<모델 이름>/<실행 ID>/ (model/ + val_report.json)
 실행 ID는 학습을 시작한 시각(분 단위)이라 다시 학습해도 덮어쓰지 않는다. --tag는 ID 뒤에 붙는 메모.
 에폭별 가중치는 남기지 않고, validation macro-F1이 가장 좋았던 에폭의 가중치 하나만 저장한다.
+
+모델별 설정(config.py MODEL_OVERRIDES)은 자동으로 적용된다. 예) NeoBERT는 trust_remote_code와
+max_length 512. NeoBERT는 저장소 코드를 실행하므로 xformers 같은 추가 패키지가 필요할 수 있다.
 """
 
 from __future__ import annotations
@@ -30,6 +33,7 @@ from theseal.classifier.config import (
     TaskPaths,
     display_path,
     local_model_dir,
+    model_overrides,
     new_run_id,
     safe_name,
 )
@@ -55,7 +59,8 @@ def choose_model(paths: TaskPaths) -> tuple[str, str | None]:
         root = paths.model_root(default_name(repo_id))
         n_runs = sum(1 for d in root.iterdir() if d.is_dir()) if root.is_dir() else 0
         done = f" · 학습 기록 {n_runs}개" if n_runs else ""
-        print(f"  {i}) {repo_id:<45} {where}{done}")
+        remote = " · 저장소 코드 실행" if model_overrides(repo_id).get("trust_remote_code") else ""
+        print(f"  {i}) {repo_id:<45} {where}{done}{remote}")
     print("  0) 직접 입력 (HF Hub 이름 또는 폴더 경로)")
 
     while True:
@@ -87,7 +92,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                    help="HF Hub 이름 또는 로컬 경로 (생략하면 번호로 고른다)")
     p.add_argument("--name", default=None, help="모델 폴더 이름 (기본: 모델 폴더/저장소 이름)")
     p.add_argument("--tag", default=None, help="실행 ID 뒤에 붙일 메모 (예: lr2e5 → 20261013-1411_lr2e5)")
-    p.add_argument("--max-length", type=int, default=d.max_length)
+    p.add_argument("--max-length", type=int, default=None,
+                   help=f"최대 토큰 길이 (기본: 모델별 설정, 없으면 {d.max_length})")
     p.add_argument("--batch-size", type=int, default=d.batch_size)
     p.add_argument("--eval-batch-size", type=int, default=d.eval_batch_size)
     p.add_argument("--epochs", type=int, default=d.epochs)
@@ -102,6 +108,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=d.seed)
     p.add_argument("--local-files-only", action="store_true",
                    help="HF Hub에서 내려받지 않고 캐시/로컬 경로만 사용")
+    p.add_argument("--trust-remote-code", action="store_true",
+                   help="모델 저장소의 코드를 실행 (MODEL_OVERRIDES에 있는 모델은 자동)")
     p.add_argument("--latency-samples", type=int, default=LATENCY_SAMPLES)
     return p.parse_args(argv)
 
@@ -121,9 +129,12 @@ def main(argv: list[str] | None = None) -> dict:
 
     name = _common.check_name(args.name or chosen_name or default_name(model))
     run_id = new_run_id(args.tag)  # 학습 시작 시각
+    overrides = model_overrides(model)
+    if overrides:
+        print(f"[설정] {model}: 모델별 설정 적용 {overrides} (명령줄 인자가 우선)")
     config = BertConfig(
         model_name=model,
-        max_length=args.max_length,
+        max_length=args.max_length or overrides.get("max_length", BertConfig.max_length),
         batch_size=args.batch_size,
         eval_batch_size=args.eval_batch_size,
         epochs=args.epochs,
@@ -134,6 +145,7 @@ def main(argv: list[str] | None = None) -> dict:
         patience=args.patience,
         precision=args.precision,
         local_files_only=args.local_files_only,
+        trust_remote_code=args.trust_remote_code or overrides.get("trust_remote_code", False),
         seed=args.seed,
     )
 
@@ -148,6 +160,7 @@ def main(argv: list[str] | None = None) -> dict:
         device=args.device,
         local_files_only=config.local_files_only,
         eval_batch_size=config.eval_batch_size,
+        trust_remote_code=config.trust_remote_code,
     )
     print(f"[model] {config.model_name} → device={clf.device} "
           f"params={clf.describe()['num_parameters']:,}")
