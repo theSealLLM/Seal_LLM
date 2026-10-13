@@ -7,8 +7,9 @@ uv run python scripts/classifier/calibrate_route_rule.py --final                
 uv run python scripts/classifier/calibrate_route_rule.py --model-dir <모델 폴더>    # 위 구조 밖의 폴더
 
 - 대상: runs/classifier/<task>/<모델>/<실행 ID>/model 이 있는 모델 (가중치는 git에 없으므로 학습했거나 share_model.py pull로 받은 것)
-- 결과: 모델 폴더 옆 route_rule.json (= <모델>/<실행 ID>/route_rule.json, val_report.json 옆).
-  보정값은 가중치마다 다르므로 실행마다 따로 둔다. 서비스는 쓰는 모델 폴더 옆의 이 파일을 찾는다
+- 결과: src/theseal/routing/config.py의 ROUTE_CALIBRATIONS에 넣을 줄을 출력한다 (직접 붙여 넣는다. 서비스는 이 값만 읽는다).
+  키는 모델 폴더 이름(<모델>/<실행 ID>, 예전 구조는 <모델>). 보정값은 가중치마다 다르므로 모델마다 따로 둔다.
+  모델 폴더 옆 route_rule.json에는 평가 수치까지 담은 기록을 남긴다 (서비스는 읽지 않는다)
 - 값은 실제 문의(validation)로만 정한다. 범위 밖 글(--ood-task의 validation)은 평가에만 쓴다
   T            보정 후 실제 문의 p1의 (1-keep) 분위수가 --target-tau-low가 되는 값
   tau_low      보정 후 p1의 (1-keep) 분위수 (= target-tau-low)
@@ -20,6 +21,7 @@ uv run python scripts/classifier/calibrate_route_rule.py --model-dir <모델 폴
 from __future__ import annotations
 
 import argparse
+import json
 import random
 import sys
 from pathlib import Path
@@ -31,7 +33,7 @@ from theseal.classifier.classifier import Classifier
 from theseal.classifier.config import SEED, TASKS, FinalModelNotSetError, display_path, task_paths
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import environment_info, now_iso, save_json
-from theseal.routing.config import CALIBRATION_FILENAME, calibration_name, calibration_path
+from theseal.routing.config import CALIBRATION_FILENAME, calibration_key, calibration_path
 
 KEEP = 0.975  # 실제 문의 중 unknown으로 잘못 버려도 되는 비율 2.5%
 TARGET_TAU_LOW = 0.45
@@ -140,12 +142,21 @@ def evaluate(z_in: np.ndarray, y_in: np.ndarray, z_ood: np.ndarray, folds, keep,
     return out
 
 
+def config_values(report: dict) -> dict:
+    """routing/config.py ROUTE_CALIBRATIONS에 넣을 값."""
+    return {"temperature": report["temperature"], **report["thresholds"]}
+
+
+def config_line(report: dict) -> str:
+    return f'    {json.dumps(report["name"], ensure_ascii=False)}: {json.dumps(config_values(report))},'
+
+
 # ---------------------------------------------------------------- 모델 하나
 
 def calibrate_one(model_dir: Path, args: argparse.Namespace, data: dict) -> dict:
     clf = Classifier(model_dir, device=args.device)
     path = calibration_path(model_dir)
-    name = calibration_name(path)
+    name = calibration_key(model_dir, args.task, args.runs_dir)
     labels = list(clf.labels)
 
     def logits(texts: list[str]) -> np.ndarray:
@@ -188,7 +199,8 @@ def calibrate_one(model_dir: Path, args: argparse.Namespace, data: dict) -> dict
         m = e[method]
         print(f"  {title:18} {m['in_unknown']:>12.1%} {m['in_uncertain']:>10.1%}  | "
               f"{m['ood_unknown']:>15.1%} {m['ood_confident']:>16.1%}")
-    print(f"  → {display_path(path)}")
+    print(f"  기록 → {display_path(path)}")
+    print(f"  config.py 항목 → {config_line(report).strip()}")
     return report
 
 
@@ -223,7 +235,11 @@ def main(argv: list[str] | None = None) -> list[dict]:
     data = {"in": splits["validation"], "ood": ood["validation"]}
     print(f"[data] {args.task} validation={len(data['in'])} · 범위 밖 {args.ood_task} "
           f"validation={len(data['ood'])} · 보정 파일 이름 {CALIBRATION_FILENAME}")
-    return [calibrate_one(d, args, data) for d in model_dirs]
+    reports = [calibrate_one(d, args, data) for d in model_dirs]
+    print("\n서비스에 쓰려면 아래 줄을 src/theseal/routing/config.py의 ROUTE_CALIBRATIONS에 넣으세요 (같은 키는 바꾸기):")
+    for r in reports:
+        print(config_line(r))
+    return reports
 
 
 if __name__ == "__main__":

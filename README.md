@@ -65,8 +65,10 @@ result = await router.run(clf.predict(text), text, labels=clf.labels, model_dir=
 result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프롬프트 생성
 ```
 
-보정값은 학습한 가중치마다 다르므로 실행마다 `runs/classifier/<task>/<모델>/<실행 ID>/route_rule.json`에 두고,
-쓰는 모델 폴더 옆의 파일을 자동으로 찾습니다. 파일이 없으면 예시 값을 씁니다.
+보정값(T · tau · tau_low · delta)은 학습한 가중치마다 다르므로 `src/theseal/routing/config.py`의
+`ROUTE_CALIBRATIONS`에 모델별로 적어 둡니다. 키는 모델 폴더 이름(`<모델>/<실행 ID>`, 예전 구조는 `<모델>`)이고,
+서비스는 쓰는 분류 모델의 키를 자동으로 찾습니다. 키가 없으면 예시 값을 씁니다 (`/api/classify` 응답의
+`route.calibration_key`가 찾아본 키, `route.source`가 값의 출처).
 
 켜고 끄기는 `.env`에서 합니다.
 
@@ -76,7 +78,9 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 | LLM 검증 | `VERIFY_MODE` | `uncertain` (기본, 확신이 아닌 것만) · `all` (전부) · `off` |
 
 둘 다 끄면 분류기 라벨을 그대로 씁니다. 새로 학습한 모델의 보정값은
-`uv run scripts/classifier/calibrate_route_rule.py --model <모델> --run <실행 ID>`(최종 모델은 `--final`)로 만듭니다.
+`uv run scripts/classifier/calibrate_route_rule.py --model <모델> --run <실행 ID>`(최종 모델은 `--final`)로 만들고,
+마지막에 출력되는 줄을 `ROUTE_CALIBRATIONS`에 붙여 넣습니다. 모델 폴더 옆 `route_rule.json`은 평가 수치를 담은
+기록이고 서비스는 읽지 않습니다. `.env`의 `ROUTE_TAU` 등 개별 값을 적으면 모든 모델에 그 값이 먼저 적용됩니다.
 
 ### API 서버 (FastAPI)
 

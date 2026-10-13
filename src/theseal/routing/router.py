@@ -48,7 +48,8 @@ def apply_route_rule(
     resolved = resolve_params(config, model_dir)
     decision = route_rule.decide(scores, **resolved["params"], uncertain_action=config.route_uncertain_action)
     return decision.label, {**decision.model_dump(), "source": resolved["source"],
-                            "calibration": resolved["calibration"]}
+                            "calibration": resolved["calibration"],
+                            "calibration_key": resolved["calibration_key"]}
 
 
 async def run(
@@ -63,7 +64,7 @@ async def run(
 ) -> RoutingResult:
     """prediction: Classifier.predict(text) 결과 (라벨 번호, 라벨별 확률 배열)
     labels: 라벨 이름 (Classifier.labels). prediction의 번호 · 배열 순서와 같다
-    model_dir: 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 보정 파일을 찾는 데 쓴다
+    model_dir: 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 모델별 보정값(ROUTE_CALIBRATIONS)의 키를 만드는 데 쓴다
     llm: 검증에 쓸 LLM (없으면 VERIFY_PROVIDER로 만든다)
 
     예) clf = Classifier.from_final()
