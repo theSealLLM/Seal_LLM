@@ -1,4 +1,11 @@
-"""프롬프트 생성 모듈 (담당: 프롬프트 담당 조원).
+"""프롬프트 생성 모듈 (담당: 김지수).
 
 출력 형식은 theseal.llm.schemas.PromptSpec.
 """
+
+from .prompt_generator import build_common_policy_prompt, build_label_specific_prompt
+
+__all__ = [
+    "build_label_specific_prompt",
+    "build_common_policy_prompt",
+]
