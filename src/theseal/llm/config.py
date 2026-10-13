@@ -31,8 +31,9 @@ class LLMConfig:
     # 로컬 LLM (Ollama)
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M"
-    # thinking: None이면 모델 기본값 (Gemma 4 E4B는 켜짐, true를 명시하면 Ollama가 거부한다)
-    ollama_reasoning: bool | None = None  # 툴 없는 경로 (shipping · refund · account)
+    # thinking: None이면 모델 기본값 (Gemma 4 E4B는 켜짐, true를 명시하면 Ollama가 거부한다). .env에서는 default로 None
+    # 툴 없는 경로 (shipping · refund · account)와 분류 후처리의 LLM 검증. 켜 두면 검증이 VERIFY_TIMEOUT_SEC를 넘기기 쉬워 끈다
+    ollama_reasoning: bool | None = False
     ollama_reasoning_with_tools: bool | None = None  # 툴 경로 (unknown). 끄면 툴을 부르지 않는다
     ollama_keep_alive: str | None = None  # VRAM 유지 시간. "-1"이면 계속 유지
 
@@ -62,8 +63,10 @@ class LLMConfig:
     )
 
     # 제한
-    llm_timeout_sec: float = 60
-    tool_timeout_sec: float = 10
+    llm_timeout_sec: float = 60  # LLM 호출 한 번
+    tool_timeout_sec: float = 10  # 툴 실행 한 번
+    # 답변 생성 한 번 전체 (툴 경로는 LLM 최대 max_tool_rounds+1회 + 툴). 넘으면 llm_timeout. 실측 툴 경로 5~10초
+    answer_timeout_sec: float = 90
 
     timezone: str = "Asia/Seoul"
 
@@ -90,8 +93,11 @@ def config_from_env(cls, env_file: Path | None = ENV_FILE):
 
 
 def _parse(raw: str, type_hint: str):
-    """dataclass 필드 타입(문자열, 예: "float | None")에 맞춰 환경변수 값을 바꾼다."""
+    """dataclass 필드 타입(문자열, 예: "float | None")에 맞춰 환경변수 값을 바꾼다.
+    None을 받을 수 있는 필드는 default라고 적으면 None (빈 값은 코드 기본값이라 None과 다를 수 있다)."""
     base = type_hint.split("|")[0].strip()
+    if "None" in type_hint and raw.lower() == "default":
+        return None
     if base == "bool":
         return raw.lower() in ("1", "true", "yes", "on")
     if base == "int":

@@ -125,9 +125,15 @@ def _call(operation: str, base_date: str, base_time: str, nx: int, ny: int) -> l
     params = {"pageNo": 1, "numOfRows": 1500, "dataType": "JSON", "base_date": base_date,
               "base_time": base_time, "nx": nx, "ny": ny, "authKey": config.kma_auth_key}
     resp = httpx.get(f"{config.kma_api_base}/{operation}", params=params, timeout=HTTP_TIMEOUT_SEC)
-    data = resp.json()
-    if "result" in data:  # API허브 자체 오류 (인증키 등)
+    # 오류 메시지에 URL을 넣지 않는다 (쿼리에 authKey가 있고, 툴 오류는 응답 tools_used로 나간다)
+    try:
+        data = resp.json()
+    except ValueError:  # 5xx HTML 페이지 등
+        raise RuntimeError(f"기상청 API 응답이 JSON이 아닙니다 (HTTP {resp.status_code})") from None
+    if "result" in data:  # API허브 자체 오류 (인증키 등). HTTP 오류여도 이 메시지가 더 구체적이다
         raise RuntimeError(f"기상청 API 오류 {data['result'].get('status')}: {data['result'].get('message')}")
+    if resp.is_error:
+        raise RuntimeError(f"기상청 API HTTP 오류 {resp.status_code}")
     header = data["response"]["header"]
     if header.get("resultCode") != "00":
         raise RuntimeError(f"기상청 API 오류 {header.get('resultCode')}: {header.get('resultMsg')}")

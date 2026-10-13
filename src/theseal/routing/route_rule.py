@@ -17,7 +17,7 @@
 확률 보정 (temperature scaling, 모델 재학습 없음)
     확률 = softmax(원점수 / T). 파인튜닝 모델은 범위 밖 글에도 0.99 이상을 주므로 T > 1로 펴고,
     TF-IDF처럼 확률이 0.33~0.5에 몰린 모델은 T < 1로 벌린다.
-    분류기(Predictor)는 원점수를 내지 않으므로 log(확률)을 원점수로 쓴다. softmax는 모든 원점수에
+    분류기(Classifier)는 원점수를 내지 않으므로 log(확률)을 원점수로 쓴다. softmax는 모든 원점수에
     같은 값을 더해도 결과가 같아서 log(확률)로 계산해도 보정 결과가 같다.
 
 LLM을 부르지 않고 분류기 종류도 모른다. 라벨별 확률(scores) dict만 받는다.
@@ -52,7 +52,7 @@ class RouteDecision(BaseModel):
 
 
 def logits_from_scores(scores: dict[str, float]) -> dict[str, float]:
-    """Predictor의 확률(scores)을 원점수처럼 쓸 수 있게 log를 씌운다."""
+    """분류기 확률(scores)을 원점수처럼 쓸 수 있게 log를 씌운다."""
     return {k: math.log(max(p, MIN_PROB)) for k, p in scores.items()}
 
 
@@ -80,7 +80,7 @@ def decide(
     delta: float = 0.15,
     uncertain_action: str = "top1",
 ) -> RouteDecision:
-    """scores: 라벨별 확률 (Predictor.predict()["scores"]).
+    """scores: 라벨별 확률 {라벨 이름: 확률} (router.to_scores로 Classifier.predict 결과를 바꾼 것).
     uncertain_action: ambiguous · low_confidence일 때 최종 라벨. top1이면 1등 라벨, unknown이면 unknown"""
     if len(scores) < 2:
         raise ValueError(f"라벨이 2개 이상이어야 합니다: {list(scores)}")
