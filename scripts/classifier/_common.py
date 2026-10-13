@@ -14,11 +14,11 @@ if str(SRC_DIR) not in sys.path:
 from theseal.classifier.config import (
     DATA_DIR,
     DEFAULT_TASK,
-    FINAL_NAME,
     RUNS_DIR,
     TASKS,
     TaskPaths,
     display_path,
+    safe_name,
     task_paths,
 )
 from theseal.classifier.metrics import environment_info, now_iso
@@ -38,14 +38,26 @@ def paths_from_args(args: argparse.Namespace) -> TaskPaths:
 
 
 def check_name(name: str) -> str:
-    if name == FINAL_NAME:
-        raise SystemExit(f"[중단] '{FINAL_NAME}'은 확정 모델용 이름이라 쓸 수 없습니다.")
+    """--name은 폴더 이름이 되므로 영문, 숫자, '.', '_', '-'만 허용한다."""
+    if safe_name(name) != name:
+        raise SystemExit(f"[중단] 이름 {name!r}에 폴더 이름으로 쓸 수 없는 글자가 있습니다. "
+                         f"영문, 숫자, '.', '_', '-'만 쓰세요 (예: {safe_name(name)!r}).")
     return name
+
+
+def unique_run_dir(paths: TaskPaths, model: str, run: str) -> tuple[str, Path]:
+    """같은 분에 다시 학습해 실행 폴더가 이미 있으면 -2, -3 …을 붙여 덮어쓰지 않는다."""
+    candidate, n = run, 1
+    while paths.run_dir(model, candidate).exists():
+        n += 1
+        candidate = f"{run}-{n}"
+    return candidate, paths.run_dir(model, candidate)
 
 
 def build_report(
     *,
-    name: str,
+    model: str,
+    run: str,
     kind: str,
     task: str,
     model_dir: Path,
@@ -57,7 +69,9 @@ def build_report(
 ) -> dict:
     """train_*.py, compare.py, evaluate_test.py가 모두 같은 형식의 리포트를 남긴다."""
     return {
-        "name": name,
+        "name": f"{model}/{run}",  # 표에 보여 줄 이름
+        "model": model,
+        "run": run,
         "kind": kind,
         "task": task,
         "split": result["split"],
