@@ -62,19 +62,20 @@ class Classifier:
 
     @property
     def labels(self) -> tuple[str, ...]:
+        """라벨 이름. labels[번호]로 predict가 돌려준 번호를 이름으로 바꾼다 (labels.json 순서)."""
         return self.model.label_set.labels
 
-    def predict_batch(self, texts: list[str]) -> list[dict]:
-        probs = self.model.predict_proba(texts)
-        results = []
-        for row in probs:
-            best = int(row.argmax())
-            results.append({
-                "label": self.labels[best],
-                "confidence": float(row[best]),
-                "scores": {label: float(p) for label, p in zip(self.labels, row)},
-            })
-        return results
+    def predict(self, text: str) -> tuple[int, list[float]]:
+        """문장 하나 → (라벨 번호, 라벨별 확률 배열).
 
-    def predict(self, text: str) -> dict:
+        - 라벨 번호와 배열 순서는 labels.json의 labels 순서다 (inquiries: 0=shipping, 1=refund, 2=account).
+        - 라벨 번호는 확률이 가장 큰 칸의 위치이고, 확률 배열의 합은 1이다.
+
+        예) label, scores = clf.predict("환불은 언제 되나요?")  →  1, [0.00105, 0.99812, 0.00083]
+        """
         return self.predict_batch([text])[0]
+
+    def predict_batch(self, texts: list[str]) -> list[tuple[int, list[float]]]:
+        """문장 여러 개 → [(라벨 번호, 라벨별 확률 배열), ...]. 형식은 predict와 같다."""
+        probs = self.model.predict_proba(texts)
+        return [(int(row.argmax()), [float(p) for p in row]) for row in probs]

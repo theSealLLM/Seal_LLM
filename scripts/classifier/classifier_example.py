@@ -13,7 +13,12 @@
 내 코드에서 쓸 때는 아래 세 줄이면 된다 (src가 import 경로에 있어야 함).
     from theseal.classifier.classifier import Classifier
     clf = Classifier.from_final()                  # 최종 모델, 기본 task는 inquiries
-    clf.predict("문장")                            # {"label", "confidence", "scores"}
+    label, scores = clf.predict("문장")            # 1, [0.00105, 0.99812, 0.00083]
+
+반환값
+    label  : int          라벨 번호 (labels.json 순서. inquiries: 0=shipping, 1=refund, 2=account)
+    scores : list[float]  라벨별 확률 (같은 순서, 합은 1). label은 scores에서 가장 큰 칸의 번호
+    번호를 이름으로 바꾸려면 clf.labels[label]
 """
 
 from __future__ import annotations
@@ -78,16 +83,16 @@ def main(argv: list[str] | None = None) -> None:
 
     texts = args.texts or SAMPLES[clf.meta.get("task", args.task)]
 
-    # 문장 하나: predict(str) → dict
-    first = clf.predict(texts[0])
+    # 문장 하나: predict(str) → (라벨 번호, 확률 배열)
+    label, scores = clf.predict(texts[0])
     print(f"predict(): {texts[0]}")
-    print(f"  → {first['label']} (confidence {first['confidence']:.3f})")
-    print(f"  scores: { {k: round(v, 3) for k, v in first['scores'].items()} }\n")
+    print(f"  label  = {label}  ({clf.labels[label]})")
+    print(f"  scores = {[round(s, 5) for s in scores]}\n")
 
-    # 여러 문장: predict_batch(list[str]) → list[dict]
+    # 여러 문장: predict_batch(list[str]) → [(라벨 번호, 확률 배열), ...]
     print("predict_batch():")
-    for text, result in zip(texts, clf.predict_batch(texts)):
-        print(f"  {result['label']:<14} {result['confidence']:.3f}  {text}")
+    for text, (label, scores) in zip(texts, clf.predict_batch(texts)):
+        print(f"  {label} {clf.labels[label]:<14} {max(scores):.3f}  {text}")
 
 
 if __name__ == "__main__":
