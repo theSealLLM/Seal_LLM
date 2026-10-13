@@ -149,6 +149,7 @@ class TransformerClassifier:
         *,
         name: str,
         task: str,
+        run: str | None = None,
         config: BertConfig | None = None,
     ) -> None:
         model_dir = Path(model_dir)
@@ -158,6 +159,7 @@ class TransformerClassifier:
         save_json({
             "kind": KIND,
             "name": name,
+            "run": run,
             "task": task,
             "labels": list(self.label_set.labels),
             "base_model": self.base_model,

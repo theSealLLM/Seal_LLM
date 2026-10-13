@@ -4,7 +4,7 @@ uv run python scripts/classifier/evaluate_test.py
 
 --task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
 
-- compare.py가 만든 runs/classifier/<task>/selection.json과 final_model/이 있어야 실행된다.
+- config.py의 FINAL_MODEL[task]에 최종 모델(모델 이름 + 실행 ID)이 적혀 있어야 실행된다.
 - 이미 test_report.json이 있으면 다시 실행하지 않는다 (--force로만 덮어쓰기).
 """
 
@@ -15,7 +15,7 @@ import argparse
 import _common
 
 from theseal.classifier.classifier import load_classifier, read_meta
-from theseal.classifier.config import display_path
+from theseal.classifier.config import FinalModelNotSetError, display_path, final_choice
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import (
     LATENCY_SAMPLES,
@@ -42,17 +42,18 @@ def main(argv: list[str] | None = None) -> dict:
     args = parse_args(argv)
     paths = _common.paths_from_args(args)
 
-    if not paths.selection_json.exists():
-        raise SystemExit(f"[중단] {display_path(paths.selection_json)}가 없습니다. "
-                         "compare.py로 모델을 먼저 확정하세요. test는 확정 전에 보지 않습니다.")
-    selection = load_json(paths.selection_json)
-    if not paths.final_dir.exists():
-        raise SystemExit(f"[중단] 확정 모델 폴더가 없습니다: {display_path(paths.final_dir)}. "
-                         "모델은 git에 올라가지 않으니 이 컴퓨터에서 compare.py를 다시 실행하세요.")
-    final_meta = read_meta(paths.final_dir)
-    if final_meta["name"] != selection["selected"]:
-        raise SystemExit(f"[중단] final 모델({final_meta['name']})과 selection.json의 선택"
-                         f"({selection['selected']})이 다릅니다. compare.py를 다시 실행하세요.")
+    try:
+        model, run = final_choice(args.task)
+    except FinalModelNotSetError as e:
+        raise SystemExit(f"[중단] {e} test는 최종 모델을 정한 뒤에만 봅니다.") from None
+    model_dir = paths.model_dir(model, run)
+    if not model_dir.exists():
+        raise SystemExit(f"[중단] 최종 모델 가중치가 없습니다: {display_path(model_dir)}. "
+                         "가중치는 git에 올라가지 않으니 학습한 컴퓨터에서 실행하거나 "
+                         "share_model.py pull --final 로 받아 오세요.")
+    final_meta = read_meta(model_dir)
+    val_path = paths.val_report(model, run)
+    val_report = load_json(val_path) if val_path.exists() else None
     if paths.test_json.exists() and not args.force:
         raise SystemExit(f"[중단] 이미 test 결과가 있습니다: {display_path(paths.test_json)}. "
                          "test는 한 번만 평가합니다. 정말 다시 하려면 --force.")
@@ -60,40 +61,43 @@ def main(argv: list[str] | None = None) -> dict:
     label_set, splits = load_task(paths.data_dir, ("train", "validation", "test"))
     test = splits["test"]
 
-    clf = load_classifier(paths.final_dir, device=args.device)
+    clf = load_classifier(model_dir, device=args.device)
     if clf.label_set.labels != label_set.labels:
         raise SystemExit(f"[중단] 모델 라벨 {clf.label_set.labels}와 "
                          f"labels.json {label_set.labels}의 순서가 다릅니다.")
 
-    result = evaluate_classifier(clf, test, model_dir=paths.final_dir,
+    result = evaluate_classifier(clf, test, model_dir=model_dir,
                                  latency_samples=args.latency_samples)
-    val_eff = selection["validation"]["efficiency"]
+    val_eff = (val_report or {}).get("efficiency", {})
     report = _common.build_report(
-        name=selection["selected"],
-        kind=selection["kind"],
+        model=model,
+        run=run,
+        kind=final_meta["kind"],
         task=args.task,
-        model_dir=paths.final_dir,
+        model_dir=model_dir,
         result=result,
         train_time_sec=val_eff.get("train_time_sec"),
         peak_gpu_memory_mb_train=val_eff.get("peak_gpu_memory_mb_train"),
         config=final_meta.get("config"),
-        training={"selection": {k: selection[k] for k in ("selected", "reason", "rule",
-                                                           "selected_at")}},
+        training={"final_model": {"model": model, "run": run, "source": "config.FINAL_MODEL"}},
     )
     save_json(report, paths.test_json)
 
-    val_metrics = selection["validation"]["metrics"]
+    val_row = (
+        f"| validation | {val_report['metrics']['macro_f1']:.4f} | "
+        f"{val_report['metrics']['accuracy']:.4f} |"
+        if val_report else "| validation | - | - |"
+    )
     lines = [
         f"# 최종 분류 평가 · {args.task}",
         "",
         f"- 평가 시각: {now_iso()}",
-        f"- 모델: `{selection['selected']}` ({selection['kind']})",
-        f"- 선택 이유: {selection['reason']}",
+        f"- 모델: `{model}/{run}` ({final_meta['kind']}) — config.py FINAL_MODEL",
         f"- 평가 데이터: test {len(test)}건",
         "",
         "| 분할 | Macro-F1 | Accuracy |",
         "|---|---|---|",
-        f"| validation | {val_metrics['macro_f1']:.4f} | {val_metrics['accuracy']:.4f} |",
+        val_row,
         (f"| **test** | **{report['metrics']['macro_f1']:.4f}** | "
         f"**{report['metrics']['accuracy']:.4f}** |"),
         "",

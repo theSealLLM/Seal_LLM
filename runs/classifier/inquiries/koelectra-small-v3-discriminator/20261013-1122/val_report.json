@@ -1,0 +1,201 @@
+{
+  "name": "koelectra-small-v3-discriminator/20261013-1122",
+  "model": "koelectra-small-v3-discriminator",
+  "run": "20261013-1122",
+  "kind": "bert",
+  "task": "inquiries",
+  "split": "validation",
+  "num_samples": 120,
+  "model_dir": "runs/classifier/inquiries/koelectra-small-v3-discriminator/20261013-1122/model",
+  "created_at": "2026-10-13T11:22:58+09:00",
+  "metrics": {
+    "accuracy": 0.9917,
+    "macro_f1": 0.9917,
+    "macro_precision": 0.9919,
+    "macro_recall": 0.9917,
+    "per_class": {
+      "shipping": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      },
+      "refund": {
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873,
+        "support": 40
+      },
+      "account": {
+        "precision": 0.9756,
+        "recall": 1.0,
+        "f1": 0.9877,
+        "support": 40
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "shipping",
+        "refund",
+        "account"
+      ],
+      "matrix": [
+        [
+          40,
+          0,
+          0
+        ],
+        [
+          0,
+          39,
+          1
+        ],
+        [
+          0,
+          0,
+          40
+        ]
+      ]
+    }
+  },
+  "efficiency": {
+    "device": "mps",
+    "latency_ms_median": 8.379,
+    "latency_ms_p95": 11.893,
+    "latency_samples": 100,
+    "throughput_per_sec": 1431.2,
+    "peak_gpu_memory_mb_infer": null,
+    "model_size_mb": 54.93,
+    "num_parameters": 14122755,
+    "base_model": "monologg/koelectra-small-v3-discriminator",
+    "max_length": 128,
+    "train_time_sec": 14.29,
+    "peak_gpu_memory_mb_train": null
+  },
+  "config": {
+    "model_name": "monologg/koelectra-small-v3-discriminator",
+    "max_length": 128,
+    "batch_size": 16,
+    "eval_batch_size": 64,
+    "epochs": 10,
+    "lr": 3e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "max_grad_norm": 1.0,
+    "patience": 3,
+    "precision": "auto",
+    "local_files_only": false,
+    "seed": 42
+  },
+  "training": {
+    "best_epoch": 6,
+    "best_val_macro_f1": 0.9917,
+    "stopped_early": true,
+    "precision": "fp32",
+    "token_lengths": {
+      "max": 67,
+      "p95": 61,
+      "truncated": 0
+    },
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 1.0983,
+        "val_loss": 1.0952,
+        "val_accuracy": 0.3333,
+        "val_macro_f1": 0.1667,
+        "lr": 3e-05,
+        "elapsed_sec": 1.9
+      },
+      {
+        "epoch": 2,
+        "train_loss": 1.0852,
+        "val_loss": 1.0594,
+        "val_accuracy": 0.8333,
+        "val_macro_f1": 0.8227,
+        "lr": 2.6666666666666667e-05,
+        "elapsed_sec": 3.4
+      },
+      {
+        "epoch": 3,
+        "train_loss": 1.011,
+        "val_loss": 0.936,
+        "val_accuracy": 0.9583,
+        "val_macro_f1": 0.9585,
+        "lr": 2.3333333333333336e-05,
+        "elapsed_sec": 5.0
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.8854,
+        "val_loss": 0.8058,
+        "val_accuracy": 0.9667,
+        "val_macro_f1": 0.9669,
+        "lr": 1.9999999999999998e-05,
+        "elapsed_sec": 6.6
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.7682,
+        "val_loss": 0.6863,
+        "val_accuracy": 0.975,
+        "val_macro_f1": 0.975,
+        "lr": 1.6666666666666667e-05,
+        "elapsed_sec": 8.2
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.6781,
+        "val_loss": 0.6085,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 1.3333333333333333e-05,
+        "elapsed_sec": 9.7
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.6128,
+        "val_loss": 0.5539,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 9.999999999999999e-06,
+        "elapsed_sec": 11.2
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.5666,
+        "val_loss": 0.5192,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 6.666666666666667e-06,
+        "elapsed_sec": 12.8
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.5383,
+        "val_loss": 0.5002,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 3.3333333333333333e-06,
+        "elapsed_sec": 14.3
+      }
+    ]
+  },
+  "environment": {
+    "python": "3.12.13",
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.14.1",
+    "transformers": "4.57.6"
+  },
+  "errors": [
+    {
+      "id": "inquiries-v2-refund-validation-001-v1",
+      "text": "비회원으로 주문한 물건을 돌려보내고 싶은데 회원 주문 목록에는 거래가 없습니다. 구매 때 받은 이메일 영수증은 가지고 있습니다. 새 계정을 만드는 일보다 기존 비회원 거래의 환불 신청 경로가 궁금합니다.",
+      "label": "refund",
+      "pred": "account",
+      "confidence": 0.4547
+    }
+  ]
+}

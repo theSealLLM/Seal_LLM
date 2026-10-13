@@ -1,7 +1,10 @@
 """① 베이스라인(TF-IDF + 로지스틱 회귀) 학습 → validation 평가.
 
 uv run python scripts/classifier/train_baseline.py
+uv run python scripts/classifier/train_baseline.py --C 1 --tag c1
 
+결과: runs/classifier/<task>/baseline/<실행 ID>/ (model/ + val_report.json)
+실행 ID는 학습을 시작한 시각(분 단위)이라 다시 학습해도 덮어쓰지 않는다. --tag는 ID 뒤에 붙는 메모.
 --task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
 """
 
@@ -13,17 +16,18 @@ from dataclasses import asdict
 
 import _common
 
-from theseal.classifier.tfidf_logreg import KIND, TfidfLogRegClassifier
-from theseal.classifier.config import BaselineConfig, display_path
+from theseal.classifier.config import BaselineConfig, display_path, new_run_id
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import LATENCY_SAMPLES, evaluate_classifier, save_json
+from theseal.classifier.tfidf_logreg import KIND, TfidfLogRegClassifier
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     d = BaselineConfig()
     p = argparse.ArgumentParser(description="TF-IDF + 로지스틱 회귀 베이스라인 학습")
     _common.add_common_args(p)
-    p.add_argument("--name", default="baseline", help="결과 폴더 이름 (기본: baseline)")
+    p.add_argument("--name", default="baseline", help="모델 폴더 이름 (기본: baseline)")
+    p.add_argument("--tag", default=None, help="실행 ID 뒤에 붙일 메모 (예: c1 → 20261013-1411_c1)")
     p.add_argument("--analyzer", default=d.analyzer, choices=["char_wb", "char", "word"])
     p.add_argument("--ngram-min", type=int, default=d.ngram_min)
     p.add_argument("--ngram-max", type=int, default=d.ngram_max)
@@ -38,6 +42,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> dict:
     args = parse_args(argv)
     _common.check_name(args.name)
+    run_id = new_run_id(args.tag)  # 학습 시작 시각
     paths = _common.paths_from_args(args)
     config = BaselineConfig(
         analyzer=args.analyzer,
@@ -58,12 +63,14 @@ def main(argv: list[str] | None = None) -> dict:
     clf.fit(train.texts, train.labels)
     train_time = round(time.perf_counter() - start, 3)
 
-    model_dir = paths.model_dir(args.name)
-    clf.save(model_dir, name=args.name, task=args.task)
+    run, _ = _common.unique_run_dir(paths, args.name, run_id)
+    model_dir = paths.model_dir(args.name, run)
+    clf.save(model_dir, name=args.name, task=args.task, run=run)
 
     result = evaluate_classifier(clf, val, model_dir=model_dir, latency_samples=args.latency_samples)
     report = _common.build_report(
-        name=args.name,
+        model=args.name,
+        run=run,
         kind=KIND,
         task=args.task,
         model_dir=model_dir,
@@ -71,10 +78,11 @@ def main(argv: list[str] | None = None) -> dict:
         train_time_sec=train_time,
         config=asdict(config),
     )
-    save_json(report, paths.val_report(args.name))
+    save_json(report, paths.val_report(args.name, run))
 
     _common.print_summary(report)
-    print(f"\n모델: {display_path(model_dir)}\n리포트: {display_path(paths.val_report(args.name))}")
+    print(f"\n모델: {display_path(model_dir)}\n"
+          f"리포트: {display_path(paths.val_report(args.name, run))}")
     return report
 
 
