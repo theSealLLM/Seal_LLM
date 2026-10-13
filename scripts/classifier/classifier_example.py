@@ -3,15 +3,16 @@
 실행
     uv run python scripts/classifier/classifier_example.py
     uv run python scripts/classifier/classifier_example.py "주문한 물건이 아직 안 왔어요"
-    uv run python scripts/classifier/classifier_example.py --model-dir runs/classifier/inquiries/baseline/model
+    uv run python scripts/classifier/classifier_example.py --model-dir runs/classifier/inquiries/baseline/20261013-1411/model
 
-준비물 (모델 파일은 git에 없으므로 둘 중 하나가 필요하다)
-    - 직접 학습: train_*.py → compare.py 를 돌리면 runs/classifier/<task>/final_model/ 이 생긴다.
+최종 모델은 src/theseal/classifier/config.py 의 FINAL_MODEL에 적힌 (모델 이름, 실행 ID)다.
+가중치는 git에 없으므로 둘 중 하나가 필요하다.
+    - 직접 학습: train_*.py 로 학습 → compare.py 비교표를 보고 FINAL_MODEL에 적는다.
     - 받아오기:  uv run python scripts/classifier/share_model.py pull --final --repo-id <계정>/<저장소>
 
 내 코드에서 쓸 때는 아래 세 줄이면 된다 (src가 import 경로에 있어야 함).
     from theseal.classifier.classifier import Classifier
-    clf = Classifier.from_final()                  # 확정 모델, 기본 task는 inquiries
+    clf = Classifier.from_final()                  # 최종 모델, 기본 task는 inquiries
     clf.predict("문장")                            # {"label", "confidence", "scores"}
 """
 
@@ -23,7 +24,7 @@ from pathlib import Path
 import _common  # noqa: F401  src를 import 경로에 넣기 위해 필요
 
 from theseal.classifier.classifier import Classifier
-from theseal.classifier.config import DEFAULT_TASK, TASKS, display_path
+from theseal.classifier.config import DEFAULT_TASK, TASKS, FinalModelNotSetError, display_path
 
 # 예제 문장 (학습/평가 데이터에 없는 문장)
 SAMPLES = {
@@ -46,7 +47,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--task", default=DEFAULT_TASK, choices=TASKS,
                    help=f"확정 모델을 고를 주제 (기본: {DEFAULT_TASK})")
     p.add_argument("--model-dir", type=Path, default=None,
-                   help="확정 모델 대신 쓸 모델 폴더 (예: runs/classifier/inquiries/baseline/model)")
+                   help="최종 모델 대신 쓸 모델 폴더 "
+                        "(예: runs/classifier/inquiries/baseline/20261013-1411/model)")
     p.add_argument("--device", default=None, help="사전학습 모델용 장치 (생략하면 자동: cuda > mps > cpu)")
     return p.parse_args(argv)
 
@@ -56,12 +58,14 @@ def load(args: argparse.Namespace) -> Classifier:
         # 1) 특정 모델 폴더를 지정한 경우
         if args.model_dir:
             return Classifier(args.model_dir, device=args.device)
-        # 2) compare.py가 확정한 모델 (runs/classifier/<task>/final_model/)
+        # 2) config.py FINAL_MODEL에 적힌 최종 모델
         return Classifier.from_final(args.task, device=args.device)
+    except FinalModelNotSetError as e:
+        raise SystemExit(f"[중단] {e}") from None
     except FileNotFoundError as e:
         raise SystemExit(
             f"[중단] 모델을 찾지 못했습니다: {e}\n"
-            "compare.py로 모델을 확정하거나, share_model.py pull --final 로 받아 오세요."
+            "학습한 컴퓨터에서 실행하거나, share_model.py pull --final 로 받아 오세요."
         ) from None
 
 
@@ -69,7 +73,8 @@ def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
     clf = load(args)
     print(f"[모델] {display_path(clf.model_dir)} "
-          f"(kind={clf.meta['kind']}, name={clf.meta['name']}) labels={clf.labels}\n")
+          f"(kind={clf.meta['kind']}, name={clf.meta['name']}, run={clf.meta.get('run')}) "
+          f"labels={clf.labels}\n")
 
     texts = args.texts or SAMPLES[clf.meta.get("task", args.task)]
 

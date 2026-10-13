@@ -54,8 +54,11 @@ class Classifier:
 
     @classmethod
     def from_final(cls, task: str = DEFAULT_TASK, device: str | None = None) -> Classifier:
-        """compare.py가 확정한 runs/classifier/<task>/final_model 모델을 불러온다 (기본: inquiries)."""
-        return cls(task_paths(task).final_dir, device=device)
+        """config.py의 FINAL_MODEL[task]가 가리키는 모델을 불러온다 (기본: inquiries).
+
+        FINAL_MODEL이 비어 있으면 FinalModelNotSetError가 난다.
+        """
+        return cls(task_paths(task).final_model_dir, device=device)
 
     @property
     def labels(self) -> tuple[str, ...]:

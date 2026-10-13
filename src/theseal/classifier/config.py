@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_ROOT / "data"
-# 학습/평가 결과: runs/classifier/<task>/<이름>/ 아래에 모델(model/)과 리포트를 함께 둔다
+# 학습/평가 결과: runs/classifier/<task>/<모델 이름>/<실행 ID>/ 아래에 모델(model/)과 리포트를 함께 둔다
 RUNS_DIR = PROJECT_ROOT / "runs" / "classifier"
 # fetch_models.py가 사전학습 모델을 받아 두는 곳
 MODELS_DIR = PROJECT_ROOT / "models"
@@ -29,11 +31,23 @@ SEED = 42
 
 # 저장된 모델 폴더마다 들어가는 메타 파일 (classifier가 모델 종류를 판단할 때 사용)
 META_FILENAME = "classifier_meta.json"
-# 후보 폴더 안에서 모델 파일을 두는 하위 폴더 이름
+# 실행 폴더 안에서 모델 파일을 두는 하위 폴더 이름
 MODEL_SUBDIR = "model"
-# compare.py가 확정한 모델을 복사해 두는 폴더 이름 (runs/classifier/<task>/ 바로 아래)
-FINAL_NAME = "final_model"
 VAL_REPORT_FILENAME = "val_report.json"
+# 실행 ID = 학습을 시작한 시각 (분 단위). Windows 폴더 이름에 못 쓰는 ':'는 쓰지 않는다
+RUN_ID_FORMAT = "%Y%m%d-%H%M"
+
+# 최종 모델: comparison.md를 보고 task별로 모델 이름과 실행 ID를 직접 적는다.
+# 예) "inquiries": {"model": "roberta-base", "run": "20261013-1411"}
+#     → runs/classifier/inquiries/roberta-base/20261013-1411/model/ 을 그대로 사용 (복사하지 않음)
+FINAL_MODEL: dict[str, dict[str, str] | None] = {
+    "inquiries": None,
+    "documents": None,
+}
+
+
+class FinalModelNotSetError(LookupError):
+    """config.py의 FINAL_MODEL에 해당 task의 최종 모델이 정해지지 않았을 때."""
 
 
 @dataclass
@@ -73,35 +87,35 @@ class BertConfig:
 class TaskPaths:
     """runs/classifier/<task>/ 아래 구조.
 
-    <이름>/model/            학습된 모델 (gitignore)
-    <이름>/val_report.json   validation 결과
-    final_model/             compare.py가 확정한 모델 복사본 (gitignore)
-    comparison.md, selection.json, test_report.json, test_report.md
+    <모델 이름>/<실행 ID>/model/            학습된 가중치 (gitignore)
+    <모델 이름>/<실행 ID>/val_report.json   validation 결과 + 그때 쓴 설정
+    comparison.md, test_report.json, test_report.md
     """
 
+    task: str
     data_dir: Path
     runs_dir: Path
 
-    def run_dir(self, name: str) -> Path:
-        return self.runs_dir / name
+    def model_root(self, model: str) -> Path:
+        return self.runs_dir / model
 
-    def model_dir(self, name: str) -> Path:
-        return self.run_dir(name) / MODEL_SUBDIR
+    def run_dir(self, model: str, run: str) -> Path:
+        return self.model_root(model) / run
 
-    def val_report(self, name: str) -> Path:
-        return self.run_dir(name) / VAL_REPORT_FILENAME
+    def model_dir(self, model: str, run: str) -> Path:
+        return self.run_dir(model, run) / MODEL_SUBDIR
+
+    def val_report(self, model: str, run: str) -> Path:
+        return self.run_dir(model, run) / VAL_REPORT_FILENAME
 
     @property
-    def final_dir(self) -> Path:
-        return self.runs_dir / FINAL_NAME
+    def final_model_dir(self) -> Path:
+        """config.py의 FINAL_MODEL이 가리키는 모델 폴더."""
+        return self.model_dir(*final_choice(self.task))
 
     @property
     def comparison_md(self) -> Path:
         return self.runs_dir / "comparison.md"
-
-    @property
-    def selection_json(self) -> Path:
-        return self.runs_dir / "selection.json"
 
     @property
     def test_json(self) -> Path:
@@ -121,9 +135,32 @@ def task_paths(
     if task not in TASKS:
         raise ValueError(f"알 수 없는 task: {task!r} (가능: {', '.join(TASKS)})")
     return TaskPaths(
+        task=task,
         data_dir=Path(data_dir or DATA_DIR) / task,
         runs_dir=Path(runs_dir or RUNS_DIR) / task,
     )
+
+
+def final_choice(task: str = DEFAULT_TASK) -> tuple[str, str]:
+    """FINAL_MODEL에 적힌 (모델 이름, 실행 ID)."""
+    choice = FINAL_MODEL.get(task)
+    if not choice or not choice.get("model") or not choice.get("run"):
+        raise FinalModelNotSetError(
+            f"config.py의 FINAL_MODEL[{task!r}]에 최종 모델이 없습니다. "
+            "comparison.md를 보고 {\"model\": ..., \"run\": ...}을 적어 주세요."
+        )
+    return choice["model"], choice["run"]
+
+
+def safe_name(text: str) -> str:
+    """폴더 이름으로 쓸 수 있게 영문, 숫자, '.', '_', '-' 외의 글자를 '-'로 바꾼다."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", text).strip("-") or "model"
+
+
+def new_run_id(tag: str | None = None, now: datetime | None = None) -> str:
+    """학습 시작 시각으로 실행 ID를 만든다. 예) 20261013-1411, 태그가 있으면 20261013-1411_lr2e5."""
+    run = (now or datetime.now()).strftime(RUN_ID_FORMAT)
+    return f"{run}_{safe_name(tag)}" if tag else run
 
 
 def local_model_dir(repo_id: str) -> Path:

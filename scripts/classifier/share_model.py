@@ -3,11 +3,11 @@
 가중치(model.safetensors)는 수백 MB라 git에 올릴 수 없다(GitHub 파일 한도 100MB).
 팀원이 직접 학습하지 않고 파인튜닝 결과를 그대로 쓰려면 이 스크립트로 주고받는다.
 
-올리기: uv run python scripts/classifier/share_model.py push --name koelectra-small-v3-discriminator --repo-id <계정>/<저장소>
-받기:   uv run python scripts/classifier/share_model.py pull --name koelectra-small-v3-discriminator --repo-id <계정>/<저장소>
+올리기: uv run python scripts/classifier/share_model.py push --model roberta-base --run 20261013-1411 --repo-id <계정>/<저장소>
+받기:   uv run python scripts/classifier/share_model.py pull --model roberta-base --run 20261013-1411 --repo-id <계정>/<저장소>
 
-확정 모델(final_model/)은 --name 대신 --final을 쓴다.
-저장소 하나에 task별/이름별로 폴더를 나눠 담으므로 모델마다 저장소를 만들 필요는 없다.
+config.py의 FINAL_MODEL에 적힌 최종 모델은 --model/--run 대신 --final을 쓴다.
+저장소 하나에 <task>/<모델 이름>/<실행 ID>/ 로 폴더를 나눠 담으므로 모델마다 저장소를 만들 필요는 없다.
 토큰은 HF_TOKEN 환경변수나 `uv run hf auth login`으로 준비한다.
 """
 
@@ -20,7 +20,12 @@ import _common
 from huggingface_hub import HfApi, snapshot_download
 
 from theseal.classifier.classifier import read_meta
-from theseal.classifier.config import FINAL_NAME, META_FILENAME, display_path
+from theseal.classifier.config import (
+    META_FILENAME,
+    FinalModelNotSetError,
+    display_path,
+    final_choice,
+)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -28,8 +33,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("command", choices=["push", "pull"], help="push: 올리기, pull: 받기")
     _common.add_common_args(p)
     p.add_argument("--repo-id", required=True, help="HF Hub 저장소 (<계정 또는 조직>/<이름>)")
-    p.add_argument("--name", default=None, help="runs/classifier/<task>/<이름> 의 이름")
-    p.add_argument("--final", action="store_true", help=f"--name 대신 확정 모델({FINAL_NAME}/)을 다룬다")
+    p.add_argument("--model", default=None, help="runs/classifier/<task>/<모델 이름>/ 의 모델 이름")
+    p.add_argument("--run", default=None, help="그 아래 <실행 ID> (예: 20261013-1411)")
+    p.add_argument("--final", action="store_true",
+                   help="--model/--run 대신 config.py FINAL_MODEL의 최종 모델을 다룬다")
     p.add_argument("--public", action="store_true", help="push할 때 공개 저장소로 만든다 (기본: 비공개)")
     return p.parse_args(argv)
 
@@ -42,10 +49,15 @@ def resolve(paths, args) -> tuple[Path, str, Path]:
     """
     base_dir = paths.runs_dir.parent  # runs/classifier
     if args.final:
-        return paths.final_dir, f"{args.task}/{FINAL_NAME}", base_dir
-    if not args.name:
-        raise SystemExit("[중단] --name 또는 --final 중 하나는 있어야 합니다.")
-    return paths.model_dir(args.name), f"{args.task}/{args.name}/model", base_dir
+        try:
+            model, run = final_choice(args.task)
+        except FinalModelNotSetError as e:
+            raise SystemExit(f"[중단] {e}") from None
+    elif args.model and args.run:
+        model, run = args.model, args.run
+    else:
+        raise SystemExit("[중단] --model과 --run을 함께 주거나 --final을 주세요.")
+    return paths.model_dir(model, run), f"{args.task}/{model}/{run}/model", base_dir
 
 
 def push(api: HfApi, args, local_dir: Path, path_in_repo: str) -> None:
@@ -64,7 +76,7 @@ def push(api: HfApi, args, local_dir: Path, path_in_repo: str) -> None:
         repo_id=args.repo_id,
         path_in_repo=path_in_repo,
         repo_type="model",
-        commit_message=f"{args.task}/{meta['name']} ({meta['kind']})",
+        commit_message=f"{path_in_repo} ({meta['kind']})",
     )
     print(f"완료: https://huggingface.co/{args.repo_id}/tree/main/{path_in_repo}")
 
@@ -82,7 +94,7 @@ def pull(args, local_dir: Path, path_in_repo: str, base_dir: Path) -> None:
     )
     if not (local_dir / META_FILENAME).exists():
         raise SystemExit(f"[중단] 받은 뒤에도 {META_FILENAME}이 없습니다. "
-                         f"--name과 --task가 올린 쪽과 같은지 확인하세요.")
+                         f"--model, --run, --task가 올린 쪽과 같은지 확인하세요.")
     meta = read_meta(local_dir)
     print(f"완료: kind={meta['kind']} task={meta['task']} labels={meta['labels']}")
     print(f"불러오기: Classifier({display_path(local_dir)!r})")
