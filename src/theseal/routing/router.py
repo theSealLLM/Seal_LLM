@@ -1,6 +1,7 @@
 """② 경로 규칙 → ③ LLM 검증을 설정대로 이어서 실행한다.
 
-입력은 분류기 Predictor.predict(text)의 결과를 그대로 받는다: {"label", "confidence", "scores"}
+입력은 분류기 Classifier.predict(text)의 결과를 그대로 받는다: (라벨 번호, 라벨별 확률 배열)
+번호 → 이름은 Classifier.labels(labels.json 순서)로 바꾼다. 안쪽(경로 규칙 · 검증 · 출력)은 라벨 이름을 쓴다.
 출력 RoutingResult의 label · text가 프롬프트 생성 모듈로 넘어간다. route · verification은 기록용.
 ②·③은 각각 .env로 끈다 (ROUTE_RULE_ENABLED, VERIFY_MODE=off). 둘 다 끄면 분류기 라벨을 그대로 쓴다.
 """
@@ -8,6 +9,8 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Sequence
+from pathlib import Path
 
 from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel
@@ -28,35 +31,48 @@ class RoutingResult(BaseModel):
     verification: dict | None = None  # ③ 결과 (VerifyResult). 검증하지 않았으면 null
 
 
+def to_scores(prediction: tuple[int, Sequence[float]], labels: Sequence[str]) -> tuple[str, dict[str, float]]:
+    """Classifier.predict 결과 (라벨 번호, 확률 배열) → (라벨 이름, {라벨 이름: 확률})"""
+    index, probs = prediction
+    if len(probs) != len(labels) or not 0 <= index < len(labels):
+        raise ValueError(f"분류 결과와 라벨 수가 맞지 않습니다: 번호 {index}, 확률 {len(probs)}개, 라벨 {list(labels)}")
+    return labels[index], {name: float(p) for name, p in zip(labels, probs, strict=True)}
+
+
 def apply_route_rule(
-    prediction: dict, config: RoutingConfig, model_name: str | None = None
+    label: str, scores: dict[str, float], config: RoutingConfig, model_dir: Path | None = None
 ) -> tuple[str, dict | None]:
     """② 경로 규칙. 꺼져 있으면 분류기 라벨을 그대로 쓴다."""
     if not config.route_rule_enabled:
-        return prediction["label"], None
-    resolved = resolve_params(config, model_name)
-    decision = route_rule.decide(
-        prediction["scores"], **resolved["params"], uncertain_action=config.route_uncertain_action)
+        return label, None
+    resolved = resolve_params(config, model_dir)
+    decision = route_rule.decide(scores, **resolved["params"], uncertain_action=config.route_uncertain_action)
     return decision.label, {**decision.model_dump(), "source": resolved["source"],
                             "calibration": resolved["calibration"]}
 
 
 async def run(
-    prediction: dict,
+    prediction: tuple[int, Sequence[float]],
     text: str,
     *,
-    model_name: str | None = None,
+    labels: Sequence[str],
+    model_dir: Path | None = None,
     config: RoutingConfig | None = None,
     llm_config: LLMConfig | None = None,
     llm: BaseChatModel | None = None,
 ) -> RoutingResult:
-    """prediction: Predictor.predict(text) 결과
-    model_name: 분류 모델 이름 (Predictor.meta["name"]). ROUTE_CALIBRATION=auto일 때 보정 파일을 찾는 데 쓴다
-    llm: 검증에 쓸 LLM (없으면 VERIFY_PROVIDER로 만든다)"""
+    """prediction: Classifier.predict(text) 결과 (라벨 번호, 라벨별 확률 배열)
+    labels: 라벨 이름 (Classifier.labels). prediction의 번호 · 배열 순서와 같다
+    model_dir: 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 보정 파일을 찾는 데 쓴다
+    llm: 검증에 쓸 LLM (없으면 VERIFY_PROVIDER로 만든다)
+
+    예) clf = Classifier.from_final()
+        result = await router.run(clf.predict(text), text, labels=clf.labels, model_dir=clf.model_dir)"""
     config = config or get_routing_config()
-    label, route = apply_route_rule(prediction, config, model_name)
-    result = RoutingResult(label=label, text=text, classifier_label=prediction["label"],
-                           scores=prediction["scores"], route=route)
+    classifier_label, scores = to_scores(prediction, labels)
+    label, route = apply_route_rule(classifier_label, scores, config, model_dir)
+    result = RoutingResult(label=label, text=text, classifier_label=classifier_label,
+                           scores=scores, route=route)
 
     if not llm_verifier.needs_verification(label, route and route["route"], config.verify_mode):
         return result

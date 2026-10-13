@@ -1,11 +1,14 @@
 """⑥ 학습한 분류 모델마다 경로 규칙 보정값(T · tau · tau_low · delta)을 정해 저장한다 (재학습 없음).
 
 uv run python scripts/classifier/calibrate_route_rule.py --all
-uv run python scripts/classifier/calibrate_route_rule.py --name koelectra-small-v3-discriminator
-uv run python scripts/classifier/calibrate_route_rule.py --final
+uv run python scripts/classifier/calibrate_route_rule.py --model roberta-base --run 20261013-1029
+uv run python scripts/classifier/calibrate_route_rule.py --model roberta-base      # 가장 최근 실행
+uv run python scripts/classifier/calibrate_route_rule.py --final                   # config.py FINAL_MODEL
+uv run python scripts/classifier/calibrate_route_rule.py --model-dir <모델 폴더>    # 위 구조 밖의 폴더
 
-- 대상: runs/classifier/<task>/<이름>/model 이 있는 모델 (--final은 final_model의 원래 이름으로 저장)
-- 결과: runs/classifier/<task>/<이름>/route_rule.json (val_report.json 옆). 서비스는 쓰는 모델 이름으로 이 파일을 찾는다
+- 대상: runs/classifier/<task>/<모델>/<실행 ID>/model 이 있는 모델 (가중치는 git에 없으므로 학습했거나 share_model.py pull로 받은 것)
+- 결과: 모델 폴더 옆 route_rule.json (= <모델>/<실행 ID>/route_rule.json, val_report.json 옆).
+  보정값은 가중치마다 다르므로 실행마다 따로 둔다. 서비스는 쓰는 모델 폴더 옆의 이 파일을 찾는다
 - 값은 실제 문의(validation)로만 정한다. 범위 밖 글(--ood-task의 validation)은 평가에만 쓴다
   T            보정 후 실제 문의 p1의 (1-keep) 분위수가 --target-tau-low가 되는 값
   tau_low      보정 후 p1의 (1-keep) 분위수 (= target-tau-low)
@@ -24,11 +27,11 @@ from pathlib import Path
 import _common
 import numpy as np
 
-from theseal.classifier.classifier import Predictor
-from theseal.classifier.config import FINAL_NAME, SEED, TASKS, display_path, task_paths
+from theseal.classifier.classifier import Classifier
+from theseal.classifier.config import SEED, TASKS, FinalModelNotSetError, display_path, task_paths
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import environment_info, now_iso, save_json
-from theseal.routing.config import CALIBRATION_FILENAME, calibration_path
+from theseal.routing.config import CALIBRATION_FILENAME, calibration_name, calibration_path
 
 KEEP = 0.975  # 실제 문의 중 unknown으로 잘못 버려도 되는 비율 2.5%
 TARGET_TAU_LOW = 0.45
@@ -41,9 +44,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="경로 규칙 보정값 계산 · 저장")
     _common.add_common_args(p)
     who = p.add_mutually_exclusive_group(required=True)
-    who.add_argument("--name", help="runs/classifier/<task>/<이름> 하나")
-    who.add_argument("--final", action="store_true", help=f"{FINAL_NAME} 모델")
-    who.add_argument("--all", action="store_true", help="model/ 폴더가 있는 모델 전부")
+    who.add_argument("--model", help="runs/classifier/<task>/<모델> 하나 (--run이 없으면 가장 최근 실행)")
+    who.add_argument("--final", action="store_true", help="config.py FINAL_MODEL의 최종 모델")
+    who.add_argument("--all", action="store_true", help="model/ 폴더가 있는 실행 전부")
+    who.add_argument("--model-dir", type=Path, help="classifier_meta.json이 있는 모델 폴더를 직접 지정")
+    p.add_argument("--run", default=None, help="--model과 함께: <실행 ID> (예: 20261013-1029)")
     p.add_argument("--ood-task", default="documents", choices=TASKS,
                    help="평가에만 쓰는 범위 밖 글 (기본: documents validation)")
     p.add_argument("--keep", type=float, default=KEEP, help=f"실제 문의 통과 비율 (기본: {KEEP})")
@@ -138,12 +143,13 @@ def evaluate(z_in: np.ndarray, y_in: np.ndarray, z_ood: np.ndarray, folds, keep,
 # ---------------------------------------------------------------- 모델 하나
 
 def calibrate_one(model_dir: Path, args: argparse.Namespace, data: dict) -> dict:
-    predictor = Predictor(model_dir, device=args.device)
-    name = predictor.meta["name"]
-    labels = list(predictor.labels)
+    clf = Classifier(model_dir, device=args.device)
+    path = calibration_path(model_dir)
+    name = calibration_name(path)
+    labels = list(clf.labels)
 
     def logits(texts: list[str]) -> np.ndarray:
-        return np.log(np.clip(predictor.classifier.predict_proba(texts).astype(np.float64), MIN_PROB, None))
+        return np.log(np.clip(np.asarray(clf.model.predict_proba(texts), dtype=np.float64), MIN_PROB, None))
 
     z_in, z_ood = logits(data["in"].texts), logits(data["ood"].texts)
     y_in = np.array([labels.index(label) for label in data["in"].labels])
@@ -153,7 +159,7 @@ def calibrate_one(model_dir: Path, args: argparse.Namespace, data: dict) -> dict
     evaluation = evaluate(z_in, y_in, z_ood, folds, args.keep, args.target_tau_low)
     report = {
         "name": name,
-        "kind": predictor.meta["kind"],
+        "kind": clf.meta["kind"],
         "task": args.task,
         "model_dir": display_path(model_dir),
         "created_at": now_iso(),
@@ -170,7 +176,6 @@ def calibrate_one(model_dir: Path, args: argparse.Namespace, data: dict) -> dict
         "evaluation": evaluation,
         "environment": environment_info(),
     }
-    path = calibration_path(name, args.task, args.runs_dir)
     save_json(report, path)
 
     e = evaluation
@@ -190,12 +195,24 @@ def calibrate_one(model_dir: Path, args: argparse.Namespace, data: dict) -> dict
 def main(argv: list[str] | None = None) -> list[dict]:
     args = parse_args(argv)
     paths = _common.paths_from_args(args)
+    if args.run and not args.model:
+        raise SystemExit("[중단] --run은 --model과 함께 씁니다.")
     if args.all:
-        model_dirs = sorted(d for d in paths.runs_dir.glob("*/model") if d.is_dir())
+        model_dirs = sorted(d for d in paths.runs_dir.glob("*/*/model") if d.is_dir())
     elif args.final:
-        model_dirs = [paths.final_dir]
+        try:
+            model_dirs = [paths.final_model_dir]
+        except FinalModelNotSetError as e:
+            raise SystemExit(f"[중단] {e}") from None
+    elif args.model_dir:
+        model_dirs = [args.model_dir]
     else:
-        model_dirs = [paths.model_dir(_common.check_name(args.name))]
+        model = _common.check_name(args.model)
+        if args.run:
+            model_dirs = [paths.model_dir(model, args.run)]
+        else:  # 실행 ID는 시각이라 이름순 마지막이 가장 최근
+            runs = sorted(d for d in paths.model_root(model).glob("*/model") if d.is_dir())
+            model_dirs = runs[-1:] or [paths.model_root(model) / "<실행 ID>" / "model"]
     missing = [d for d in model_dirs if not d.exists()]
     if not model_dirs or missing:
         raise SystemExit(f"[중단] 학습된 모델이 없습니다: {', '.join(map(display_path, missing)) or paths.runs_dir}"

@@ -23,7 +23,8 @@ UNCERTAIN_ACTIONS = ("top1", "unknown")
 class RoutingConfig:
     # ② 경로 규칙
     route_rule_enabled: bool = True
-    # 보정 파일을 고르는 이름: auto면 쓰는 분류 모델의 이름(classifier_meta.json의 name)으로 찾는다
+    # 보정 파일을 고르는 방법: auto면 쓰는 분류 모델 폴더(<모델>/<실행 ID>/model) 옆의 route_rule.json,
+    # "<모델>/<실행 ID>"를 적으면 그 실행의 보정 파일
     route_calibration: str = "auto"
     route_task: str = DEFAULT_TASK
     route_temperature: float | None = None  # 아래 네 값은 비우면 보정 파일 → 예시 값
@@ -50,20 +51,37 @@ class RoutingConfig:
         return config_from_env(cls, env_file)
 
 
-def calibration_path(name: str, task: str = DEFAULT_TASK, runs_dir: Path | None = None) -> Path:
-    """runs/classifier/<task>/<name>/route_rule.json (scripts/classifier/calibrate_route_rule.py가 만든다)"""
-    return task_paths(task, runs_dir=runs_dir).run_dir(name) / CALIBRATION_FILENAME
+def calibration_path(model_dir: Path) -> Path:
+    """분류 모델 폴더(runs/classifier/<task>/<모델>/<실행 ID>/model) 옆의 route_rule.json.
+    보정값은 학습한 가중치마다 다르므로 실행 폴더에 둔다 (scripts/classifier/calibrate_route_rule.py가 만든다)."""
+    return Path(model_dir).parent / CALIBRATION_FILENAME
 
 
-def load_calibration(name: str, task: str = DEFAULT_TASK, runs_dir: Path | None = None) -> dict:
-    path = calibration_path(name, task, runs_dir)
+def named_calibration_path(name: str, task: str = DEFAULT_TASK, runs_dir: Path | None = None) -> Path:
+    """name = "<모델>/<실행 ID>" → runs/classifier/<task>/<모델>/<실행 ID>/route_rule.json"""
+    model, sep, run = name.partition("/")
+    if not sep or not model or not run:
+        raise ValueError(f"ROUTE_CALIBRATION은 auto 또는 '<모델>/<실행 ID>' 형식이어야 합니다: {name!r}")
+    return task_paths(task, runs_dir=runs_dir).run_dir(model, run) / CALIBRATION_FILENAME
+
+
+def load_calibration(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
-def resolve_params(config: RoutingConfig, model_name: str | None = None) -> dict:
-    """경로 규칙에 넣을 값: .env > 보정 파일 > 예시 값. 어디서 왔는지(source)도 함께 돌려준다."""
-    name = model_name if config.route_calibration == "auto" else config.route_calibration
-    cal = load_calibration(name, config.route_task) if name else {}
+def calibration_name(path: Path) -> str:
+    """보정 파일이 어느 모델 실행 것인지: <모델>/<실행 ID>"""
+    return f"{path.parent.parent.name}/{path.parent.name}"
+
+
+def resolve_params(config: RoutingConfig, model_dir: Path | None = None) -> dict:
+    """경로 규칙에 넣을 값: .env > 보정 파일 > 예시 값. 어디서 왔는지(source)도 함께 돌려준다.
+    model_dir: 쓰는 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 보정 파일을 찾는 데 쓴다"""
+    if config.route_calibration == "auto":
+        path = calibration_path(model_dir) if model_dir else None
+    else:
+        path = named_calibration_path(config.route_calibration, config.route_task)
+    cal = load_calibration(path) if path else {}
     file_values = {"temperature": cal.get("temperature"), **cal.get("thresholds", {})}
     env_values = {
         "temperature": config.route_temperature,
@@ -79,7 +97,7 @@ def resolve_params(config: RoutingConfig, model_name: str | None = None) -> dict
             params[key], source[key] = file_values[key], "calibration"
         else:
             params[key], source[key] = example, "example"
-    return {"params": params, "source": source, "calibration": name if cal else None}
+    return {"params": params, "source": source, "calibration": calibration_name(path) if cal else None}
 
 
 @lru_cache
