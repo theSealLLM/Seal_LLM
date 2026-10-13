@@ -1,0 +1,54 @@
+{
+  "name": "koelectra-small-v3-discriminator",
+  "kind": "bert",
+  "task": "inquiries",
+  "model_dir": "runs/classifier/inquiries/koelectra-small-v3-discriminator/model",
+  "created_at": "2026-10-13T10:25:22+09:00",
+  "temperature": 1.772721,
+  "thresholds": {
+    "tau": 0.456737,
+    "tau_low": 0.45,
+    "delta": 0.15622
+  },
+  "method": {
+    "temperature": "보정 후 실제 문의 p1의 0.025 분위수 = 0.45",
+    "tau": "보정 후 p1의 0.1 분위수",
+    "tau_low": "보정 후 p1의 0.025 분위수",
+    "delta": "보정 후 margin의 0.025 분위수",
+    "fit_data": "inquiries validation 120건 (실제 문의만)",
+    "ood_data": "documents validation 120건 (평가에만 사용)"
+  },
+  "evaluation": {
+    "example": {
+      "in_unknown": 0.0083,
+      "in_uncertain": 0.35,
+      "in_confident_acc": 1.0,
+      "ood_unknown": 0.1083,
+      "ood_confident": 0.3667
+    },
+    "single_threshold": {
+      "in_unknown": 0.05,
+      "in_uncertain": 0.0,
+      "in_confident_acc": 1.0,
+      "ood_unknown": 0.3292,
+      "ood_confident": 0.6708
+    },
+    "calibrated": {
+      "in_unknown": 0.05,
+      "in_uncertain": 0.0583,
+      "in_confident_acc": 1.0,
+      "ood_unknown": 0.3167,
+      "ood_confident": 0.6042
+    }
+  },
+  "environment": {
+    "python": "3.12.13",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "4.57.6",
+    "gpu": "NVIDIA GeForce RTX 5080 Laptop GPU",
+    "cuda": "12.8"
+  }
+}
