@@ -32,6 +32,7 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from theseal.llm.client import model_name
@@ -56,7 +57,6 @@ state: dict = {"predictor": None, "error": None}
 async def lifespan(app: FastAPI):
     # 분류 모델은 서버 시작 때 한 번 불러온다. 없어도 서버는 뜬다 (label을 직접 넣은 /api/answer는 동작)
     api_config = pipeline.ApiConfig.from_env()
-    state["config"] = api_config
     try:
         state["predictor"] = await run_in_threadpool(pipeline.load_classifier, api_config)
         p = state["predictor"]
@@ -69,6 +69,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Seal_LLM", version="0.1.0", description="고객 문의 분류 · 답변 초안 API",
               lifespan=lifespan)
+
+# 프론트(다른 포트 · 주소)가 브라우저에서 직접 부를 수 있게 허용한다. 미들웨어는 앱을 만들 때 붙여야 해서 여기서 .env를 읽는다
+_cors_origins = pipeline.ApiConfig.from_env().cors_origins()
+if _cors_origins:
+    app.add_middleware(CORSMiddleware, allow_origins=_cors_origins, allow_methods=["GET", "POST"],
+                       allow_headers=["*"])
 
 
 def _now() -> str:
@@ -161,20 +167,23 @@ async def answer_stream(req: AnswerRequest) -> StreamingResponse:
     """/api/answer와 같은 처리를 SSE로 흘려보낸다. 오류도 done 이벤트(status=error)로 보낸다."""
 
     async def events() -> AsyncIterator[str]:
+        ctx: dict = {}  # 오류가 나도 그때까지 정해진 라벨 · 분류 결과를 done에 담는다
         try:
-            async for chunk in _answer_events(req):
+            async for chunk in _answer_events(req, ctx):
                 yield chunk
         except Exception as e:  # 스트림이 열린 뒤에는 상태 코드를 바꿀 수 없어 done으로 알린다
             logger.exception("스트리밍 중 오류")
-            yield _sse("done", _error_response("llm_error", f"{type(e).__name__}: {e}", req.provider).model_dump())
+            err = _error_response("llm_error", f"{type(e).__name__}: {e}", req.provider,
+                                  ctx.get("label", "unknown"), ctx.get("classification"))
+            yield _sse("done", err.model_dump())
 
     # 프록시 · 브라우저가 모아서 보내지 않게 한다
     return StreamingResponse(events(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
-async def _answer_events(req: AnswerRequest) -> AsyncIterator[str]:
-    """status · classification · delta · done 이벤트 (SSE 문자열)"""
+async def _answer_events(req: AnswerRequest, ctx: dict) -> AsyncIterator[str]:
+    """status · classification · delta · done 이벤트 (SSE 문자열). ctx에 정해진 label · classification을 남긴다"""
     def status(stage: str) -> str:
         return _sse("status", {"stage": stage, "message": STAGE_MESSAGES[stage]})
 
@@ -189,8 +198,10 @@ async def _answer_events(req: AnswerRequest) -> AsyncIterator[str]:
         yield status("classifying")
         classification = await pipeline.classify(state["predictor"], req.text)
         label = classification.label
+        ctx["classification"] = classification
         yield _sse("classification", classification.model_dump())
 
+    ctx["label"] = label
     yield status("adventure" if label == "unknown" else "answering")
     async for event in pipeline.answer_stream(label, req.text, req.provider, get_config()):
         if event["type"] == "delta":

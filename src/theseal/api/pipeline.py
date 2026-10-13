@@ -29,10 +29,20 @@ class ApiConfig:
     api_classifier: str = "final"
     api_classifier_task: str = DEFAULT_TASK
     api_classifier_device: str | None = None  # None이면 자동 (GPU가 있으면 cuda)
+    # 브라우저에서 직접 호출을 허용할 프론트 주소 (쉼표로 구분). "*"면 전부, "off"면 CORS를 켜지 않는다.
+    # 기본은 로컬 개발 서버 (Vite 5173 · CRA/Next 3000)
+    api_cors_origins: str = (
+        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000"
+    )
 
     @classmethod
     def from_env(cls) -> ApiConfig:
         return config_from_env(cls, ENV_FILE)
+
+    def cors_origins(self) -> list[str]:
+        if self.api_cors_origins.strip().lower() == "off":
+            return []
+        return [o.strip().rstrip("/") for o in self.api_cors_origins.split(",") if o.strip()]
 
 
 class ClassifierNotReady(Exception):

@@ -115,28 +115,31 @@ async def generate(
     records: list[ToolRecord] = []
     label_tools = get_tools_for(spec.label, config) if tools is None else tools
     result = result_builder(spec, provider, config, label_tools, usage, records)
+    deadline: asyncio.Timeout | None = None
 
     try:
         llm = llm or make_llm(provider, config, with_tools=bool(label_tools))
         messages = to_messages(spec)
 
-        if label_tools:
-            outcome = tool_caller.ToolCallOutcome(records=records, usage=usage)  # 도중에 예외가 나도 기록이 남는다
-            await tool_caller.run(
-                llm,
-                messages,
-                label_tools,
-                max_rounds=config.max_tool_rounds,
-                tool_timeout=config.tool_timeout_sec,
-                llm_timeout=config.llm_timeout_sec,
-                out=outcome,
-            )
-            if outcome.exhausted:
-                return result(answer=config.fallback_answer)
-            ai = outcome.final
-        else:
-            ai = await asyncio.wait_for(llm.ainvoke(messages), config.llm_timeout_sec)
-            tool_caller.add_usage(usage, ai)
+        async with asyncio.timeout(config.answer_timeout_sec) as deadline:  # 호출 · 툴을 다 합친 상한
+            if label_tools:
+                # 도중에 예외가 나도 기록이 남는다
+                outcome = tool_caller.ToolCallOutcome(records=records, usage=usage)
+                await tool_caller.run(
+                    llm,
+                    messages,
+                    label_tools,
+                    max_rounds=config.max_tool_rounds,
+                    tool_timeout=config.tool_timeout_sec,
+                    llm_timeout=config.llm_timeout_sec,
+                    out=outcome,
+                )
+                if outcome.exhausted:
+                    return result(answer=config.fallback_answer)
+                ai = outcome.final
+            else:
+                ai = await asyncio.wait_for(llm.ainvoke(messages), config.llm_timeout_sec)
+                tool_caller.add_usage(usage, ai)
 
         answer = extract_text(ai)
         if not answer:
@@ -144,6 +147,9 @@ async def generate(
         return result(answer=answer)
 
     except Exception as e:  # noqa: BLE001 — 연결 실패(Ollama 꺼짐), API 오류 등은 error JSON으로
+        if isinstance(e, TimeoutError) and deadline is not None and deadline.expired():
+            return result(error=ErrorInfo(code="llm_timeout",
+                                          message=f"답변 생성 전체 시간 초과 ({config.answer_timeout_sec}초)"))
         return result(error=error_info(e, config))
 
 

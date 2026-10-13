@@ -63,8 +63,10 @@ class LLMConfig:
     )
 
     # 제한
-    llm_timeout_sec: float = 60
-    tool_timeout_sec: float = 10
+    llm_timeout_sec: float = 60  # LLM 호출 한 번
+    tool_timeout_sec: float = 10  # 툴 실행 한 번
+    # 답변 생성 한 번 전체 (툴 경로는 LLM 최대 max_tool_rounds+1회 + 툴). 넘으면 llm_timeout. 실측 툴 경로 5~10초
+    answer_timeout_sec: float = 90
 
     timezone: str = "Asia/Seoul"
 
