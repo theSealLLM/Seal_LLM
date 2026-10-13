@@ -7,12 +7,15 @@ uv run python scripts/classifier/train_classifier_model.py
 --model을 직접 주면 메뉴 없이 바로 학습한다 (HF Hub 이름 또는 로컬 폴더 경로).
 처음 실행할 때 Hub 이름을 주면 HF 캐시로 내려받는다. 이미 받아 둔 모델만 쓰려면 --local-files-only.
 --task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
+
+결과: runs/classifier/<task>/<모델 이름>/<실행 ID>/ (model/ + val_report.json)
+실행 ID는 학습을 시작한 시각(분 단위)이라 다시 학습해도 덮어쓰지 않는다. --tag는 ID 뒤에 붙는 메모.
+에폭별 가중치는 남기지 않고, validation macro-F1이 가장 좋았던 에폭의 가중치 하나만 저장한다.
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -27,14 +30,15 @@ from theseal.classifier.config import (
     TaskPaths,
     display_path,
     local_model_dir,
+    new_run_id,
+    safe_name,
 )
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import LATENCY_SAMPLES, evaluate_classifier, save_json
 
 
 def default_name(model: str) -> str:
-    base = Path(model.rstrip("/\\")).name or "model"
-    return re.sub(r"[^A-Za-z0-9._-]+", "-", base)
+    return safe_name(Path(model.rstrip("/\\")).name)
 
 
 def choose_model(paths: TaskPaths) -> tuple[str, str | None]:
@@ -48,7 +52,9 @@ def choose_model(paths: TaskPaths) -> tuple[str, str | None]:
     for i, repo_id in enumerate(MODEL_CANDIDATES, start=1):
         local = local_model_dir(repo_id)
         where = f"로컬 {display_path(local)}" if local.is_dir() else "HF Hub에서 내려받음"
-        done = " · 학습 결과 있음(덮어씀)" if paths.run_dir(default_name(repo_id)).exists() else ""
+        root = paths.model_root(default_name(repo_id))
+        n_runs = sum(1 for d in root.iterdir() if d.is_dir()) if root.is_dir() else 0
+        done = f" · 학습 기록 {n_runs}개" if n_runs else ""
         print(f"  {i}) {repo_id:<45} {where}{done}")
     print("  0) 직접 입력 (HF Hub 이름 또는 폴더 경로)")
 
@@ -79,7 +85,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     _common.add_common_args(p)
     p.add_argument("--model", default=None,
                    help="HF Hub 이름 또는 로컬 경로 (생략하면 번호로 고른다)")
-    p.add_argument("--name", default=None, help="결과 폴더 이름 (기본: 모델 폴더/저장소 이름)")
+    p.add_argument("--name", default=None, help="모델 폴더 이름 (기본: 모델 폴더/저장소 이름)")
+    p.add_argument("--tag", default=None, help="실행 ID 뒤에 붙일 메모 (예: lr2e5 → 20261013-1411_lr2e5)")
     p.add_argument("--max-length", type=int, default=d.max_length)
     p.add_argument("--batch-size", type=int, default=d.batch_size)
     p.add_argument("--eval-batch-size", type=int, default=d.eval_batch_size)
@@ -113,6 +120,7 @@ def main(argv: list[str] | None = None) -> dict:
             print(f"[안내] --model이 없고 입력을 받을 수 없어 기본값 {model}로 학습합니다.")
 
     name = _common.check_name(args.name or chosen_name or default_name(model))
+    run_id = new_run_id(args.tag)  # 학습 시작 시각
     config = BertConfig(
         model_name=model,
         max_length=args.max_length,
@@ -158,12 +166,14 @@ def main(argv: list[str] | None = None) -> dict:
 
     result_train = train_classifier(clf, train, val, config)
 
-    model_dir = paths.model_dir(name)
-    clf.save(model_dir, name=name, task=args.task, config=config)
+    run, _ = _common.unique_run_dir(paths, name, run_id)
+    model_dir = paths.model_dir(name, run)
+    clf.save(model_dir, name=name, task=args.task, run=run, config=config)
 
     result = evaluate_classifier(clf, val, model_dir=model_dir, latency_samples=args.latency_samples)
     report = _common.build_report(
-        name=name,
+        model=name,
+        run=run,
         kind=KIND,
         task=args.task,
         model_dir=model_dir,
@@ -180,10 +190,10 @@ def main(argv: list[str] | None = None) -> dict:
             "history": result_train.history,
         },
     )
-    save_json(report, paths.val_report(name))
+    save_json(report, paths.val_report(name, run))
 
     _common.print_summary(report)
-    print(f"\n모델: {display_path(model_dir)}\n리포트: {display_path(paths.val_report(name))}")
+    print(f"\n모델: {display_path(model_dir)}\n리포트: {display_path(paths.val_report(name, run))}")
     return report
 
 

@@ -1,0 +1,190 @@
+{
+  "name": "koelectra-small-v3-discriminator",
+  "kind": "bert",
+  "task": "inquiries",
+  "split": "validation",
+  "num_samples": 120,
+  "model_dir": "runs/classifier/inquiries/koelectra-small-v3-discriminator/model",
+  "created_at": "2026-10-13T10:56:40+09:00",
+  "metrics": {
+    "accuracy": 0.9917,
+    "macro_f1": 0.9917,
+    "macro_precision": 0.9919,
+    "macro_recall": 0.9917,
+    "per_class": {
+      "shipping": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      },
+      "refund": {
+        "precision": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873,
+        "support": 40
+      },
+      "account": {
+        "precision": 0.9756,
+        "recall": 1.0,
+        "f1": 0.9877,
+        "support": 40
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "shipping",
+        "refund",
+        "account"
+      ],
+      "matrix": [
+        [
+          40,
+          0,
+          0
+        ],
+        [
+          0,
+          39,
+          1
+        ],
+        [
+          0,
+          0,
+          40
+        ]
+      ]
+    }
+  },
+  "efficiency": {
+    "device": "mps",
+    "latency_ms_median": 7.758,
+    "latency_ms_p95": 9.989,
+    "latency_samples": 100,
+    "throughput_per_sec": 1571.4,
+    "peak_gpu_memory_mb_infer": null,
+    "model_size_mb": 54.93,
+    "num_parameters": 14122755,
+    "base_model": "monologg/koelectra-small-v3-discriminator",
+    "max_length": 128,
+    "train_time_sec": 14.39,
+    "peak_gpu_memory_mb_train": null
+  },
+  "config": {
+    "model_name": "monologg/koelectra-small-v3-discriminator",
+    "max_length": 128,
+    "batch_size": 16,
+    "eval_batch_size": 64,
+    "epochs": 10,
+    "lr": 3e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "max_grad_norm": 1.0,
+    "patience": 3,
+    "precision": "auto",
+    "local_files_only": false,
+    "seed": 42
+  },
+  "training": {
+    "best_epoch": 5,
+    "best_val_macro_f1": 0.9917,
+    "stopped_early": true,
+    "precision": "fp32",
+    "token_lengths": {
+      "max": 67,
+      "p95": 61,
+      "truncated": 0
+    },
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 1.0972,
+        "val_loss": 1.0954,
+        "val_accuracy": 0.5417,
+        "val_macro_f1": 0.4377,
+        "lr": 3e-05,
+        "elapsed_sec": 3.2
+      },
+      {
+        "epoch": 2,
+        "train_loss": 1.09,
+        "val_loss": 1.0777,
+        "val_accuracy": 0.8,
+        "val_macro_f1": 0.787,
+        "lr": 2.6666666666666667e-05,
+        "elapsed_sec": 5.0
+      },
+      {
+        "epoch": 3,
+        "train_loss": 1.0464,
+        "val_loss": 0.9841,
+        "val_accuracy": 0.95,
+        "val_macro_f1": 0.9493,
+        "lr": 2.3333333333333336e-05,
+        "elapsed_sec": 6.7
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.9281,
+        "val_loss": 0.838,
+        "val_accuracy": 0.975,
+        "val_macro_f1": 0.9751,
+        "lr": 1.9999999999999998e-05,
+        "elapsed_sec": 8.3
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.7895,
+        "val_loss": 0.7064,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 1.6666666666666667e-05,
+        "elapsed_sec": 9.9
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.6876,
+        "val_loss": 0.6167,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 1.3333333333333333e-05,
+        "elapsed_sec": 11.4
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.6158,
+        "val_loss": 0.5575,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 9.999999999999999e-06,
+        "elapsed_sec": 12.9
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.5644,
+        "val_loss": 0.5176,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 6.666666666666667e-06,
+        "elapsed_sec": 14.4
+      }
+    ]
+  },
+  "environment": {
+    "python": "3.12.13",
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.14.1",
+    "transformers": "4.57.6"
+  },
+  "errors": [
+    {
+      "id": "inquiries-v2-refund-validation-001-v2",
+      "text": "비회원 구매를 반품하려 합니다. 주문 메일은 있지만 회원 목록에는 없어요. 새 계정을 만들기보다 기존 거래로 환불을 접수하려면 어떻게 하나요?",
+      "label": "refund",
+      "pred": "account",
+      "confidence": 0.4732
+    }
+  ]
+}

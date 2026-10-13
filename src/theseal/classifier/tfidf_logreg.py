@@ -58,13 +58,14 @@ class TfidfLogRegClassifier:
             "vocab_size": len(self.pipeline.named_steps["tfidf"].vocabulary_),
         }
 
-    def save(self, model_dir: Path, *, name: str, task: str) -> None:
+    def save(self, model_dir: Path, *, name: str, task: str, run: str | None = None) -> None:
         model_dir = Path(model_dir)
         model_dir.mkdir(parents=True, exist_ok=True)
         joblib.dump(self.pipeline, model_dir / MODEL_FILENAME)
         save_json({
             "kind": KIND,
             "name": name,
+            "run": run,
             "task": task,
             "labels": list(self.label_set.labels),
             "config": asdict(self.config),

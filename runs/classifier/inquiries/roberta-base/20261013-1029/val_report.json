@@ -5,23 +5,23 @@
   "split": "validation",
   "num_samples": 120,
   "model_dir": "runs/classifier/inquiries/roberta-base/model",
-  "created_at": "2026-10-12T16:13:27+09:00",
+  "created_at": "2026-10-13T10:29:14+09:00",
   "metrics": {
-    "accuracy": 1.0,
-    "macro_f1": 1.0,
-    "macro_precision": 1.0,
-    "macro_recall": 1.0,
+    "accuracy": 0.9917,
+    "macro_f1": 0.9917,
+    "macro_precision": 0.9919,
+    "macro_recall": 0.9917,
     "per_class": {
       "shipping": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "recall": 0.975,
+        "f1": 0.9873,
         "support": 40
       },
       "refund": {
-        "precision": 1.0,
+        "precision": 0.9756,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.9877,
         "support": 40
       },
       "account": {
@@ -39,8 +39,8 @@
       ],
       "matrix": [
         [
-          40,
-          0,
+          39,
+          1,
           0
         ],
         [
@@ -57,18 +57,18 @@
     }
   },
   "efficiency": {
-    "device": "cuda",
-    "latency_ms_median": 5.743,
-    "latency_ms_p95": 6.15,
+    "device": "mps",
+    "latency_ms_median": 8.797,
+    "latency_ms_p95": 10.522,
     "latency_samples": 100,
-    "throughput_per_sec": 619.6,
-    "peak_gpu_memory_mb_infer": 576.1,
+    "throughput_per_sec": 315.7,
+    "peak_gpu_memory_mb_infer": null,
     "model_size_mb": 422.96,
     "num_parameters": 110620419,
     "base_model": "klue/roberta-base",
     "max_length": 128,
-    "train_time_sec": 10.61,
-    "peak_gpu_memory_mb_train": 2162.7
+    "train_time_sec": 47.74,
+    "peak_gpu_memory_mb_train": null
   },
   "config": {
     "model_name": "klue/roberta-base",
@@ -86,10 +86,10 @@
     "seed": 42
   },
   "training": {
-    "best_epoch": 3,
-    "best_val_macro_f1": 1.0,
+    "best_epoch": 2,
+    "best_val_macro_f1": 0.9917,
     "stopped_early": true,
-    "precision": "bf16",
+    "precision": "fp32",
     "token_lengths": {
       "max": 65,
       "p95": 60,
@@ -98,69 +98,66 @@
     "history": [
       {
         "epoch": 1,
-        "train_loss": 1.024,
-        "val_loss": 0.4935,
-        "val_accuracy": 0.9167,
-        "val_macro_f1": 0.9153,
+        "train_loss": 1.0517,
+        "val_loss": 0.7049,
+        "val_accuracy": 0.7667,
+        "val_macro_f1": 0.7654,
         "lr": 3e-05,
-        "elapsed_sec": 2.1
+        "elapsed_sec": 11.2
       },
       {
         "epoch": 2,
-        "train_loss": 0.1495,
-        "val_loss": 0.0309,
+        "train_loss": 0.1878,
+        "val_loss": 0.029,
         "val_accuracy": 0.9917,
         "val_macro_f1": 0.9917,
         "lr": 2.6666666666666667e-05,
-        "elapsed_sec": 3.8
+        "elapsed_sec": 20.3
       },
       {
         "epoch": 3,
-        "train_loss": 0.0092,
-        "val_loss": 0.0047,
-        "val_accuracy": 1.0,
-        "val_macro_f1": 1.0,
+        "train_loss": 0.0098,
+        "val_loss": 0.027,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
         "lr": 2.3333333333333336e-05,
-        "elapsed_sec": 5.6
+        "elapsed_sec": 29.5
       },
       {
         "epoch": 4,
-        "train_loss": 0.0047,
-        "val_loss": 0.0031,
-        "val_accuracy": 1.0,
-        "val_macro_f1": 1.0,
+        "train_loss": 0.0045,
+        "val_loss": 0.0298,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
         "lr": 1.9999999999999998e-05,
-        "elapsed_sec": 7.3
+        "elapsed_sec": 38.6
       },
       {
         "epoch": 5,
-        "train_loss": 0.0035,
-        "val_loss": 0.0043,
-        "val_accuracy": 1.0,
-        "val_macro_f1": 1.0,
+        "train_loss": 0.0033,
+        "val_loss": 0.0306,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
         "lr": 1.6666666666666667e-05,
-        "elapsed_sec": 9.0
-      },
-      {
-        "epoch": 6,
-        "train_loss": 0.0029,
-        "val_loss": 0.0051,
-        "val_accuracy": 1.0,
-        "val_macro_f1": 1.0,
-        "lr": 1.3333333333333333e-05,
-        "elapsed_sec": 10.6
+        "elapsed_sec": 47.7
       }
     ]
   },
   "environment": {
-    "python": "3.12.14",
-    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13",
+    "platform": "macOS-26.5-arm64-arm-64bit",
     "numpy": "2.5.4",
     "scikit-learn": "1.9.1",
-    "torch": "2.11.0+cu128",
-    "transformers": "4.57.6",
-    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
-    "cuda": "12.8"
+    "torch": "2.14.1",
+    "transformers": "4.57.6"
   },
-  "errors": []
+  "errors": [
+    {
+      "id": "inquiries-v2-shipping-validation-017-v2",
+      "text": "물건을 받은 뒤 나무 포장 틀이 남았어요. 구매 취소가 아니라 운송 포장재 수거를 배송 업체에 문의하려 합니다.",
+      "label": "shipping",
+      "pred": "refund",
+      "confidence": 0.8413
+    }
+  ]
 }

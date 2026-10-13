@@ -5,7 +5,7 @@
   "split": "validation",
   "num_samples": 120,
   "model_dir": "runs/classifier/inquiries/baseline/model",
-  "created_at": "2026-10-12T17:37:21+09:00",
+  "created_at": "2026-10-13T10:57:22+09:00",
   "metrics": {
     "accuracy": 0.9917,
     "macro_f1": 0.9917,
@@ -58,15 +58,15 @@
   },
   "efficiency": {
     "device": "cpu",
-    "latency_ms_median": 0.243,
-    "latency_ms_p95": 0.261,
+    "latency_ms_median": 0.251,
+    "latency_ms_p95": 0.268,
     "latency_samples": 100,
-    "throughput_per_sec": 18285.6,
+    "throughput_per_sec": 17947.6,
     "peak_gpu_memory_mb_infer": null,
     "model_size_mb": 0.43,
     "num_parameters": 30177,
     "vocab_size": 10058,
-    "train_time_sec": 0.078,
+    "train_time_sec": 0.065,
     "peak_gpu_memory_mb_train": null
   },
   "config": {
