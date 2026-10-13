@@ -41,7 +41,7 @@ RUN_ID_FORMAT = "%Y%m%d-%H%M"
 # 예) "inquiries": {"model": "roberta-base", "run": "20261013-1411"}
 #     → runs/classifier/inquiries/roberta-base/20261013-1411/model/ 을 그대로 사용 (복사하지 않음)
 FINAL_MODEL: dict[str, dict[str, str] | None] = {
-    "inquiries": None,
+    "inquiries": {"model": "baseline", "run": "20261013-1057"},
     "documents": None,
 }
 
