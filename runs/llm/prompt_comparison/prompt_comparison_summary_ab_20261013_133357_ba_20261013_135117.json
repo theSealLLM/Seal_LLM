@@ -1,0 +1,64 @@
+{
+  "summary_id": "prompt_comparison_summary_ab_20261013_133357_ba_20261013_135117",
+  "created_at": "2026-10-13T14:49:40.258822+09:00",
+  "runs": [
+    {
+      "run_id": "prompt_ab_20261013_133357",
+      "execution_order": "ab",
+      "total_response_count": 30,
+      "prompt_methods": {
+        "label_specific": {
+          "response_count": 15,
+          "status_counts": {
+            "ok": 15
+          },
+          "average_latency_ms": 10844.53,
+          "average_prompt_generation_ms": 0.0199,
+          "average_input_tokens": 328.47,
+          "average_output_tokens": 804,
+          "experiment_group": "A"
+        },
+        "common_policy": {
+          "response_count": 15,
+          "status_counts": {
+            "ok": 15
+          },
+          "average_latency_ms": 9410.07,
+          "average_prompt_generation_ms": 0.0139,
+          "average_input_tokens": 322.47,
+          "average_output_tokens": 737.73,
+          "experiment_group": "B"
+        }
+      }
+    },
+    {
+      "run_id": "prompt_ba_20261013_135117",
+      "execution_order": "ba",
+      "total_response_count": 30,
+      "prompt_methods": {
+        "label_specific": {
+          "response_count": 15,
+          "status_counts": {
+            "ok": 15
+          },
+          "average_latency_ms": 10314.53,
+          "average_prompt_generation_ms": 0.0099,
+          "average_input_tokens": 328.47,
+          "average_output_tokens": 812.07,
+          "experiment_group": "A"
+        },
+        "common_policy": {
+          "response_count": 15,
+          "status_counts": {
+            "ok": 15
+          },
+          "average_latency_ms": 10168,
+          "average_prompt_generation_ms": 0.0207,
+          "average_input_tokens": 322.47,
+          "average_output_tokens": 775.47,
+          "experiment_group": "B"
+        }
+      }
+    }
+  ]
+}
