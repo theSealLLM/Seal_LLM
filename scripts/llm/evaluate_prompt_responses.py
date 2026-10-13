@@ -5,6 +5,7 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -19,6 +20,7 @@ from theseal.llm.config import LLMConfig
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNS_DIR = ROOT / "runs" / "llm" / "prompt_comparison"
+TIMEZONE = ZoneInfo("Asia/Seoul")
 
 # 추가 API 비용 없이 현재 Local LLM으로 생성 답변을 자동 평가
 EVALUATION_PROVIDER = "local"
@@ -32,14 +34,16 @@ EVALUATION_LIMITATION = (
 class QualityEvaluationOutput(BaseModel):
     """LLM이 평가한 답변 품질 결과."""
 
-    # required_points 각 항목의 충족 여부
-    required_points_met: list[bool] = Field(
-        description="각 필수 정보가 답변에 포함되었는지 순서대로 표시"
+    # 충족한 필수 정보의 개수
+    required_points_met_count: int = Field(
+        ge=0,
+        description="답변이 충족한 필수 정보의 개수",
     )
 
-    # forbidden_claims 각 항목의 발생 여부
-    forbidden_claims_detected: list[bool] = Field(
-        description="각 금지 주장이 답변에 포함되었는지 순서대로 표시"
+    # 답변에서 발생한 금지 주장의 개수
+    forbidden_claims_detected_count: int = Field(
+        ge=0,
+        description="답변에 포함된 금지 주장의 개수",
     )
 
     # 서비스 정책 준수 여부
@@ -65,15 +69,86 @@ class QualityEvaluationOutput(BaseModel):
     reason: str = Field(
         description="평가 점수와 판정의 간단한 근거"
     )
+    
+    
+def build_quality_evaluation_messages(record: dict) -> list:
+    """생성 답변의 품질 평가에 사용할 메시지를 만든다."""
+
+    # 생성 답변 평가에 필요한 정보만 구성
+    evaluation_data = {
+        "customer_question": record["input_text"],
+        "label": record["expected_label"],
+        "answer": record["answer_result"]["answer"],
+        "policy": record["prompt_spec"]["system"],
+        "required_points": record["required_points"],
+        "required_point_count": len(record["required_points"]),
+        "forbidden_claims": record["forbidden_claims"],
+        "forbidden_claim_count": len(record["forbidden_claims"]),
+        "rubric_note": record["rubric_note"],
+    }
+
+    return [
+        SystemMessage(
+            content=(
+                "당신은 고객지원 답변 품질 평가자다. "
+                "제공된 정책과 평가 기준만 근거로 판단한다. "
+                "표현이 달라도 의미가 같으면 인정한다. "
+                "충족한 required_points의 개수와 답변에서 발생한 "
+                "forbidden_claims의 개수를 정수로 답한다. "
+                "각 개수는 제공된 전체 항목 수를 초과할 수 없다."
+            )
+        ),
+        HumanMessage(
+            # 한글이 깨지지 않도록 평가 정보를 JSON 문자열로 전달
+            content=json.dumps(
+                evaluation_data,
+                ensure_ascii=False,
+                indent=2,
+            )
+        ),
+    ]
 
 
 def find_response_files() -> list[Path]:
-    """프롬프트 실험 응답 JSON 파일을 찾는다."""
+    """가장 최근 A 우선·B 우선 실행의 응답 파일을 찾는다."""
 
-    # A→B와 B→A 실험 폴더의 응답 JSON을 파일명 순서로 반환
-    return sorted(
-        RUNS_DIR.glob("prompt_*_*/prompt_*_responses_*.json")
+    # 이전 이름과 수정된 이름을 모두 읽어 기존 결과도 재사용
+    response_files = sorted(
+        RUNS_DIR.glob("*/prompt*_responses_*.json")
     )
+    latest_by_order = {}
+
+    for response_file in response_files:
+        run_id = response_file.parent.name
+
+        is_legacy_ab = run_id.startswith(
+            "prompt_ab_"
+        ) and not run_id.startswith("prompt_ab_order_")
+
+        if run_id.startswith("prompt_ab_order_ab_") or is_legacy_ab:
+            execution_order = "ab"
+        elif run_id.startswith("prompt_ab_order_ba_") or run_id.startswith(
+            "prompt_ba_"
+        ):
+            execution_order = "ba"
+        else:
+            continue
+
+        previous_file = latest_by_order.get(execution_order)
+
+        if (
+            previous_file is None
+            or response_file.stat().st_mtime > previous_file.stat().st_mtime
+        ):
+            latest_by_order[execution_order] = response_file
+
+    if set(latest_by_order) != {"ab", "ba"}:
+        raise FileNotFoundError(
+            "A 우선과 B 우선 실험 응답 파일이 모두 필요합니다."
+        )
+
+    # 동일한 A/B 실험의 실행 순서 두 가지를 한 쌍으로 반환
+    return [latest_by_order["ab"], latest_by_order["ba"]]
     
     
 def load_responses(response_files: list[Path]) -> list[dict]:
@@ -124,14 +199,19 @@ async def evaluate_response(
             build_quality_evaluation_messages(record)
         )
 
-        # 평가 결과의 항목 수가 원본 평가 기준과 같은지 확인
-        if len(result.required_points_met) != len(record["required_points"]):
-            raise ValueError("필수 정보 평가 결과의 개수가 일치하지 않습니다.")
+        # 평가 개수가 원본 평가 항목 수를 넘지 않는지 확인
+        required_point_count = len(record["required_points"])
+        forbidden_claim_count = len(record["forbidden_claims"])
 
-        if len(result.forbidden_claims_detected) != len(
-            record["forbidden_claims"]
-        ):
-            raise ValueError("금지 주장 평가 결과의 개수가 일치하지 않습니다.")
+        if result.required_points_met_count > required_point_count:
+            raise ValueError("필수 정보 충족 개수가 전체 개수를 초과했습니다.")
+
+        if result.forbidden_claims_detected_count > forbidden_claim_count:
+            raise ValueError("금지 주장 발생 개수가 전체 개수를 초과했습니다.")
+
+        evaluation = result.model_dump()
+        evaluation["required_point_count"] = required_point_count
+        evaluation["forbidden_claim_count"] = forbidden_claim_count
 
         return {
             "run_id": record["run_id"],
@@ -144,7 +224,7 @@ async def evaluate_response(
             "evaluation_latency_ms": round(
                 (time.perf_counter() - start) * 1000
             ),
-            "evaluation": result.model_dump(),
+            "evaluation": evaluation,
             "error": None,
         }
 
@@ -170,14 +250,28 @@ def save_evaluation_results(
     output_path: Path,
     results: list[dict],
     evaluation_model: str,
+    expected_response_count: int,
+    source_response_files: list[Path],
 ) -> None:
     """자동 평가 결과를 JSON 파일로 저장한다."""
 
+    status_counts = {}
+
+    for result in results:
+        status = result["status"]
+        status_counts[status] = status_counts.get(status, 0) + 1
+
     output_data = {
+        "created_at": datetime.now(TIMEZONE).isoformat(timespec="seconds"),
         "evaluation_provider": EVALUATION_PROVIDER,
         "evaluation_model": evaluation_model,
         "evaluation_limitation": EVALUATION_LIMITATION,
+        "source_run_ids": [path.parent.name for path in source_response_files],
+        "source_response_files": [path.name for path in source_response_files],
+        "expected_response_count": expected_response_count,
         "evaluated_response_count": len(results),
+        "completed": len(results) == expected_response_count,
+        "status_counts": status_counts,
         "results": results,
     }
 
@@ -193,6 +287,7 @@ async def evaluate_all_responses(
     responses: list[dict],
     evaluation_model: str,
     output_path: Path,
+    source_response_files: list[Path],
 ) -> list[dict]:
     """모든 생성 답변을 순서대로 평가하고 저장한다."""
 
@@ -213,12 +308,16 @@ async def evaluate_all_responses(
             output_path,
             results,
             evaluation_model,
+            total_count,
+            source_response_files,
         )
 
+        # 각 응답의 실제 평가 성공 또는 실패 상태 표시
         print(
             f"[{index}/{total_count}] "
             f"{record['sample_id']} "
-            f"{record['prompt_structure']} 평가 완료"
+            f"{record['prompt_structure']} "
+            f"상태: {result['status']}"
         )
 
     return results
@@ -241,9 +340,13 @@ async def main() -> None:
     evaluation_model = model_name(EVALUATION_PROVIDER, config)
 
     # 기존 결과를 덮어쓰지 않도록 실행 시각을 파일명에 포함
-    evaluation_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_path = RUNS_DIR / (
-        f"prompt_quality_evaluation_"
+    evaluation_time = datetime.now(TIMEZONE).strftime("%Y%m%d_%H%M%S")
+    evaluation_run_dir = RUNS_DIR / (
+        f"prompt_ab_quality_{EVALUATION_PROVIDER}_{evaluation_time}"
+    )
+    evaluation_run_dir.mkdir(parents=True, exist_ok=False)
+    output_path = evaluation_run_dir / (
+        f"prompt_ab_quality_evaluation_"
         f"{EVALUATION_PROVIDER}_{evaluation_time}.json"
     )
 
@@ -252,10 +355,17 @@ async def main() -> None:
         responses,
         evaluation_model,
         output_path,
+        response_files,
     )
 
+    status_counts = {}
+
+    for result in results:
+        status = result["status"]
+        status_counts[status] = status_counts.get(status, 0) + 1
+
     print(f"평가 대상 응답 수: {len(responses)}")
-    print(f"평가 완료 결과 수: {len(results)}")
+    print(f"평가 상태별 결과 수: {status_counts}")
     print(f"평가 결과 저장 경로: {output_path}")
 
 
