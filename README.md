@@ -41,6 +41,7 @@ uv run scripts/llm/fetch_models.py
 | --- | --- | --- | --- |
 | 로컬 | hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M (ID `487eacf5e94b`) | 약 6GB | `fetch_models.py` |
 | 상용 | OpenAI gpt-5.6-luna | - | `.env`에 `OPENAI_API_KEY` |
+| 날씨 툴 | 기상청 API허브 단기예보 (지금 날씨 · 모레까지 예보) | - | `.env`에 `KMA_AUTH_KEY` (없으면 날씨 툴이 빠지고 검색 툴이 답함) |
 | 검색 툴 | Tavily | - | `.env`에 `TAVILY_API_KEY` (없으면 검색 툴이 자동으로 빠짐) |
 
 ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신된 것이므로 팀에 알려 주세요.
@@ -49,8 +50,24 @@ ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신�
 uv run scripts/llm/check_llm.py
 ```
 
-`check_llm.py`는 Ollama 연결 · 모델 · 호출과 OpenAI · Tavily 키 설정을 한 번에 확인합니다.
-OpenAI 호출(과금)과 Tavily 검색까지 확인하려면 `--all`을 붙이세요.
+`check_llm.py`는 Ollama 연결 · 모델 · 호출과 OpenAI · 기상청 · Tavily 키 설정을 한 번에 확인합니다.
+OpenAI 호출(과금), 기상청 조회, Tavily 검색까지 확인하려면 `--all`을 붙이세요.
+
+### 분류 후처리 (routing)
+
+`src/theseal/routing/`은 분류기 결과를 받아 최종 라벨을 정합니다. 경로 규칙이 보정한 확률로
+확신 · 확신 부족 · 접전 · 모름(unknown)을 판정하고, 확신이 아닌 문의는 LLM 검증이 라벨이 맞는지 한 번 더 확인합니다.
+보정값은 모델마다 `runs/classifier/<task>/<이름>/route_rule.json`에 있고, 쓰는 모델 이름으로 자동으로 찾습니다.
+
+켜고 끄기는 `.env`에서 합니다.
+
+| 항목 | `.env` | 값 |
+| --- | --- | --- |
+| 경로 규칙 | `ROUTE_RULE_ENABLED` | `true` (기본) · `false` |
+| LLM 검증 | `VERIFY_MODE` | `uncertain` (기본, 확신이 아닌 것만) · `all` (전부) · `off` |
+
+둘 다 끄면 분류기 라벨을 그대로 씁니다. 새로 학습한 모델의 보정값은
+`uv run scripts/classifier/calibrate_route_rule.py --name <이름>`으로 만듭니다.
 
 ### OneDrive 주의
 
