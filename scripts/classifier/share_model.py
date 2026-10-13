@@ -85,7 +85,7 @@ def pull(args, local_dir: Path, path_in_repo: str, base_dir: Path) -> None:
                          f"--name과 --task가 올린 쪽과 같은지 확인하세요.")
     meta = read_meta(local_dir)
     print(f"완료: kind={meta['kind']} task={meta['task']} labels={meta['labels']}")
-    print(f"불러오기: Predictor({display_path(local_dir)!r})")
+    print(f"불러오기: Classifier({display_path(local_dir)!r})")
 
 
 def main(argv: list[str] | None = None) -> None:

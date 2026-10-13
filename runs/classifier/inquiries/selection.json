@@ -1,0 +1,123 @@
+{
+  "task": "inquiries",
+  "selected": "baseline",
+  "kind": "baseline",
+  "reason": "validation macro_f1가 가장 높음 (0.9917)",
+  "rule": {
+    "primary_metric": "macro_f1",
+    "tolerance": 0.01,
+    "tie_break": [
+      "latency_ms_median",
+      "model_size_mb"
+    ],
+    "forced": null
+  },
+  "source_model_dir": "runs/classifier/inquiries/baseline/model",
+  "final_model_dir": "runs/classifier/inquiries/final_model",
+  "final_model_meta": {
+    "kind": "baseline",
+    "name": "baseline",
+    "task": "inquiries",
+    "labels": [
+      "shipping",
+      "refund",
+      "account"
+    ],
+    "config": {
+      "analyzer": "char_wb",
+      "ngram_min": 1,
+      "ngram_max": 3,
+      "min_df": 1,
+      "sublinear_tf": true,
+      "C": 10.0,
+      "max_iter": 2000,
+      "seed": 42
+    },
+    "saved_at": "2026-10-12T17:37:21+09:00"
+  },
+  "validation": {
+    "metrics": {
+      "accuracy": 0.9917,
+      "macro_f1": 0.9917,
+      "macro_precision": 0.9919,
+      "macro_recall": 0.9917,
+      "per_class": {
+        "shipping": {
+          "precision": 0.9756,
+          "recall": 1.0,
+          "f1": 0.9877,
+          "support": 40
+        },
+        "refund": {
+          "precision": 1.0,
+          "recall": 0.975,
+          "f1": 0.9873,
+          "support": 40
+        },
+        "account": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 40
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "shipping",
+          "refund",
+          "account"
+        ],
+        "matrix": [
+          [
+            40,
+            0,
+            0
+          ],
+          [
+            1,
+            39,
+            0
+          ],
+          [
+            0,
+            0,
+            40
+          ]
+        ]
+      }
+    },
+    "efficiency": {
+      "device": "cpu",
+      "latency_ms_median": 0.264,
+      "latency_ms_p95": 0.314,
+      "latency_samples": 100,
+      "throughput_per_sec": 16737.0,
+      "peak_gpu_memory_mb_infer": null,
+      "model_size_mb": 0.43,
+      "num_parameters": 30177,
+      "vocab_size": 10058,
+      "train_time_sec": 0.078,
+      "peak_gpu_memory_mb_train": null
+    }
+  },
+  "candidates": [
+    {
+      "name": "baseline",
+      "kind": "baseline",
+      "macro_f1": 0.9917,
+      "accuracy": 0.9917,
+      "latency_ms_median": 0.264,
+      "model_size_mb": 0.43,
+      "train_time_sec": 0.078
+    }
+  ],
+  "selected_at": "2026-10-13T10:25:47+09:00",
+  "environment": {
+    "python": "3.12.13",
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.14.1",
+    "transformers": "4.57.6"
+  }
+}

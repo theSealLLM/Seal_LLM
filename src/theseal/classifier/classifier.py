@@ -12,7 +12,7 @@ from .data_loader import LabelSet
 from .metrics import load_json
 
 
-class Classifier(Protocol):
+class ClassifierProtocol(Protocol):
     kind: str
     label_set: LabelSet
 
@@ -33,7 +33,7 @@ def read_meta(model_dir: Path) -> dict:
     return load_json(path)
 
 
-def load_classifier(model_dir: Path, device: str | None = None) -> Classifier:
+def load_classifier(model_dir: Path, device: str | None = None) -> ClassifierProtocol:
     meta = read_meta(model_dir)
     if meta["kind"] == "baseline":
         from .tfidf_logreg import TfidfLogRegClassifier
@@ -46,23 +46,23 @@ def load_classifier(model_dir: Path, device: str | None = None) -> Classifier:
     raise ValueError(f"알 수 없는 모델 종류: {meta['kind']!r}")
 
 
-class Predictor:
+class Classifier:
     def __init__(self, model_dir: Path, device: str | None = None) -> None:
         self.model_dir = Path(model_dir)
         self.meta = read_meta(self.model_dir)
-        self.classifier = load_classifier(self.model_dir, device=device)
+        self.model = load_classifier(self.model_dir, device=device)
 
     @classmethod
-    def from_final(cls, task: str = DEFAULT_TASK, device: str | None = None) -> Predictor:
+    def from_final(cls, task: str = DEFAULT_TASK, device: str | None = None) -> Classifier:
         """compare.py가 확정한 runs/classifier/<task>/final_model 모델을 불러온다 (기본: inquiries)."""
         return cls(task_paths(task).final_dir, device=device)
 
     @property
     def labels(self) -> tuple[str, ...]:
-        return self.classifier.label_set.labels
+        return self.model.label_set.labels
 
     def predict_batch(self, texts: list[str]) -> list[dict]:
-        probs = self.classifier.predict_proba(texts)
+        probs = self.model.predict_proba(texts)
         results = []
         for row in probs:
             best = int(row.argmax())
