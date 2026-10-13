@@ -17,6 +17,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ENV_FILE = PROJECT_ROOT / ".env"
 
 PROVIDERS = ("local", "openai")
+
+# 팀이 확인한 로컬 모델 ID (`ollama list`의 ID 열 = digest 앞 12자리).
+# 다르면 Hugging Face 저장소 파일이 갱신된 것이므로 팀에 알린다 (scripts/llm/fetch_models.py가 확인)
+OLLAMA_MODEL_IDS = {
+    "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M": "487eacf5e94b",
+}
 LABELS = ("shipping", "refund", "account", "unknown")
 
 
