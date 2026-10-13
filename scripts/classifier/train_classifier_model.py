@@ -13,7 +13,8 @@ uv run python scripts/classifier/train_classifier_model.py
 에폭별 가중치는 남기지 않고, validation macro-F1이 가장 좋았던 에폭의 가중치 하나만 저장한다.
 
 모델별 설정(config.py MODEL_OVERRIDES)은 자동으로 적용된다. 예) NeoBERT는 trust_remote_code와
-max_length 512. NeoBERT는 저장소 코드를 실행하므로 xformers 같은 추가 패키지가 필요할 수 있다.
+max_length 512. NeoBERT는 저장소 코드가 xformers를 쓰는데, 이 패키지는 pyproject에 들어 있으므로
+윈도우/리눅스에서는 uv sync만 하면 된다 (맥은 휠이 없어 NeoBERT를 쓸 수 없다).
 """
 
 from __future__ import annotations

@@ -127,8 +127,8 @@ class TransformerClassifier:
         except ImportError as e:
             raise ImportError(
                 f"{model_name_or_path}를 불러오는 데 필요한 패키지가 없습니다: {e}\n"
-                "저장소 코드를 실행하는 모델(NeoBERT 등)은 xformers 같은 추가 패키지를 요구할 수 "
-                "있습니다. 현재 torch 버전에 맞는 패키지를 설치하세요 (맥에서는 설치가 안 될 수 있음)."
+                "저장소 코드를 실행하는 모델(NeoBERT 등)은 xformers 같은 추가 패키지를 요구합니다. "
+                "윈도우/리눅스라면 uv sync로 설치되고, 맥은 xformers 휠이 없어 쓸 수 없습니다."
             ) from e
         return cls(
             model,
