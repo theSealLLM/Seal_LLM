@@ -41,6 +41,7 @@ uv run scripts/llm/fetch_models.py
 | --- | --- | --- | --- |
 | 로컬 | hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M (ID `487eacf5e94b`) | 약 6GB | `fetch_models.py` |
 | 상용 | OpenAI gpt-5.6-luna | - | `.env`에 `OPENAI_API_KEY` |
+| 날씨 툴 | 기상청 API허브 단기예보 (지금 날씨 · 모레까지 예보) | - | `.env`에 `KMA_AUTH_KEY` (없으면 날씨 툴이 빠지고 검색 툴이 답함) |
 | 검색 툴 | Tavily | - | `.env`에 `TAVILY_API_KEY` (없으면 검색 툴이 자동으로 빠짐) |
 
 ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신된 것이므로 팀에 알려 주세요.
@@ -49,8 +50,8 @@ ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신�
 uv run scripts/llm/check_llm.py
 ```
 
-`check_llm.py`는 Ollama 연결 · 모델 · 호출과 OpenAI · Tavily 키 설정을 한 번에 확인합니다.
-OpenAI 호출(과금)과 Tavily 검색까지 확인하려면 `--all`을 붙이세요.
+`check_llm.py`는 Ollama 연결 · 모델 · 호출과 OpenAI · 기상청 · Tavily 키 설정을 한 번에 확인합니다.
+OpenAI 호출(과금), 기상청 조회, Tavily 검색까지 확인하려면 `--all`을 붙이세요.
 
 ### 분류 후처리 (routing)
 

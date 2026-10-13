@@ -45,10 +45,13 @@ class LLMConfig:
 
     # 툴
     tavily_api_key: str = ""
+    kma_auth_key: str = ""  # 기상청 API허브 인증키. 비우면 날씨 툴을 등록하지 않는다
+    kma_api_base: str = "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0"
     tool_date_tools: bool = True
+    tool_weather: bool = True
     tool_web_search: bool = True
     tools_by_label: dict[str, list[str]] = field(
-        default_factory=lambda: {"unknown": ["date_tools", "web_search"]}
+        default_factory=lambda: {"unknown": ["date_tools", "weather", "web_search"]}
     )
     max_tool_rounds: int = 2  # 툴 실행 라운드 수. 툴 결과로 답을 쓸 LLM 호출 1회는 항상 더 허용
 

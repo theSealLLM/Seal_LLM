@@ -1,7 +1,8 @@
-"""② 답변 생성에 필요한 연결을 한 번씩 확인한다 (Ollama · OpenAI · Tavily).
+"""② 답변 생성에 필요한 연결을 한 번씩 확인한다 (Ollama · OpenAI · 기상청 · Tavily).
 
 uv run python scripts/llm/check_llm.py              # Ollama 호출 + 키 설정 여부만
 uv run python scripts/llm/check_llm.py --openai     # + OpenAI 실제 호출 1회 (과금)
+uv run python scripts/llm/check_llm.py --kma        # + 기상청 날씨 조회 1회 (서울)
 uv run python scripts/llm/check_llm.py --tavily     # + Tavily 검색 1회 (사용량 차감)
 uv run python scripts/llm/check_llm.py --all        # 전부
 
@@ -18,7 +19,8 @@ import time
 import _common
 from langchain_core.messages import HumanMessage
 
-from theseal.llm.answer.tools.web_search import web_search
+from theseal.llm.answer.tools.api_weather import get_weather
+from theseal.llm.answer.tools.api_web_search import web_search
 from theseal.llm.client import ConfigError, llm_options, make_llm
 from theseal.llm.config import LLMConfig
 
@@ -28,8 +30,9 @@ PING = "한 단어로만 답하세요: 안녕하세요"
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="LLM · 검색 연결 확인")
     p.add_argument("--openai", action="store_true", help="OpenAI 실제 호출 1회 (과금)")
+    p.add_argument("--kma", action="store_true", help="기상청 날씨 조회 1회 (서울)")
     p.add_argument("--tavily", action="store_true", help="Tavily 검색 1회")
-    p.add_argument("--all", action="store_true", help="--openai --tavily")
+    p.add_argument("--all", action="store_true", help="--openai --kma --tavily")
     return p.parse_args(argv)
 
 
@@ -74,6 +77,24 @@ def check_openai(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, 
     return rows + [("OpenAI 호출", ok, message)]
 
 
+def check_kma(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, str]]:
+    if not config.kma_auth_key:
+        return [("기상청 키", None, "비어 있음 → 날씨 툴이 자동으로 빠지고 검색 툴이 날씨에 답함 (선택 사항)")]
+    rows = [("기상청 키", True, "설정됨")]
+    if not call:
+        return rows + [("기상청 조회", None, "건너뜀 (--kma로 확인)")]
+    start = time.perf_counter()
+    try:
+        w = get_weather.invoke({"location": "서울"})
+    except Exception as e:  # noqa: BLE001
+        return rows + [("기상청 조회", False, f"{type(e).__name__}: {e}"[:200])]
+    ms = round((time.perf_counter() - start) * 1000)
+    now = w["now"]
+    message = (f"{ms}ms · 서울 {now['temperature_c']}도 · 예보 {len(w['forecast'])}일 "
+               f"(발표 {w['forecast_issued']})")
+    return rows + [("기상청 조회", True, message)]
+
+
 def check_tavily(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, str]]:
     if not config.tavily_api_key:
         return [("Tavily 키", None, "비어 있음 → web_search 툴이 자동으로 빠짐 (선택 사항)")]
@@ -94,6 +115,7 @@ def main(argv: list[str] | None = None) -> list[tuple[str, bool | None, str]]:
     config = LLMConfig.from_env()
     rows = (check_ollama(config)
             + check_openai(config, args.openai or args.all)
+            + check_kma(config, args.kma or args.all)
             + check_tavily(config, args.tavily or args.all))
 
     print(f"\n=== LLM 연결 확인 (기본 provider: {config.default_provider}) ===")
