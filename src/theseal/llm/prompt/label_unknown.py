@@ -3,8 +3,8 @@
 shipping · refund · account는 prompt_generator.py가 만들고, unknown만 이 함수가 만든다.
 출력 형식은 같은 PromptSpec이다.
 
-    from theseal.llm.prompt.label_unknown import build_unknown_prompt
-    spec = build_unknown_prompt(text)
+    from theseal.llm.prompt.label_unknown import build_label_unknown_prompt
+    spec = build_label_unknown_prompt(text)
 
 툴(날짜 5종 · 웹 검색)은 TOOLS_BY_LABEL 설정으로 unknown에 붙는다. 이 지시문이 툴을 언제 쓸지 정한다.
 툴 호출 횟수를 넘겼을 때의 안내 문구는 LLMConfig.fallback_answer와 같은 문장을 쓴다.
@@ -70,7 +70,7 @@ def prompt_version(system: str) -> str:
     return f"{PROMPT_MAJOR_VERSION}-{hashlib.sha256(system.encode('utf-8')).hexdigest()[:8]}"
 
 
-def build_unknown_prompt(text: str, *, config: LLMConfig | None = None) -> PromptSpec:
+def build_label_unknown_prompt(text: str, *, config: LLMConfig | None = None) -> PromptSpec:
     """범위 밖 문의의 PromptSpec. 프롬프트 생성 모듈의 함수와 같이 text를 받는다."""
     if not isinstance(text, str) or not text.strip():
         raise ValueError("고객 질문은 공백이 아닌 문자열이어야 합니다.")
