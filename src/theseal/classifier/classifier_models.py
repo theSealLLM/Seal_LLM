@@ -2,11 +2,14 @@
 
 Trainer 대신 PyTorch 학습 루프를 직접 쓴다 (accelerate 의존성 없이 동작).
 에폭마다 validation macro-F1을 보고 가장 좋았던 에폭의 가중치를 남긴다.
+NeoBERT처럼 저장소 코드를 실행해야 하는 모델은 trust_remote_code=True로 불러온다.
 """
 
 from __future__ import annotations
 
+import inspect
 import math
+import shutil
 import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
@@ -27,6 +30,19 @@ from .data_loader import LabelSet, Split
 from .metrics import compute_metrics, load_json, now_iso, save_json
 
 KIND = "bert"
+
+
+def _logits(output) -> torch.Tensor:
+    """모델 출력에서 logits만 꺼낸다 (저장소 코드 모델이 튜플을 돌려주는 경우 포함)."""
+    return output.logits if hasattr(output, "logits") else output[0]
+
+
+def _forward_keys(model) -> set[str] | None:
+    """model.forward가 받는 인자 이름. **kwargs를 받으면 None (거르지 않음)."""
+    params = inspect.signature(model.forward).parameters.values()
+    if any(p.kind is p.VAR_KEYWORD for p in params):
+        return None
+    return {p.name for p in params}
 
 
 def resolve_device(device: str | None = None) -> torch.device:
@@ -63,6 +79,7 @@ class TransformerClassifier:
         base_model: str,
         device: torch.device,
         eval_batch_size: int = 64,
+        trust_remote_code: bool = False,
     ) -> None:
         self._device = device
         self.model = model.to(device)
@@ -72,6 +89,9 @@ class TransformerClassifier:
         self.max_length = max_length
         self.base_model = base_model
         self.eval_batch_size = eval_batch_size
+        self.trust_remote_code = trust_remote_code
+        # 토크나이저가 만든 입력 중 모델이 받지 않는 것(예: token_type_ids)은 넘기지 않는다
+        self._input_keys = _forward_keys(self.model)
 
     @property
     def device(self) -> str:
@@ -87,18 +107,29 @@ class TransformerClassifier:
         device: str | None = None,
         local_files_only: bool = False,
         eval_batch_size: int = 64,
+        trust_remote_code: bool = False,
     ) -> TransformerClassifier:
         """HF Hub 이름(예: klue/roberta-base) 또는 로컬 폴더에서 인코더를 읽고 분류 헤드를 새로 붙인다."""
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name_or_path, local_files_only=local_files_only
-        )
-        model = AutoModelForSequenceClassification.from_pretrained(
-            model_name_or_path,
-            num_labels=len(label_set),
-            id2label=label_set.id2label,
-            label2id=label_set.label2id,
-            local_files_only=local_files_only,
-        )
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(
+                model_name_or_path,
+                local_files_only=local_files_only,
+                trust_remote_code=trust_remote_code,
+            )
+            model = AutoModelForSequenceClassification.from_pretrained(
+                model_name_or_path,
+                num_labels=len(label_set),
+                id2label=label_set.id2label,
+                label2id=label_set.label2id,
+                local_files_only=local_files_only,
+                trust_remote_code=trust_remote_code,
+            )
+        except ImportError as e:
+            raise ImportError(
+                f"{model_name_or_path}를 불러오는 데 필요한 패키지가 없습니다: {e}\n"
+                "저장소 코드를 실행하는 모델(NeoBERT 등)은 xformers 같은 추가 패키지를 요구합니다. "
+                "윈도우/리눅스라면 uv sync로 설치되고, 맥은 xformers 휠이 없어 쓸 수 없습니다."
+            ) from e
         return cls(
             model,
             tokenizer,
@@ -107,16 +138,22 @@ class TransformerClassifier:
             base_model=str(model_name_or_path),
             device=resolve_device(device),
             eval_batch_size=eval_batch_size,
+            trust_remote_code=trust_remote_code,
         )
 
-    def encode(self, texts: list[str]):
-        return self.tokenizer(
+    def encode(self, texts: list[str]) -> dict[str, torch.Tensor]:
+        enc = self.tokenizer(
             texts,
             padding=True,
             truncation=True,
             max_length=self.max_length,
             return_tensors="pt",
-        ).to(self._device)
+        )
+        return {
+            k: v.to(self._device)
+            for k, v in enc.items()
+            if self._input_keys is None or k in self._input_keys
+        }
 
     def token_lengths(self, texts: list[str]) -> list[int]:
         """자르기 전 토큰 길이 (max_length가 충분한지 확인용)."""
@@ -127,7 +164,7 @@ class TransformerClassifier:
         self.model.eval()
         chunks = []
         for i in range(0, len(texts), self.eval_batch_size):
-            logits = self.model(**self.encode(texts[i : i + self.eval_batch_size])).logits
+            logits = _logits(self.model(**self.encode(texts[i : i + self.eval_batch_size])))
             chunks.append(torch.softmax(logits.float(), dim=-1).cpu().numpy())
         if not chunks:
             return np.zeros((0, len(self.label_set)), dtype=np.float32)
@@ -156,6 +193,13 @@ class TransformerClassifier:
         model_dir.mkdir(parents=True, exist_ok=True)
         self.model.save_pretrained(model_dir)
         self.tokenizer.save_pretrained(model_dir)
+        if self.trust_remote_code:
+            # 저장소 코드 모델은 model.py 같은 코드 파일이 있어야 다시 불러올 수 있다.
+            # save_pretrained가 복사하지 않았고 원본이 로컬 폴더면 거기서 복사한다.
+            base = Path(self.base_model)
+            if base.is_dir() and not any(model_dir.glob("*.py")):
+                for src in base.glob("*.py"):
+                    shutil.copy2(src, model_dir / src.name)
         save_json({
             "kind": KIND,
             "name": name,
@@ -164,6 +208,7 @@ class TransformerClassifier:
             "labels": list(self.label_set.labels),
             "base_model": self.base_model,
             "max_length": self.max_length,
+            "trust_remote_code": self.trust_remote_code,
             "config": asdict(config) if config else None,
             "saved_at": now_iso(),
         }, model_dir / META_FILENAME)
@@ -175,8 +220,13 @@ class TransformerClassifier:
         if meta["kind"] != KIND:
             raise ValueError(f"{model_dir}는 사전학습 분류 모델이 아닙니다 (kind={meta['kind']}).")
         label_set = LabelSet(tuple(meta["labels"]))
-        tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
-        model = AutoModelForSequenceClassification.from_pretrained(model_dir, local_files_only=True)
+        trust = bool(meta.get("trust_remote_code", False))
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_dir, local_files_only=True, trust_remote_code=trust
+        )
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_dir, local_files_only=True, trust_remote_code=trust
+        )
         if model.config.num_labels != len(label_set):
             raise ValueError(
                 f"모델 라벨 수({model.config.num_labels})와 메타 라벨 수({len(label_set)})가 다릅니다."
@@ -188,6 +238,7 @@ class TransformerClassifier:
             max_length=meta["max_length"],
             base_model=meta["base_model"],
             device=resolve_device(device),
+            trust_remote_code=trust,
         )
 
 
@@ -250,7 +301,15 @@ def train_classifier(
             labels = y_train[idx].to(device)
             with torch.autocast(device_type=device.type, dtype=amp_dtype,
                                 enabled=amp_dtype is not None):
-                loss = model(**enc, labels=labels).loss
+                # 손실은 직접 계산한다 (저장소 코드 모델이 labels를 받지 않거나 loss를 안 줘도 동작)
+                logits = _logits(model(**enc))
+                loss = nn.functional.cross_entropy(logits.float(), labels)
+            if not torch.isfinite(loss):
+                raise FloatingPointError(
+                    f"[epoch {epoch} step {step + 1}] loss가 {loss.item()}라 학습을 멈춥니다. "
+                    "가중치가 제대로 불러와지지 않았거나(NeoBERT는 버전에 따라 NaN 문제가 보고됨) "
+                    "학습률이 너무 클 수 있습니다."
+                )
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
             nn.utils.clip_grad_norm_(model.parameters(), config.max_grad_norm)

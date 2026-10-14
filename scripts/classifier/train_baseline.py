@@ -1,11 +1,10 @@
 """① 베이스라인(TF-IDF + 로지스틱 회귀) 학습 → validation 평가.
 
 uv run python scripts/classifier/train_baseline.py
-uv run python scripts/classifier/train_baseline.py --C 1 --tag c1
 
 결과: runs/classifier/<task>/baseline/<실행 ID>/ (model/ + val_report.json)
-실행 ID는 학습을 시작한 시각(분 단위)이라 다시 학습해도 덮어쓰지 않는다. --tag는 ID 뒤에 붙는 메모.
---task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
+그 실행에서 무엇을 바꿨는지는 val_report.json의 config를 본다.
+--task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.(추후 개발예정)
 """
 
 from __future__ import annotations
@@ -27,7 +26,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="TF-IDF + 로지스틱 회귀 베이스라인 학습")
     _common.add_common_args(p)
     p.add_argument("--name", default="baseline", help="모델 폴더 이름 (기본: baseline)")
-    p.add_argument("--tag", default=None, help="실행 ID 뒤에 붙일 메모 (예: c1 → 20261013-1411_c1)")
     p.add_argument("--analyzer", default=d.analyzer, choices=["char_wb", "char", "word"])
     p.add_argument("--ngram-min", type=int, default=d.ngram_min)
     p.add_argument("--ngram-max", type=int, default=d.ngram_max)
@@ -42,7 +40,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> dict:
     args = parse_args(argv)
     _common.check_name(args.name)
-    run_id = new_run_id(args.tag)  # 학습 시작 시각
+    run_id = new_run_id()  # 학습 시작 시각
     paths = _common.paths_from_args(args)
     config = BaselineConfig(
         analyzer=args.analyzer,
