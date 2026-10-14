@@ -4,8 +4,7 @@ uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000
 
 | 메서드 | 경로            | 응답                                       |
 | GET    | /health         | 상태 · 분류 모델 · 설정                    |
-| POST   | /api/classify   | RoutingResult                              |
-| POST   | /api/answer     | AnswerResult + classification              |
+| POST   | /api/answer     | AnswerResult + classification (분류 근거)  |
 | POST   | /api/answer/stream | SSE: status · classification · delta · done |
 
 HTTP 상태: 입력 오류 400 · 설정 오류 500 · LLM 오류 502 · 시간 초과 504
@@ -41,7 +40,7 @@ from theseal.prompt.router import RoutingResult
 from theseal.prompt.routing_config import get_routing_config
 
 from . import pipeline
-from .schemas import AnswerRequest, AnswerResponse, ClassifyRequest, ErrorBody, ErrorResponse
+from .schemas import AnswerRequest, AnswerResponse
 
 STATUS_BY_ERROR = {"invalid_input": 400, "config_error": 500, "llm_error": 502, "llm_timeout": 504}
 STAGE_MESSAGES = {
@@ -102,20 +101,13 @@ def _sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
-def _error(code: str, message: str) -> JSONResponse:
-    return JSONResponse(ErrorResponse(error=ErrorBody(code=code, message=message)).model_dump(),
-                        status_code=STATUS_BY_ERROR[code])
-
-
 @app.exception_handler(RequestValidationError)
 async def invalid_input(request: Request, exc: RequestValidationError) -> JSONResponse:
     """빈 입력 · 길이 초과 · 잘못된 라벨 · 잘못된 JSON → 400"""
     message = "; ".join(
         f"{'.'.join(str(p) for p in e['loc'][1:]) or 'body'}: {e['msg']}" for e in exc.errors())
-    if request.url.path.startswith("/api/answer"):
-        body = exc.body if isinstance(exc.body, dict) else {}
-        return _error_answer("invalid_input", message, body.get("provider"))
-    return _error("invalid_input", message)
+    body = exc.body if isinstance(exc.body, dict) else {}
+    return _error_answer("invalid_input", message, body.get("provider"))
 
 
 @app.get("/health")
@@ -132,32 +124,16 @@ async def health() -> dict:
     }
 
 
-@app.post("/api/classify", response_model=RoutingResult,
-          responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})
-async def classify(req: ClassifyRequest):
-    """분류기 → 경로 규칙 → LLM 검증. 최종 라벨과 판정 근거를 돌려준다."""
-    if state["predictor"] is None:
-        return _error("config_error", f"분류 모델을 불러오지 못했습니다: {state['error']}")
-    return await pipeline.classify(state["predictor"], req.text)
-
-
 @app.post("/api/answer", response_model=AnswerResponse,
           responses={400: {"model": AnswerResponse}, 500: {"model": AnswerResponse},
                      502: {"model": AnswerResponse}, 504: {"model": AnswerResponse}})
 async def answer(req: AnswerRequest) -> JSONResponse:
-    """질문 → 분류 → 프롬프트 → 답변. label을 넣으면 분류를 건너뛴다."""
-    classification = None
-    label = req.label
-    if label is None:
-        if state["predictor"] is None:
-            return _error_answer("config_error", f"분류 모델을 불러오지 못했습니다: {state['error']}",
-                                 req.provider)
-        classification = await pipeline.classify(state["predictor"], req.text)
-        label = classification.label
-
-    result = await pipeline.answer(label, req.text, req.provider, get_config())
-    response = AnswerResponse(**result.model_dump(), classification=classification)
-    status = STATUS_BY_ERROR[result.error.code] if result.error else 200
+    """질문 → 분류 → 프롬프트 → 답변 (LCEL 체인 pipeline.answer_chain). label을 넣으면 분류를 건너뛴다."""
+    if req.label is None and state["predictor"] is None:
+        return _error_answer("config_error", f"분류 모델을 불러오지 못했습니다: {state['error']}", req.provider)
+    response = await pipeline.answer_chain(state["predictor"]).ainvoke(
+        {"text": req.text, "label": req.label, "provider": req.provider})
+    status = STATUS_BY_ERROR[response.error.code] if response.error else 200
     return JSONResponse(response.model_dump(), status_code=status)
 
 
@@ -187,23 +163,23 @@ async def _answer_events(req: AnswerRequest, ctx: dict) -> AsyncIterator[str]:
     def status(stage: str) -> str:
         return _sse("status", {"stage": stage, "message": STAGE_MESSAGES[stage]})
 
-    classification = None
-    label = req.label
-    if label is None:
+    if req.label is None:
         if state["predictor"] is None:
             err = _error_response("config_error", f"분류 모델을 불러오지 못했습니다: {state['error']}",
                                   req.provider)
             yield _sse("done", err.model_dump())
             return
         yield status("classifying")
-        classification = await pipeline.classify(state["predictor"], req.text)
-        label = classification.label
-        ctx["classification"] = classification
+
+    # 분류 → 프롬프트는 /api/answer와 같은 체인의 앞부분, 답변만 글자 조각으로 흘린다
+    prepared = await pipeline.prepare_chain(state["predictor"]).ainvoke({"text": req.text, "label": req.label})
+    classification, label = prepared["classification"], prepared["label"]
+    ctx.update(classification=classification, label=label)
+    if classification is not None:
         yield _sse("classification", classification.model_dump())
 
-    ctx["label"] = label
     yield status("adventure" if label == "unknown" else "answering")
-    async for event in pipeline.answer_stream(label, req.text, req.provider, get_config()):
+    async for event in pipeline.answer_stream(prepared["prompt"], req.provider, get_config()):
         if event["type"] == "delta":
             yield _sse("delta", {"text": event["text"]})
         else:

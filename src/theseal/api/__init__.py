@@ -1,6 +1,6 @@
 """FastAPI: 분류 · 답변 생성 기능을 HTTP로 연결한다.
 
-main.py     앱과 엔드포인트 (GET /health, POST /api/classify, POST /api/answer, POST /api/answer/stream)
+main.py     앱과 엔드포인트 (GET /health, POST /api/answer, POST /api/answer/stream)
 schemas.py  요청 형식과 /api/answer 응답 형식
 pipeline.py  실제 기능 연결 (분류기 → 분류 후처리 → 프롬프트 → 답변 생성)
 

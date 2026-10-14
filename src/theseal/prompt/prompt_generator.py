@@ -24,15 +24,18 @@ async def build_prompt(prediction) -> PromptSpec:
 
     # 분류 결과로 최종 라벨 결정
     routing_result = await router.run(prediction)
-    
+
     # 최종 라벨에 맞는 프롬프트 생성
-    if routing_result.label == "unknown":
-        return build_label_unknown_prompt(routing_result.text)
-    
-    return build_common_policy_prompt(
-        routing_result.text,
-        routing_result.label,
-    )
+    return prompt_for_label(routing_result.label, routing_result.text)
+
+
+def prompt_for_label(label: Label, text: str) -> PromptSpec:
+    """최종 라벨 → 프롬프트. unknown은 범위 밖 프롬프트(툴 사용), 나머지는 공통 정책 프롬프트(B).
+    B는 프롬프트 A/B 실험(runs/llm/prompt_comparison, PR #6)에서 라벨별 프롬프트(A)보다 나아 선정됐다.
+    API(LCEL 체인)도 이 함수로 프롬프트를 고른다."""
+    if label == "unknown":
+        return build_label_unknown_prompt(text)
+    return build_common_policy_prompt(text, label)
     
     
 def build_common_policy_prompt(text: str, label: Label) -> PromptSpec:

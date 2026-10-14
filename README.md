@@ -67,7 +67,7 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 
 보정값(T · tau · tau_low · delta)은 학습한 가중치마다 다르므로 `src/theseal/prompt/routing_config.py`의
 `ROUTE_CALIBRATIONS`에 모델별로 적어 둡니다. 키는 모델 폴더 이름(`<모델>/<실행 ID>`, 예전 구조는 `<모델>`)이고,
-서비스는 쓰는 분류 모델의 키를 자동으로 찾습니다. 키가 없으면 예시 값을 씁니다 (`/api/classify` 응답의
+서비스는 쓰는 분류 모델의 키를 자동으로 찾습니다. 키가 없으면 예시 값을 씁니다 (`/api/answer` 응답 `classification`의
 `route.calibration_key`가 찾아본 키, `route.source`가 값의 출처).
 
 켜고 끄기는 `.env`에서 합니다.
@@ -105,7 +105,6 @@ uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000
 | 메서드 | 경로 | 내용 |
 | --- | --- | --- |
 | GET | `/health` | 서버 상태 · 분류 모델 · 설정 |
-| POST | `/api/classify` | `{"text"}` → 최종 라벨과 판정 근거 (분류기 확률 · 경로 · LLM 검증) |
 | POST | `/api/answer` | `{"text", "provider"?, "label"?}` → 답변 + 분류 결과 (JSON) |
 | POST | `/api/answer/stream` | 같은 요청 → SSE (`status` · `classification` · `delta` · `done`). 범위 밖(unknown)은 툴을 쓴 뒤 `done`만 보냄 |
 
