@@ -1,5 +1,74 @@
 # Seal_LLM
 
+한국어 고객 문의를 배송(shipping) · 환불(refund) · 계정(account)으로 분류하고, 분류 결과에 맞는 상담 정책으로
+LLM이 답변 초안을 만드는 서비스입니다. 상담 범위 밖의 질문(unknown)은 날짜 · 날씨 · 검색 툴을 써서 답하고,
+상담 범위를 함께 안내합니다.
+
+## 전체 흐름
+
+```mermaid
+flowchart TD
+    A["고객 문의 (text)"] --> B
+
+    subgraph C1["① 분류기 · classifier/"]
+        B["TF-IDF 또는 BERT 계열<br/>라벨별 확률"]
+    end
+    B -->|ClassificationResult| R
+
+    subgraph C2["② Prompt · prompt/"]
+        R["분류 후처리<br/>확률 보정 → 확신 · 확신 부족 · 접전 · 모름"]
+        R -->|확신이 아님| V["LLM 검증<br/>라벨이 맞는지 다시 확인"]
+        R -->|최종 라벨| P
+        V -->|최종 라벨| P
+        P{"라벨"}
+        P -->|shipping · refund · account| P1["공통 정책 프롬프트"]
+        P -->|unknown| P2["툴 사용 프롬프트"]
+    end
+    P1 -->|PromptSpec| G
+    P2 -->|PromptSpec| G
+
+    subgraph C3["③ 답변 생성 · answer/"]
+        G["로컬 LLM (Ollama Gemma 4 E4B)<br/>또는 OpenAI"]
+        G <-.->|unknown만| T["툴: 날짜 · 날씨 · 검색"]
+    end
+    G -->|AnswerResult| API
+
+    subgraph C4["API · api/"]
+        API["FastAPI · LCEL 체인<br/>POST /api/answer · /api/answer/stream"]
+    end
+    API --> OUT["답변 + 분류 근거 (classification)"]
+```
+
+## 폴더 구조
+
+```
+Seal_LLM/
+├─ src/theseal/
+│  ├─ api/          FastAPI 서버 · LCEL 체인 (main.py · pipeline.py · schemas.py)
+│  ├─ classifier/   분류 모델 학습 · 불러오기 · 예측 (Classifier · ClassificationResult)
+│  ├─ prompt/       분류 후처리(router · route_rule · llm_verifier)와 프롬프트 생성(Prompt)
+│  ├─ answer/       LLM 호출 · 툴 호출 반복 · 툴(tools/: 날짜 · 기상청 날씨 · Tavily 검색)
+│  └─ common/       공용 설정(config) · LLM 연결(client) · 데이터 형식(schemas)
+├─ scripts/
+│  ├─ classifier/   분류기 다운로드 · 학습 · 비교 · test 평가 · 보정값 계산
+│  └─ answer/       로컬 LLM 다운로드 · 연결 확인 · 프롬프트 A/B 실험
+├─ data/            교육용 한국어 합성 데이터 (inquiries · documents)
+├─ runs/            실험 결과 (분류기 val_report · comparison.md, 프롬프트 A/B 결과). 가중치(model/)는 git 제외
+├─ models/          받아 둔 사전학습 분류 모델 (git 제외)
+├─ .env.example     비밀 키 · PC별 설정 견본
+└─ pyproject.toml   의존성 (uv)
+```
+
+## 기술 스택
+
+| 구분 | 사용 |
+| --- | --- |
+| 언어 · 환경 | Python 3.12, uv |
+| API | FastAPI, Uvicorn, Pydantic |
+| LLM 연결 | LangChain (LCEL), Ollama — Gemma 4 E4B (Q4_K_M), OpenAI — gpt-5.6-luna |
+| 분류기 | scikit-learn (TF-IDF + 로지스틱 회귀), PyTorch · Transformers (klue/bert · roberta, KoELECTRA, mmBERT, NeoBERT 파인튜닝) |
+| 툴 | 기상청 API허브 단기예보, Tavily 검색 |
+
 ## 빠르게 실행해 보기
 
 [uv](https://docs.astral.sh/uv/)와 [Ollama](https://ollama.com/download)를 설치하고 Ollama를 실행해 둔 상태에서 시작합니다.
@@ -161,3 +230,37 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 
 `provider`는 `local` · `openai`(비우면 `DEFAULT_PROVIDER`, 기본 `local`), `label`을 넣으면 분류를 건너뜁니다.
 
+#### 응답 예시 (`POST /api/answer`)
+
+요청: `{"text": "사이즈가 맞지 않아 반품하려는데 환불은 언제 되나요?"}`
+
+```json
+{
+  "status": "ok",
+  "label": "refund",
+  "answer": "반품을 원하시는군요. 먼저 반품 접수를 하셨는지 확인해 주시겠어요? … 상품을 수령하신 날로부터 7일 이내에 반품을 접수하셔야 한다는 가상 기준이 있습니다. …",
+  "provider": "local",
+  "model": "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
+  "prompt_version": "common-policy-v1",
+  "tools_used": [],
+  "latency_ms": 5167,
+  "usage": {"input_tokens": 297, "output_tokens": 202},
+  "error": null,
+  "classification": {
+    "label": "refund",
+    "classifier_label": "refund",
+    "scores": {"shipping": 0.1025, "refund": 0.7776, "account": 0.1199},
+    "route": {"route": "confident", "p1": 0.5684, "margin": 0.3442, "calibration": "baseline/20261013-1057", "…": "…"},
+    "verification": null
+  }
+}
+```
+
+| 필드 | 내용 |
+| --- | --- |
+| `answer` | 답변. 오류면 `null` |
+| `label` | 최종 라벨 (shipping · refund · account · unknown) |
+| `prompt_version` | 사용한 프롬프트 (`common-policy-v1`, `unknown-v1-…`) |
+| `tools_used` | unknown 질문에서 호출한 툴과 결과 성공 여부 |
+| `classification` | 분류 근거: 분류기 확률(`scores`), 판정 경로(`route`), LLM 검증(`verification`, 확신일 때는 생략돼 `null`) |
+| `status` · `error` | 오류가 나도 같은 형식으로 `status: "error"`와 `error.code` (`invalid_input` · `config_error` · `llm_error` · `llm_timeout`) |
