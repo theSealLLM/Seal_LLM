@@ -10,7 +10,15 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
-from theseal.classifier.config import DEFAULT_TASK, MODEL_SUBDIR, display_path, task_paths
+from theseal.classifier.config import (
+    DEFAULT_TASK,
+    MODEL_SUBDIR,
+    FinalModelNotSetError,
+    display_path,
+    final_choice,
+    task_paths,
+)
+from theseal.classifier.data_loader import load_labels
 from theseal.common.config import ENV_FILE, config_from_env
 
 CALIBRATION_FILENAME = "route_rule.json"
@@ -97,6 +105,20 @@ def calibration_key(model_dir: Path, task: str = DEFAULT_TASK, runs_dir: Path | 
         return display_path(path)
 
 
+@lru_cache
+def task_labels(task: str = DEFAULT_TASK) -> tuple[str, ...]:
+    """task의 라벨 이름 (data/<task>/labels.json 순서). 분류기도 이 순서로 학습 · 예측한다."""
+    return load_labels(task_paths(task).data_dir).labels
+
+
+def final_calibration_key(task: str = DEFAULT_TASK) -> str | None:
+    """FINAL_MODEL의 보정값 키 (<모델>/<실행 ID>). 정해지지 않았으면 None."""
+    try:
+        return "/".join(final_choice(task))
+    except FinalModelNotSetError:
+        return None
+
+
 def calibration_path(model_dir: Path) -> Path:
     """보정 스크립트가 기록을 남기는 곳: 분류 모델 폴더 옆의 route_rule.json (서비스는 읽지 않는다)."""
     return Path(model_dir).parent / CALIBRATION_FILENAME
@@ -106,14 +128,16 @@ def resolve_params(config: RoutingConfig, model_dir: Path | None = None,
                    calibrations: dict[str, dict[str, float]] | None = None) -> dict:
     """경로 규칙에 넣을 값: .env 개별 값 > 모델별 보정값(ROUTE_CALIBRATIONS) > 예시 값.
     어디서 왔는지(source: env · calibration · example)도 함께 돌려준다.
-    model_dir: 쓰는 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 키를 만드는 데 쓴다
+    model_dir: 쓰는 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 키를 만드는 데 쓴다.
+        없으면 FINAL_MODEL의 키를 쓴다 (API는 항상 FINAL_MODEL을 쓴다)
     calibrations: 테스트용 (없으면 ROUTE_CALIBRATIONS)
     calibration_key: 찾아본 키 (없으면 이 키로 ROUTE_CALIBRATIONS에 추가하면 된다) · calibration: 찾은 키"""
     calibrations = ROUTE_CALIBRATIONS if calibrations is None else calibrations
     if config.route_calibration != "auto":
         key = config.route_calibration
     else:
-        key = calibration_key(model_dir, config.route_task) if model_dir else None
+        key = (calibration_key(model_dir, config.route_task) if model_dir
+               else final_calibration_key(config.route_task))
     model_values = calibrations.get(key, {}) if key else {}
     env_values = {
         "temperature": config.route_temperature,

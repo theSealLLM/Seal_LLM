@@ -56,11 +56,12 @@ OpenAI 호출(과금), 기상청 조회, Tavily 검색까지 확인하려면 `--
 
 `src/theseal/prompt/`의 `router.py`는 분류기 결과를 받아 최종 라벨을 정합니다. 경로 규칙이 보정한 확률로
 확신 · 확신 부족 · 접전 · 모름(unknown)을 판정하고, 확신이 아닌 문의는 LLM 검증이 라벨이 맞는지 한 번 더 확인합니다.
-입력은 `Classifier.predict()` 결과(`ClassificationResult`) 그대로이고, 라벨별 확률에 `Classifier.labels`로 이름을 붙입니다.
+입력은 `Classifier.predict()` 결과(`ClassificationResult`) 하나입니다. 원문은 결과의 `text`, 라벨 이름은 task의 `labels.json` 순서,
+보정값은 `FINAL_MODEL`의 것을 씁니다.
 
 ```python
 clf = Classifier.from_final()
-result = await router.run(clf.predict(text), text, labels=clf.labels, model_dir=clf.model_dir)
+result = await router.run(clf.predict(text))  # 원문은 result.text
 result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프롬프트 생성
 ```
 

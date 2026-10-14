@@ -1,7 +1,8 @@
 """② 경로 규칙 → ③ LLM 검증을 설정대로 이어서 실행한다.
 
-입력은 분류기 Classifier.predict(text)의 결과(ClassificationResult)를 그대로 받는다.
-라벨별 확률(scores)에 Classifier.labels(labels.json 순서)로 이름을 붙인다. 안쪽(경로 규칙 · 검증 · 출력)은 라벨 이름을 쓴다.
+입력은 분류기 Classifier.predict(text)의 결과(ClassificationResult) 하나다: run(result). 원문은 result.text
+라벨별 확률(scores)에는 task의 labels.json 순서로 이름을 붙이고, 보정값은 FINAL_MODEL 것을 쓴다.
+안쪽(경로 규칙 · 검증 · 출력)은 라벨 이름을 쓴다.
 출력 RoutingResult의 label · text가 프롬프트 생성 모듈로 넘어간다. route · verification은 기록용.
 ②·③은 각각 .env로 끈다 (ROUTE_RULE_ENABLED, VERIFY_MODE=off). 둘 다 끄면 분류기 라벨을 그대로 쓴다.
 """
@@ -20,7 +21,7 @@ from theseal.common.client import make_llm
 from theseal.common.config import LLMConfig, get_config
 
 from . import llm_verifier, route_rule
-from .routing_config import RoutingConfig, get_routing_config, resolve_params
+from .routing_config import RoutingConfig, get_routing_config, resolve_params, task_labels
 
 if TYPE_CHECKING:
     from theseal.classifier.classifier import ClassificationResult
@@ -62,24 +63,23 @@ def apply_route_rule(
 
 async def run(
     prediction: ClassificationResult,
-    text: str,
     *,
-    labels: Sequence[str],
-    model_dir: Path | None = None,
     config: RoutingConfig | None = None,
     llm_config: LLMConfig | None = None,
     llm: BaseChatModel | None = None,
 ) -> RoutingResult:
-    """prediction: Classifier.predict(text) 결과 (ClassificationResult: label_num · label_name · scores)
-    labels: 라벨 이름 (Classifier.labels). prediction.scores의 순서와 같다
-    model_dir: 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 모델별 보정값(ROUTE_CALIBRATIONS)의 키를 만드는 데 쓴다
-    llm: 검증에 쓸 LLM (없으면 VERIFY_PROVIDER로 만든다)
+    """prediction: Classifier.predict(text) 결과 (ClassificationResult: text · label_num · label_name · scores)
+    라벨 이름은 ROUTE_TASK의 labels.json 순서, 보정값은 FINAL_MODEL 것을 쓴다.
+    config · llm_config · llm: 테스트에서 설정이나 가짜 LLM을 끼울 때만 넘긴다 (없으면 .env와 코드 기본값)
 
     예) clf = Classifier.from_final()
-        result = await router.run(clf.predict(text), text, labels=clf.labels, model_dir=clf.model_dir)"""
+        result = await router.run(clf.predict(text))
+
+    FINAL_MODEL이 아닌 모델로 실험할 때는 to_scores(labels) · apply_route_rule(model_dir)를 직접 쓴다."""
     config = config or get_routing_config()
-    classifier_label, scores = to_scores(prediction, labels)
-    label, route = apply_route_rule(classifier_label, scores, config, model_dir)
+    text = prediction.text
+    classifier_label, scores = to_scores(prediction, task_labels(config.route_task))
+    label, route = apply_route_rule(classifier_label, scores, config)
     result = RoutingResult(label=label, text=text, classifier_label=classifier_label,
                            scores=scores, route=route)
 
