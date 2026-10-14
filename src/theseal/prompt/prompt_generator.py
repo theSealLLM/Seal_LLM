@@ -1,6 +1,8 @@
 """프롬프트 생성: 서비스가 쓰는 프롬프트는 이 파일 한 곳에서 관리한다.
 
-build_prompt(result)              분류 결과 → 분류 후처리(router) → 최종 라벨에 맞는 PromptSpec
+Prompt().build_prompt(result)          분류 결과 → 분류 후처리(router) → 최종 라벨에 맞는 PromptSpec
+Prompt().build_with_routing(result)    위와 같고 분류 후처리 결과(RoutingResult)도 함께 (API · LCEL 체인용)
+Prompt().build_for_label(label, text)  라벨을 직접 줄 때 (분류 · 후처리 건너뜀)
 build_common_policy_prompt(...)   shipping · refund · account: 공통 상담 규칙 + 라벨별 정책 (B, A/B 실험으로 선정)
 build_label_unknown_prompt(...)   unknown(범위 밖): 툴(날짜 · 날씨 · 검색) 사용 지시 포함
 """
@@ -9,9 +11,22 @@ from __future__ import annotations
 
 import hashlib
 
+from pydantic import BaseModel
+
 from ..common.config import LLMConfig, get_config
 from ..common.schemas import Label, PromptSpec
 from . import router
+
+
+class RoutedPrompt(BaseModel):
+    """프롬프트와 그 프롬프트를 고른 근거. API 응답의 classification이 routing에서 나온다."""
+
+    routing: router.RoutingResult | None  # 분류 후처리 결과. 라벨을 직접 주면 None
+    prompt: PromptSpec
+
+    @property
+    def label(self) -> str:
+        return self.prompt.label
 
 
 class Prompt:
@@ -19,21 +34,30 @@ class Prompt:
 
     async def build_prompt(self, prediction) -> PromptSpec:
         """Classifier 분류 결과를 받아 PromptSpec을 반환한다."""
+        return (await self.build_with_routing(prediction)).prompt
+
+    async def build_with_routing(self, prediction) -> RoutedPrompt:
+        """build_prompt와 같고, 분류 후처리 결과(RoutingResult)도 함께 돌려준다.
+        라우팅(LLM 검증 포함)을 한 번만 하고 그 근거를 응답에 남길 때 쓴다 (API LCEL 체인)."""
 
         # 분류 결과를 후처리해 최종 라벨 결정
         routing_result = await router.run(prediction)
 
         # 최종 라벨과 원본 질문으로 PromptSpec 생성
-        return prompt_for_label(
-            routing_result.label,
-            routing_result.text,
+        return RoutedPrompt(
+            routing=routing_result,
+            prompt=prompt_for_label(routing_result.label, routing_result.text),
         )
+
+    def build_for_label(self, label: Label, text: str) -> RoutedPrompt:
+        """라벨을 직접 줄 때 (분류 · 후처리를 건너뛴다)."""
+        return RoutedPrompt(routing=None, prompt=prompt_for_label(label, text))
 
 
 def prompt_for_label(label: Label, text: str) -> PromptSpec:
     """최종 라벨 → 프롬프트. unknown은 범위 밖 프롬프트(툴 사용), 나머지는 공통 정책 프롬프트(B).
     B는 프롬프트 A/B 실험(runs/llm/prompt_comparison, PR #6)에서 라벨별 프롬프트(A)보다 나아 선정됐다.
-    API(LCEL 체인)도 이 함수로 프롬프트를 고른다."""
+    Prompt 객체의 메서드들이 이 함수로 프롬프트를 고른다."""
     if label == "unknown":
         return build_label_unknown_prompt(text)
     return build_common_policy_prompt(text, label)

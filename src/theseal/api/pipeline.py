@@ -1,14 +1,16 @@
-"""API가 쓰는 실제 기능 연결 (LCEL 체인): 질문(text) → 분류기 → 분류 후처리 → 프롬프트 → 답변.
+"""API가 쓰는 실제 기능 연결 (LCEL 체인): 질문(text) → 분류기 → Prompt(분류 후처리 + 프롬프트) → 답변.
 
     answer_chain(clf).ainvoke({"text": ..., "label": None, "provider": None})  →  AnswerResponse
 
     {"text", "label"?, "provider"?}
-      → classification  분류기(ClassificationResult) → router.run → RoutingResult (label을 주면 건너뜀)
-      → label           최종 라벨 (주어진 label 또는 classification.label)
-      → prompt          prompt_generator.prompt_for_label → PromptSpec
-      → AnswerResponse  generate → AnswerResult + classification
+      ① prediction      분류기 clf.predict → ClassificationResult (label을 주면 건너뜀)
+      ② routed          Prompt().build_with_routing → RoutedPrompt(routing, prompt)
+                        (label을 주면 Prompt().build_for_label)
+         classification · label · prompt   routed를 풀어 둔다 (스트리밍 · 응답에서 쓰기 쉽게)
+      ③ AnswerResponse  generate → AnswerResult + classification
 
 단계마다 RunnablePassthrough.assign으로 결과를 쌓아서, 최종 응답에 분류 근거(classification)가 남는다.
+분류 후처리(LLM 검증 포함)는 Prompt 안에서 한 번만 돈다.
 스트리밍은 prompt까지 prepare_chain으로 만들고 답변만 answer_stream으로 흘린다.
 """
 
@@ -26,9 +28,7 @@ from theseal.classifier.classifier import Classifier
 from theseal.classifier.config import DEFAULT_TASK, PROJECT_ROOT, FinalModelNotSetError, task_paths
 from theseal.common.config import ENV_FILE, LLMConfig, config_from_env, get_config
 from theseal.common.schemas import PromptSpec
-from theseal.prompt import router
-from theseal.prompt.prompt_generator import prompt_for_label
-from theseal.prompt.router import RoutingResult
+from theseal.prompt import Prompt, RoutedPrompt
 
 from .schemas import AnswerResponse
 
@@ -89,30 +89,37 @@ def classifier_name(clf: Classifier) -> str:
     return f"{clf.model_dir.parent.parent.name}/{clf.model_dir.parent.name}"
 
 
-async def classify(clf: Classifier, text: str) -> RoutingResult:
-    """① 분류기 → ② 경로 규칙 → ③ LLM 검증"""
-    prediction = await run_in_threadpool(clf.predict, text)
-    return await router.run(prediction)  # 원문은 prediction.text
-
-
 # ---------------------------------------------------------------- LCEL 체인
 
-def _classify_step(clf: Classifier | None):
-    async def step(x: dict) -> RoutingResult | None:
+prompt = Prompt()  # 프롬프트 모듈의 대표 객체: 분류 후처리 + 프롬프트 생성
+
+
+def _predict_step(clf: Classifier | None):
+    async def step(x: dict):
         if x.get("label"):  # 라벨을 직접 주면 분류를 건너뛴다 (테스트 · 비교용)
             return None
         if clf is None:
             raise ClassifierNotReady("분류 모델을 불러오지 못했습니다")
-        return await classify(clf, x["text"])
+        return await run_in_threadpool(clf.predict, x["text"])
     return step
 
 
+async def _prompt_step(x: dict) -> RoutedPrompt:
+    if x["prediction"] is None:
+        return prompt.build_for_label(x["label"], x["text"])
+    return await prompt.build_with_routing(x["prediction"])
+
+
 def prepare_chain(clf: Classifier | None) -> Runnable:
-    """{"text", "label"?} → + classification · label · prompt (답변 직전까지)"""
+    """{"text", "label"?} → + prediction · routed · classification · label · prompt (답변 직전까지)"""
     return (
-        RunnablePassthrough.assign(classification=RunnableLambda(_classify_step(clf)))
-        | RunnablePassthrough.assign(label=lambda x: x.get("label") or x["classification"].label)
-        | RunnablePassthrough.assign(prompt=lambda x: prompt_for_label(x["label"], x["text"]))
+        RunnablePassthrough.assign(prediction=RunnableLambda(_predict_step(clf)))  # ① 분류기
+        | RunnablePassthrough.assign(routed=RunnableLambda(_prompt_step))  # ② Prompt
+        | RunnablePassthrough.assign(
+            classification=lambda x: x["routed"].routing,
+            label=lambda x: x["routed"].label,
+            prompt=lambda x: x["routed"].prompt,
+        )
     )
 
 

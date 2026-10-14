@@ -8,6 +8,7 @@ from .prompt_ab_experiment import build_label_specific_prompt
 # 서비스에서 사용하는 Prompt 객체와 최종 프롬프트 생성 함수 공개
 from .prompt_generator import (
     Prompt,
+    RoutedPrompt,
     build_common_policy_prompt,
     build_label_unknown_prompt,
 )
@@ -15,6 +16,7 @@ from .prompt_generator import (
 
 __all__ = [
     "Prompt",
+    "RoutedPrompt",
     "build_common_policy_prompt",
     "build_label_specific_prompt",
     "build_label_unknown_prompt",
