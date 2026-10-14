@@ -1,4 +1,4 @@
-"""scripts/llm 공통: src 경로 등록, Ollama 서버 · 모델 확인."""
+"""scripts/answer 공통: src 경로 등록, Ollama 서버 · 모델 확인."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ if str(SRC_DIR) not in sys.path:
 # 콘솔 코드페이지가 한글을 못 받는 환경(cp1252 등)에서 print가 죽지 않도록
 sys.stdout.reconfigure(errors="replace")
 
-from theseal.llm.config import OLLAMA_MODEL_IDS, LLMConfig
+from theseal.common.config import OLLAMA_MODEL_IDS, LLMConfig
 
 OLLAMA_DOWNLOAD_URL = "https://ollama.com/download"
 

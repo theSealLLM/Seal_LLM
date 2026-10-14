@@ -33,7 +33,7 @@ from theseal.classifier.classifier import Classifier
 from theseal.classifier.config import SEED, TASKS, FinalModelNotSetError, display_path, task_paths
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import environment_info, now_iso, save_json
-from theseal.routing.config import CALIBRATION_FILENAME, calibration_key, calibration_path
+from theseal.prompt.routing_config import CALIBRATION_FILENAME, calibration_key, calibration_path
 
 KEEP = 0.975  # 실제 문의 중 unknown으로 잘못 버려도 되는 비율 2.5%
 TARGET_TAU_LOW = 0.45

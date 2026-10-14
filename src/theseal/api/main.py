@@ -35,10 +35,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from theseal.llm.client import model_name
-from theseal.llm.config import PROVIDERS, get_config
-from theseal.routing.config import get_routing_config
-from theseal.routing.router import RoutingResult
+from theseal.common.client import model_name
+from theseal.common.config import PROVIDERS, get_config
+from theseal.prompt.routing_config import get_routing_config
+from theseal.prompt.router import RoutingResult
 
 from . import pipeline
 from .schemas import AnswerRequest, AnswerResponse, ClassifyRequest, ErrorBody, ErrorResponse

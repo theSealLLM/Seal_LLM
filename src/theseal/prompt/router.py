@@ -15,11 +15,11 @@ from pathlib import Path
 from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel
 
-from theseal.llm.client import make_llm
-from theseal.llm.config import LLMConfig, get_config
+from theseal.common.client import make_llm
+from theseal.common.config import LLMConfig, get_config
 
 from . import llm_verifier, route_rule
-from .config import RoutingConfig, get_routing_config, resolve_params
+from .routing_config import RoutingConfig, get_routing_config, resolve_params
 
 
 class RoutingResult(BaseModel):

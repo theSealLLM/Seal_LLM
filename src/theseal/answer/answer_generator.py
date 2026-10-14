@@ -27,9 +27,9 @@ from langchain_core.messages import (
 )
 from langchain_core.tools import BaseTool
 
-from ..client import ConfigError, llm_options, make_llm, model_name
-from ..config import LLMConfig, get_config
-from ..schemas import AnswerResult, ErrorInfo, PromptSpec, ToolRecord, Usage
+from ..common.client import ConfigError, llm_options, make_llm, model_name
+from ..common.config import LLMConfig, get_config
+from ..common.schemas import AnswerResult, ErrorInfo, PromptSpec, ToolRecord, Usage
 from . import tool_caller
 from .tools import get_tools_for
 

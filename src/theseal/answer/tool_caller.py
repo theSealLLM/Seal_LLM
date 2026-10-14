@@ -18,7 +18,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 from langchain_core.tools import BaseTool
 
-from ..schemas import ToolRecord, Usage
+from ..common.schemas import ToolRecord, Usage
 
 
 @dataclass

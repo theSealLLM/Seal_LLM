@@ -14,12 +14,12 @@ from fastapi.concurrency import run_in_threadpool
 
 from theseal.classifier.classifier import Classifier
 from theseal.classifier.config import DEFAULT_TASK, PROJECT_ROOT, FinalModelNotSetError, task_paths
-from theseal.llm.answer.answer_generator import generate, generate_stream
-from theseal.llm.config import ENV_FILE, LLMConfig, config_from_env
-from theseal.llm.prompt import build_label_specific_prompt, build_label_unknown_prompt
-from theseal.llm.schemas import AnswerResult, PromptSpec
-from theseal.routing import router
-from theseal.routing.router import RoutingResult
+from theseal.answer.answer_generator import generate, generate_stream
+from theseal.common.config import ENV_FILE, LLMConfig, config_from_env
+from theseal.prompt import build_label_specific_prompt, build_label_unknown_prompt
+from theseal.common.schemas import AnswerResult, PromptSpec
+from theseal.prompt import router
+from theseal.prompt.router import RoutingResult
 
 
 @dataclass

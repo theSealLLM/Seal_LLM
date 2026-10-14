@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field, field_validator
 
-from theseal.llm.schemas import AnswerResult, Label, Provider
-from theseal.routing.router import RoutingResult
+from theseal.common.schemas import AnswerResult, Label, Provider
+from theseal.prompt.router import RoutingResult
 
 MAX_INPUT_CHARS = 2000
 

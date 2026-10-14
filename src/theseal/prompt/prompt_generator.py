@@ -1,6 +1,6 @@
 """분류된 문의의 라벨에 맞는 고객지원 프롬프트를 생성한다."""
 
-from ..schemas import Label, PromptSpec
+from ..common.schemas import Label, PromptSpec
 
 def build_label_specific_prompt(text: str, label: Label) -> PromptSpec:
     """라벨별 독립 프롬프트를 생성한다."""

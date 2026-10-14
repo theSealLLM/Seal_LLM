@@ -1,10 +1,10 @@
 """② 답변 생성에 필요한 연결을 한 번씩 확인한다 (Ollama · OpenAI · 기상청 · Tavily).
 
-uv run python scripts/llm/check_llm.py              # Ollama 호출 + 키 설정 여부만
-uv run python scripts/llm/check_llm.py --openai     # + OpenAI 실제 호출 1회 (과금)
-uv run python scripts/llm/check_llm.py --kma        # + 기상청 날씨 조회 1회 (서울)
-uv run python scripts/llm/check_llm.py --tavily     # + Tavily 검색 1회 (사용량 차감)
-uv run python scripts/llm/check_llm.py --all        # 전부
+uv run python scripts/answer/check_llm.py              # Ollama 호출 + 키 설정 여부만
+uv run python scripts/answer/check_llm.py --openai     # + OpenAI 실제 호출 1회 (과금)
+uv run python scripts/answer/check_llm.py --kma        # + 기상청 날씨 조회 1회 (서울)
+uv run python scripts/answer/check_llm.py --tavily     # + Tavily 검색 1회 (사용량 차감)
+uv run python scripts/answer/check_llm.py --all        # 전부
 
 - 설정은 .env에서 읽는다 (theseal.llm.config). 키 값은 출력하지 않는다
 - 하나라도 실패하면 종료 코드 1
@@ -19,10 +19,10 @@ import time
 import _common
 from langchain_core.messages import HumanMessage
 
-from theseal.llm.answer.tools.api_weather import get_weather
-from theseal.llm.answer.tools.api_web_search import web_search
-from theseal.llm.client import ConfigError, llm_options, make_llm
-from theseal.llm.config import LLMConfig
+from theseal.answer.tools.api_weather import get_weather
+from theseal.answer.tools.api_web_search import web_search
+from theseal.common.client import ConfigError, llm_options, make_llm
+from theseal.common.config import LLMConfig
 
 PING = "한 단어로만 답하세요: 안녕하세요"
 
@@ -59,7 +59,7 @@ def check_ollama(config: LLMConfig) -> list[tuple[str, bool | None, str]]:
     rows = [("Ollama 서버", True, f"{config.ollama_base_url} · 버전 {version}")]
     info = _common.find_model(config, config.ollama_model)
     if info is None:
-        return rows + [("로컬 모델", False, f"{config.ollama_model} 없음 → scripts/llm/fetch_models.py")]
+        return rows + [("로컬 모델", False, f"{config.ollama_model} 없음 → scripts/answer/fetch_models.py")]
     ok, message = _common.check_model_id(config.ollama_model, info)
     rows.append(("로컬 모델", ok if ok is not None else True, f"{config.ollama_model} · {message}"))
     ok, message = asyncio.run(ping_llm("local", config))

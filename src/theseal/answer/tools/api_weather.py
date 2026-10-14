@@ -18,7 +18,7 @@ from zoneinfo import ZoneInfo
 import httpx
 from langchain_core.tools import tool
 
-from ...config import get_config
+from ...common.config import get_config
 
 # 지역 이름 → (위도, 경도). 시 · 도는 대표 도시(도청 또는 주요 시청) 위치
 REGIONS: dict[str, tuple[float, float]] = {

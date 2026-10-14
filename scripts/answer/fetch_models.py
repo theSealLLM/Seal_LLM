@@ -1,6 +1,6 @@
 """① 로컬 LLM(Ollama 모델)을 내려받고 팀 기준 버전인지 확인한다.
 
-uv run python scripts/llm/fetch_models.py
+uv run python scripts/answer/fetch_models.py
 
 - 받을 모델: .env의 OLLAMA_MODEL (기본: hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M, 약 6GB)
 - 저장 위치: Ollama가 관리하는 폴더(~/.ollama). 프로젝트의 models/에는 두지 않는다
@@ -18,7 +18,7 @@ import json
 import _common
 import httpx
 
-from theseal.llm.config import LLMConfig
+from theseal.common.config import LLMConfig
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -72,7 +72,7 @@ def main(argv: list[str] | None = None) -> dict:
 
     ok, message = _common.check_model_id(model, info)
     print(f"  {'[경고] ' if ok is False else ''}{message}")
-    print("\n다음: uv run python scripts/llm/check_llm.py 로 연결을 확인한다")
+    print("\n다음: uv run python scripts/answer/check_llm.py 로 연결을 확인한다")
     return {"model": model, "id": _common.short_id(info), "id_matches": ok}
 
 
