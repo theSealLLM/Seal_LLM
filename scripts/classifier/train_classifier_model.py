@@ -2,15 +2,12 @@
 
 uv run python scripts/classifier/train_classifier_model.py
 
---model을 생략하면 후보 목록을 번호로 고른다. 번호로 고르면 models/ 아래 받아 둔
-폴더가 있을 때 그걸 쓰므로 다시 내려받지 않는다.
---model을 직접 주면 메뉴 없이 바로 학습한다 (HF Hub 이름 또는 로컬 폴더 경로).
-처음 실행할 때 Hub 이름을 주면 HF 캐시로 내려받는다. 이미 받아 둔 모델만 쓰려면 --local-files-only.
---task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.
+--model을 생략 시 후보 목록을 번호로 나열한다.
+--task를 주지 않으면 inquiries로 돌아간다. documents를 쓰려면 --task documents.(추후 개발예정)
 
 결과: runs/classifier/<task>/<모델 이름>/<실행 ID>/ (model/ + val_report.json)
-실행 ID는 학습을 시작한 시각(분 단위)이라 다시 학습해도 덮어쓰지 않는다. --tag는 ID 뒤에 붙는 메모.
-에폭별 가중치는 남기지 않고, validation macro-F1이 가장 좋았던 에폭의 가중치 하나만 저장한다.
+실행 ID는 학습을 시작한 시각(초 단위).
+validation macro-F1이 가장 좋았던 에폭의 가중치 하나만 저장한다.
 """
 
 from __future__ import annotations
@@ -30,6 +27,7 @@ from theseal.classifier.config import (
     TaskPaths,
     display_path,
     local_model_dir,
+    model_overrides,
     new_run_id,
     safe_name,
 )
@@ -42,11 +40,7 @@ def default_name(model: str) -> str:
 
 
 def choose_model(paths: TaskPaths) -> tuple[str, str | None]:
-    """--model을 생략했을 때 후보를 번호로 고르게 한다.
-
-    (모델 경로 또는 Hub 이름, 결과 폴더 이름)을 돌려준다. 번호로 고른 경우 이름은
-    저장소 이름에서 뽑아, 로컬 폴더로 돌리든 Hub 이름으로 돌리든 같은 폴더에 쌓이게 한다.
-    직접 입력한 경우에는 이름을 정하지 않고 None을 주어 호출한 쪽이 경로에서 뽑게 한다.
+    """--model을 생략했을 때 후보를 번호로 나열한다.
     """
     print("\n학습할 모델을 고르세요.")
     for i, repo_id in enumerate(MODEL_CANDIDATES, start=1):
@@ -55,7 +49,8 @@ def choose_model(paths: TaskPaths) -> tuple[str, str | None]:
         root = paths.model_root(default_name(repo_id))
         n_runs = sum(1 for d in root.iterdir() if d.is_dir()) if root.is_dir() else 0
         done = f" · 학습 기록 {n_runs}개" if n_runs else ""
-        print(f"  {i}) {repo_id:<45} {where}{done}")
+        remote = " · 저장소 코드 실행" if model_overrides(repo_id).get("trust_remote_code") else ""
+        print(f"  {i}) {repo_id:<45} {where}{done}{remote}")
     print("  0) 직접 입력 (HF Hub 이름 또는 폴더 경로)")
 
     while True:
@@ -86,8 +81,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--model", default=None,
                    help="HF Hub 이름 또는 로컬 경로 (생략하면 번호로 고른다)")
     p.add_argument("--name", default=None, help="모델 폴더 이름 (기본: 모델 폴더/저장소 이름)")
-    p.add_argument("--tag", default=None, help="실행 ID 뒤에 붙일 메모 (예: lr2e5 → 20261013-1411_lr2e5)")
-    p.add_argument("--max-length", type=int, default=d.max_length)
+    p.add_argument("--max-length", type=int, default=None,
+                   help=f"최대 토큰 길이 (기본: 모델별 설정, 없으면 {d.max_length})")
     p.add_argument("--batch-size", type=int, default=d.batch_size)
     p.add_argument("--eval-batch-size", type=int, default=d.eval_batch_size)
     p.add_argument("--epochs", type=int, default=d.epochs)
@@ -102,6 +97,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=d.seed)
     p.add_argument("--local-files-only", action="store_true",
                    help="HF Hub에서 내려받지 않고 캐시/로컬 경로만 사용")
+    p.add_argument("--trust-remote-code", action="store_true",
+                   help="모델 저장소의 코드를 실행 (MODEL_OVERRIDES에 있는 모델은 자동)")
     p.add_argument("--latency-samples", type=int, default=LATENCY_SAMPLES)
     return p.parse_args(argv)
 
@@ -120,10 +117,13 @@ def main(argv: list[str] | None = None) -> dict:
             print(f"[안내] --model이 없고 입력을 받을 수 없어 기본값 {model}로 학습합니다.")
 
     name = _common.check_name(args.name or chosen_name or default_name(model))
-    run_id = new_run_id(args.tag)  # 학습 시작 시각
+    run_id = new_run_id()  # 학습 시작 시각
+    overrides = model_overrides(model)
+    if overrides:
+        print(f"[설정] {model}: 모델별 설정 적용 {overrides} (명령줄 인자가 우선)")
     config = BertConfig(
         model_name=model,
-        max_length=args.max_length,
+        max_length=args.max_length or overrides.get("max_length", BertConfig.max_length),
         batch_size=args.batch_size,
         eval_batch_size=args.eval_batch_size,
         epochs=args.epochs,
@@ -134,6 +134,7 @@ def main(argv: list[str] | None = None) -> dict:
         patience=args.patience,
         precision=args.precision,
         local_files_only=args.local_files_only,
+        trust_remote_code=args.trust_remote_code or overrides.get("trust_remote_code", False),
         seed=args.seed,
     )
 
@@ -148,6 +149,7 @@ def main(argv: list[str] | None = None) -> dict:
         device=args.device,
         local_files_only=config.local_files_only,
         eval_batch_size=config.eval_batch_size,
+        trust_remote_code=config.trust_remote_code,
     )
     print(f"[model] {config.model_name} → device={clf.device} "
           f"params={clf.describe()['num_parameters']:,}")

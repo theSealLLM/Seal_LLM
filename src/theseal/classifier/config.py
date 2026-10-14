@@ -19,7 +19,18 @@ MODEL_CANDIDATES = (
     "klue/roberta-base",
     "klue/bert-base",
     "monologg/koelectra-small-v3-discriminator",
+    "jhu-clsp/mmBERT-small",
+    "alphaedge-ai/mmBERT-base-kor-16384",
+    "chandar-lab/NeoBERT",
 )
+
+# 모델별로 BertConfig 기본값과 다르게 써야 하는 설정. train_classifier_model.py가 자동으로 적용하고,
+# 명령줄 인자(--max-length, --trust-remote-code)를 주면 그쪽이 우선한다.
+# - trust_remote_code: 모델 저장소에 있는 파이썬 코드(model.py)를 받아 실행해야 하는 모델
+# - max_length: 영어용 토크나이저는 한국어를 잘게 쪼개므로 문장이 잘리지 않게 늘린다
+MODEL_OVERRIDES: dict[str, dict] = {
+    "chandar-lab/NeoBERT": {"trust_remote_code": True, "max_length": 512},
+}
 
 # data/ 아래 주제 폴더 이름 (README 참고: 둘 중 하나를 골라 사용)
 TASKS = ("inquiries", "documents")
@@ -34,12 +45,12 @@ META_FILENAME = "classifier_meta.json"
 # 실행 폴더 안에서 모델 파일을 두는 하위 폴더 이름
 MODEL_SUBDIR = "model"
 VAL_REPORT_FILENAME = "val_report.json"
-# 실행 ID = 학습을 시작한 시각 (분 단위). Windows 폴더 이름에 못 쓰는 ':'는 쓰지 않는다
-RUN_ID_FORMAT = "%Y%m%d-%H%M"
+# 실행 ID = 학습을 시작한 시각 (초 단위). Windows 폴더 이름에 못 쓰는 ':'는 쓰지 않는다
+RUN_ID_FORMAT = "%Y%m%d-%H%M%S"
 
 # 최종 모델: comparison.md를 보고 task별로 모델 이름과 실행 ID를 직접 적는다.
-# 예) "inquiries": {"model": "roberta-base", "run": "20261013-1411"}
-#     → runs/classifier/inquiries/roberta-base/20261013-1411/model/ 을 그대로 사용 (복사하지 않음)
+# 예) "inquiries": {"model": "roberta-base", "run": "20261013-141107"}
+#     → runs/classifier/inquiries/roberta-base/20261013-141107/model/ 을 사용
 FINAL_MODEL: dict[str, dict[str, str] | None] = {
     "inquiries": {"model": "baseline", "run": "20261013-1057"},
     "documents": None,
@@ -80,6 +91,7 @@ class BertConfig:
     patience: int = 3  # validation macro-F1이 이 에폭 수만큼 안 오르면 중단 (0이면 끄기)
     precision: str = "auto"  # auto | fp32 | fp16 | bf16 (GPU에서만 적용)
     local_files_only: bool = False  # True면 HF Hub에서 내려받지 않고 캐시/로컬 경로만 사용
+    trust_remote_code: bool = False  # 모델 저장소의 코드를 실행해야 하는 모델 (NeoBERT 등)
     seed: int = SEED
 
 
@@ -157,10 +169,22 @@ def safe_name(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]+", "-", text).strip("-") or "model"
 
 
-def new_run_id(tag: str | None = None, now: datetime | None = None) -> str:
-    """학습 시작 시각으로 실행 ID를 만든다. 예) 20261013-1411, 태그가 있으면 20261013-1411_lr2e5."""
-    run = (now or datetime.now()).strftime(RUN_ID_FORMAT)
-    return f"{run}_{safe_name(tag)}" if tag else run
+def new_run_id(now: datetime | None = None) -> str:
+    """학습 시작 시각으로 실행 ID를 만든다. 예) 20261013-141107.
+    """
+    return (now or datetime.now()).strftime(RUN_ID_FORMAT)
+
+
+def model_overrides(model_name_or_path: str) -> dict:
+    """MODEL_OVERRIDES에서 이 모델의 설정을 찾는다.
+
+    Hub 이름(chandar-lab/NeoBERT)과 받아 둔 폴더(models/chandar-lab__NeoBERT) 둘 다 알아본다.
+    """
+    name = str(model_name_or_path).rstrip("/\\")
+    for repo_id, overrides in MODEL_OVERRIDES.items():
+        if name == repo_id or Path(name).name == repo_id.replace("/", "__"):
+            return dict(overrides)
+    return {}
 
 
 def local_model_dir(repo_id: str) -> Path:

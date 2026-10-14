@@ -6,9 +6,11 @@
 모델은 config.py의 FINAL_MODEL(기본 task: inquiries)이 가리키는 것을 쓴다.
 가중치는 git에 없으므로 학습한 컴퓨터에서 실행하거나 share_model.py pull --final로 받아 온다.
 
-출력은 Classifier.predict의 반환값이다.
-    label  : int          라벨 번호 (labels.json 순서)
-    scores : list[float]  라벨별 확률 (같은 순서, 합은 1)
+출력은 Classifier.predict가 돌려주는 ClassificationResult의 값이다.
+    result.label_num  : int                라벨 번호 (labels.json 순서)
+    result.label_name : str                라벨 이름
+    result.scores     : tuple[float, ...]  라벨별 확률 (같은 순서, 합은 1)
+    result.confidence : float              고른 라벨의 확률
 """
 
 from __future__ import annotations
@@ -61,9 +63,10 @@ def main() -> None:
         if text.lower() in QUIT_WORDS:
             break
 
-        label, scores = clf.predict(text)
-        print(f"label  = {label} ({clf.labels[label]})")
-        print(f"scores = {[round(s, 5) for s in scores]}\n")
+        result = clf.predict(text)
+        print(f"label      = {result.label_num} ({result.label_name})")
+        print(f"scores     = {[round(s, 5) for s in result.scores]}")
+        print(f"confidence = {round(result.confidence, 5)}\n")
 
     print("종료합니다.")
 
