@@ -10,7 +10,6 @@ from .prompt_generator import (
     Prompt,
     build_common_policy_prompt,
     build_label_unknown_prompt,
-    build_prompt,
 )
 
 
@@ -19,5 +18,4 @@ __all__ = [
     "build_common_policy_prompt",
     "build_label_specific_prompt",
     "build_label_unknown_prompt",
-    "build_prompt",
 ]

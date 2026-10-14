@@ -15,31 +15,19 @@ from . import router
 
 
 class Prompt:
-    """분류 결과를 라우팅하고 최종 PromptSpec을 완성한다."""
-    
-    async def route(self, prediction) -> router.RoutingResult:
-        """분류 결과를 후처리해 최종 라벨을 결정한다."""
-        return await router.run(prediction)
-    
-    def build(self, routing_result: router.RoutingResult) -> PromptSpec:
-        """라우팅 결과에 맞는 프롬프트를 생성한다."""
+    """분류 결과를 라우팅하고 최종 PromptSpec을 생성한다."""
+
+    async def build_prompt(self, prediction) -> PromptSpec:
+        """Classifier 분류 결과를 받아 PromptSpec을 반환한다."""
+
+        # 분류 결과를 후처리해 최종 라벨 결정
+        routing_result = await router.run(prediction)
+
+        # 최종 라벨과 원본 질문으로 PromptSpec 생성
         return prompt_for_label(
             routing_result.label,
             routing_result.text,
         )
-
-
-async def build_prompt(prediction) -> PromptSpec:
-    """Routing 최종 라벨에 맞는 PromptSpec을 반환한다.
-
-    prediction: Classifier.predict(text) 결과 (ClassificationResult, 원문은 prediction.text)
-    """
-
-    # 분류 결과로 최종 라벨 결정
-    routing_result = await router.run(prediction)
-
-    # 최종 라벨에 맞는 프롬프트 생성
-    return prompt_for_label(routing_result.label, routing_result.text)
 
 
 def prompt_for_label(label: Label, text: str) -> PromptSpec:
