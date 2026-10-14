@@ -24,6 +24,10 @@ dependencies = [
   # transformers가 remote code를 실행하기 전에 import 구문을 검사하므로 없으면 로딩 자체가 막힌다.
   # 맥(darwin)용 휠이 없어 torch와 같은 방식으로 플랫폼을 나눈다 (맥에서는 NeoBERT를 못 쓴다).
   "xformers>=0.0.35,<1 ; sys_platform == 'win32' or sys_platform == 'linux'",
+  "langchain-ollama>=1,<2",
+  "langchain-openai>=1,<2",
+  "tavily-python>=0.7,<1",
+  "tzdata>=2025.1",
 ]
 
 [dependency-groups]

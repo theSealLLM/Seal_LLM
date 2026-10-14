@@ -1,0 +1,33 @@
+{
+  "summary_id": "prompt_quality_summary_local_20261013_153614",
+  "source_evaluation_file": "prompt_quality_evaluation_local_20261013_153614.json",
+  "evaluation_provider": "local",
+  "evaluation_model": "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
+  "evaluation_limitation": "답변 생성 모델과 평가 모델이 동일하여 자기평가 편향 가능성이 있음",
+  "total_evaluation_count": 60,
+  "status_counts": {
+    "ok": 60
+  },
+  "prompt_methods": {
+    "label_specific": {
+      "experiment_group": "A",
+      "prompt_structure": "label_specific",
+      "response_count": 30,
+      "required_point_fulfillment_percent": 95.56,
+      "forbidden_claim_occurrence_percent": 0.0,
+      "policy_compliance_percent": 100.0,
+      "average_relevance_score": 4.97,
+      "average_accuracy_score": 2.83
+    },
+    "common_policy": {
+      "experiment_group": "B",
+      "prompt_structure": "common_policy",
+      "response_count": 30,
+      "required_point_fulfillment_percent": 96.67,
+      "forbidden_claim_occurrence_percent": 0.0,
+      "policy_compliance_percent": 100.0,
+      "average_relevance_score": 5.0,
+      "average_accuracy_score": 2.87
+    }
+  }
+}
