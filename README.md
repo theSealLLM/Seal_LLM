@@ -54,9 +54,9 @@ OpenAI 호출(과금), 기상청 조회, Tavily 검색까지 확인하려면 `--
 
 ### 분류 후처리 (routing)
 
-`src/theseal/routing/`은 분류기 결과를 받아 최종 라벨을 정합니다. 경로 규칙이 보정한 확률로
+`src/theseal/prompt/`의 `router.py`는 분류기 결과를 받아 최종 라벨을 정합니다. 경로 규칙이 보정한 확률로
 확신 · 확신 부족 · 접전 · 모름(unknown)을 판정하고, 확신이 아닌 문의는 LLM 검증이 라벨이 맞는지 한 번 더 확인합니다.
-입력은 `Classifier.predict()` 결과 `(라벨 번호, 확률 배열)` 그대로이고, `Classifier.labels`로 이름을 붙입니다.
+입력은 `Classifier.predict()` 결과(`ClassificationResult`) 그대로이고, 라벨별 확률에 `Classifier.labels`로 이름을 붙입니다.
 
 ```python
 clf = Classifier.from_final()

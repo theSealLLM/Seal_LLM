@@ -1,7 +1,8 @@
 """API가 쓰는 실제 기능 연결: 분류기 → 분류 후처리 → 프롬프트 → 답변 생성.
 
 프롬프트: unknown은 label_unknown(pilsoo), 나머지는 프롬프트 담당 함수를 그대로 쓴다.
-분류기는 (라벨 번호, 확률 배열)을 내고, router가 Classifier.labels로 이름을 붙인다. 그 뒤로는 라벨 이름을 쓴다.
+분류기는 ClassificationResult(label_num · label_name · scores)를 내고, router가 scores에 Classifier.labels로 이름을 붙인다.
+그 뒤로는 라벨 이름을 쓴다.
 """
 
 from __future__ import annotations

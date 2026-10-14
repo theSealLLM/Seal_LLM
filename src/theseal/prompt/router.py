@@ -1,7 +1,7 @@
 """② 경로 규칙 → ③ LLM 검증을 설정대로 이어서 실행한다.
 
-입력은 분류기 Classifier.predict(text)의 결과를 그대로 받는다: (라벨 번호, 라벨별 확률 배열)
-번호 → 이름은 Classifier.labels(labels.json 순서)로 바꾼다. 안쪽(경로 규칙 · 검증 · 출력)은 라벨 이름을 쓴다.
+입력은 분류기 Classifier.predict(text)의 결과(ClassificationResult)를 그대로 받는다.
+라벨별 확률(scores)에 Classifier.labels(labels.json 순서)로 이름을 붙인다. 안쪽(경로 규칙 · 검증 · 출력)은 라벨 이름을 쓴다.
 출력 RoutingResult의 label · text가 프롬프트 생성 모듈로 넘어간다. route · verification은 기록용.
 ②·③은 각각 .env로 끈다 (ROUTE_RULE_ENABLED, VERIFY_MODE=off). 둘 다 끄면 분류기 라벨을 그대로 쓴다.
 """
@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel
@@ -20,6 +21,9 @@ from theseal.common.config import LLMConfig, get_config
 
 from . import llm_verifier, route_rule
 from .routing_config import RoutingConfig, get_routing_config, resolve_params
+
+if TYPE_CHECKING:
+    from theseal.classifier.classifier import ClassificationResult
 
 
 class RoutingResult(BaseModel):
@@ -31,11 +35,15 @@ class RoutingResult(BaseModel):
     verification: dict | None = None  # ③ 결과 (VerifyResult). 검증하지 않았으면 null
 
 
-def to_scores(prediction: tuple[int, Sequence[float]], labels: Sequence[str]) -> tuple[str, dict[str, float]]:
-    """Classifier.predict 결과 (라벨 번호, 확률 배열) → (라벨 이름, {라벨 이름: 확률})"""
-    index, probs = prediction
+def to_scores(prediction: ClassificationResult, labels: Sequence[str]) -> tuple[str, dict[str, float]]:
+    """Classifier.predict 결과 → (라벨 이름, {라벨 이름: 확률})
+    labels와 결과가 어긋나면(라벨 수 · 번호 · 이름) 다른 모델의 라벨을 붙이는 것이므로 막는다."""
+    index, probs = prediction.label_num, prediction.scores
     if len(probs) != len(labels) or not 0 <= index < len(labels):
         raise ValueError(f"분류 결과와 라벨 수가 맞지 않습니다: 번호 {index}, 확률 {len(probs)}개, 라벨 {list(labels)}")
+    if prediction.label_name != labels[index]:
+        raise ValueError(f"분류 결과의 라벨 이름({prediction.label_name!r})이 labels[{index}]"
+                         f"({labels[index]!r})와 다릅니다")
     return labels[index], {name: float(p) for name, p in zip(labels, probs, strict=True)}
 
 
@@ -53,7 +61,7 @@ def apply_route_rule(
 
 
 async def run(
-    prediction: tuple[int, Sequence[float]],
+    prediction: ClassificationResult,
     text: str,
     *,
     labels: Sequence[str],
@@ -62,8 +70,8 @@ async def run(
     llm_config: LLMConfig | None = None,
     llm: BaseChatModel | None = None,
 ) -> RoutingResult:
-    """prediction: Classifier.predict(text) 결과 (라벨 번호, 라벨별 확률 배열)
-    labels: 라벨 이름 (Classifier.labels). prediction의 번호 · 배열 순서와 같다
+    """prediction: Classifier.predict(text) 결과 (ClassificationResult: label_num · label_name · scores)
+    labels: 라벨 이름 (Classifier.labels). prediction.scores의 순서와 같다
     model_dir: 분류 모델 폴더 (Classifier.model_dir). ROUTE_CALIBRATION=auto일 때 모델별 보정값(ROUTE_CALIBRATIONS)의 키를 만드는 데 쓴다
     llm: 검증에 쓸 LLM (없으면 VERIFY_PROVIDER로 만든다)
 

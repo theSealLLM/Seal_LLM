@@ -80,7 +80,7 @@ def decide(
     delta: float = 0.15,
     uncertain_action: str = "top1",
 ) -> RouteDecision:
-    """scores: 라벨별 확률 {라벨 이름: 확률} (router.to_scores로 Classifier.predict 결과를 바꾼 것).
+    """scores: 라벨별 확률 {라벨 이름: 확률} (router.to_scores로 Classifier.predict의 ClassificationResult를 바꾼 것).
     uncertain_action: ambiguous · low_confidence일 때 최종 라벨. top1이면 1등 라벨, unknown이면 unknown"""
     if len(scores) < 2:
         raise ValueError(f"라벨이 2개 이상이어야 합니다: {list(scores)}")
