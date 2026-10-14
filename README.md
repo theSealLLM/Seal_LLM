@@ -112,10 +112,6 @@ Invoke-RestMethod -Uri http://127.0.0.1:8000/api/answer -Method Post -ContentTyp
 ## 개발 환경 세팅
 
 ```bash
-uv sync
-```
-
-```bash
 uv run scripts/classifier/fetch_models.py
 ```
 
@@ -131,18 +127,9 @@ uv run scripts/classifier/fetch_models.py
 
 ### LLM (답변 생성)
 
-로컬 LLM은 Ollama로 돌립니다. 먼저 [Ollama](https://ollama.com/download)를 설치하고 실행해 두세요.
-모델 이름과 API 키는 `.env`에서 읽으므로 `.env.example`을 복사해 `.env`를 만들고 키를 채웁니다.
+로컬 LLM은 Ollama로 돌립니다. 준비와 연결 확인은 위 "빠르게 실행해 보기" 4단계를 따릅니다.
 
-```bash
-cp .env.example .env
-```
-
-```bash
-uv run scripts/answer/fetch_models.py
-```
-
-`fetch_models.py`는 `.env`의 `OLLAMA_MODEL`을 Ollama로 내려받고, 모델 ID가 팀 기준과 같은지
+`scripts/answer/fetch_models.py`는 `OLLAMA_MODEL`을 Ollama로 내려받고, 모델 ID가 팀 기준과 같은지
 확인합니다. 모델은 프로젝트 `models/`가 아니라 Ollama 저장소(`~/.ollama`)에 저장됩니다.
 
 | 구분 | 모델 | 용량 | 준비 |
@@ -153,13 +140,6 @@ uv run scripts/answer/fetch_models.py
 | 검색 툴 | Tavily | - | `.env`에 `TAVILY_API_KEY` (없으면 검색 툴이 자동으로 빠짐) |
 
 ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신된 것이므로 팀에 알려 주세요.
-
-```bash
-uv run scripts/answer/check_llm.py
-```
-
-`check_llm.py`는 Ollama 연결 · 모델 · 호출과 OpenAI · 기상청 · Tavily 키 설정을 한 번에 확인합니다.
-OpenAI 호출(과금), 기상청 조회, Tavily 검색까지 확인하려면 `--all`을 붙이세요.
 
 ### 분류 후처리 (routing)
 
@@ -195,21 +175,7 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 
 분류 → 분류 후처리 → 프롬프트 → 답변 생성을 HTTP로 묶은 서버입니다. 분류 모델은 `classifier/config.py`의
 `FINAL_MODEL`이 가리키는 `runs/classifier/<task>/<모델>/<실행 ID>/model/`을 씁니다. 모델이 없어도 서버는 뜨고,
-`/health`에 이유가 나옵니다.
-
-가중치(`model/`)는 git에 없으므로 처음에는 직접 만들어야 합니다. `FINAL_MODEL`과 같은 설정으로 학습한 뒤,
-생긴 `model/` 폴더를 `FINAL_MODEL`의 실행 ID 폴더로 옮깁니다. 기준선(TF-IDF)은 같은 설정이면 결과가 똑같습니다.
-
-```bash
-uv run python scripts/classifier/train_baseline.py
-```
-
-예) 학습 결과가 `runs/classifier/inquiries/baseline/20261014-0900/model`이면
-`runs/classifier/inquiries/baseline/20261013-1057/model`로 옮깁니다 (`val_report.json`의 점수가 같은지 확인).
-
-```bash
-uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000
-```
+`/health`에 이유가 나옵니다. 모델 준비와 서버 실행은 위 "빠르게 실행해 보기" 3 · 5단계를 따릅니다.
 
 | 메서드 | 경로 | 내용 |
 | --- | --- | --- |
@@ -217,7 +183,5 @@ uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000
 | POST | `/api/answer` | `{"text", "provider"?, "label"?}` → 답변 + 분류 결과 (JSON) |
 | POST | `/api/answer/stream` | 같은 요청 → SSE (`status` · `classification` · `delta` · `done`). 범위 밖(unknown)은 툴을 쓴 뒤 `done`만 보냄 |
 
-`provider`는 `local` · `openai`(비우면 `.env`의 `DEFAULT_PROVIDER`), `label`을 넣으면 분류를 건너뜁니다.
-문서 화면은 http://127.0.0.1:8000/docs 입니다. Windows에서는 `localhost`가 IPv6를 먼저 시도해 요청마다
-약 2초 늦으므로 `127.0.0.1`을 쓰세요.
+`provider`는 `local` · `openai`(비우면 `DEFAULT_PROVIDER`, 기본 `local`), `label`을 넣으면 분류를 건너뜁니다.
 
