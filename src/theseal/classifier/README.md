@@ -41,6 +41,7 @@ uv run python scripts/classifier/share_model.py pull --final --repo-id <계정>/
 ```python
 result = clf.predict("사이즈가 맞지 않아 반품하려는데 환불은 언제 되나요?")
 
+result.text         # '사이즈가 맞지 않아 반품하려는데...'  str
 result.label_num    # 1                              int
 result.label_name   # 'refund'                       str
 result.scores       # (0.00105, 0.99812, 0.00083)    tuple[float, ...]
@@ -49,6 +50,7 @@ result.confidence   # 0.99812                        float
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
+| `text` | `str` | 분류한 원문. `predict`에 넣은 문장 그대로 |
 | `label_num` | `int` | 라벨 번호. `scores`에서 확률이 가장 큰 칸의 위치 |
 | `label_name` | `str` | 라벨 이름. `clf.labels[label_num]`과 같다 |
 | `scores` | `tuple[float, ...]` | 라벨별 확률. 라벨 순서대로이고 합은 1 |
@@ -71,12 +73,13 @@ result.label_num = 2
 ## 문장 여러 개
 
 `predict_batch`는 같은 객체의 리스트를 넣은 문장 순서대로 돌려줍니다.
+각 결과가 `text`로 원문을 들고 있어서, 넣은 문장과 따로 맞춰 볼 필요가 없습니다.
 
 ```python
 for result in clf.predict_batch(["택배가 사흘째 멈춰 있어요.", "로그인 인증 문자를 못 받아요."]):
-    print(result.label_num, result.label_name, round(result.confidence, 5))
-# 0 shipping 1.0
-# 2 account 1.0
+    print(result.label_name, result.text)
+# shipping 택배가 사흘째 멈춰 있어요.
+# account 로그인 인증 문자를 못 받아요.
 ```
 
 ## 모델 정보

@@ -7,6 +7,7 @@
 가중치는 git에 없으므로 학습한 컴퓨터에서 실행하거나 share_model.py pull --final로 받아 온다.
 
 출력은 Classifier.predict가 돌려주는 ClassificationResult의 값이다.
+    result.text       : str                분류한 원문 (여기서는 방금 입력한 문장)
     result.label_num  : int                라벨 번호 (labels.json 순서)
     result.label_name : str                라벨 이름
     result.scores     : tuple[float, ...]  라벨별 확률 (같은 순서, 합은 1)
