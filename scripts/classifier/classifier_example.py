@@ -12,13 +12,16 @@
 
 내 코드에서 쓸 때는 아래 세 줄이면 된다 (src가 import 경로에 있어야 함).
     from theseal.classifier.classifier import Classifier
-    clf = Classifier.from_final()                  # 최종 모델, 기본 task는 inquiries
-    label, scores = clf.predict("문장")            # 1, [0.00105, 0.99812, 0.00083]
+    clf = Classifier.from_final()          # 최종 모델, 기본 task는 inquiries
+    result = clf.predict("문장")           # ClassificationResult
 
-반환값
-    label  : int          라벨 번호 (labels.json 순서. inquiries: 0=shipping, 1=refund, 2=account)
-    scores : list[float]  라벨별 확률 (같은 순서, 합은 1). label은 scores에서 가장 큰 칸의 번호
-    번호를 이름으로 바꾸려면 clf.labels[label]
+반환값: ClassificationResult (classifier.py에 정의)
+    result.label_num  : int                라벨 번호 (labels.json 순서. inquiries: 0=shipping, 1=refund, 2=account)
+    result.label_name : str                라벨 이름 (예: 'refund')
+    result.scores     : tuple[float, ...]  라벨별 확률 (같은 순서, 합은 1). label_num은 여기서 가장 큰 칸의 번호
+    result.confidence : float              고른 라벨의 확률 (scores[label_num])
+
+    predict_batch(list[str])는 같은 객체의 리스트를 넣은 문장 순서대로 돌려준다.
 """
 
 from __future__ import annotations
@@ -83,16 +86,17 @@ def main(argv: list[str] | None = None) -> None:
 
     texts = args.texts or SAMPLES[clf.meta.get("task", args.task)]
 
-    # 문장 하나: predict(str) → (라벨 번호, 확률 배열)
-    label, scores = clf.predict(texts[0])
+    # 문장 하나: predict(str) → ClassificationResult
+    result = clf.predict(texts[0])
     print(f"predict(): {texts[0]}")
-    print(f"  label  = {label}  ({clf.labels[label]})")
-    print(f"  scores = {[round(s, 5) for s in scores]}\n")
+    print(f"  label      = {result.label_num}  ({result.label_name})")
+    print(f"  scores     = {[round(s, 5) for s in result.scores]}")
+    print(f"  confidence = {result.confidence:.5f}\n")
 
-    # 여러 문장: predict_batch(list[str]) → [(라벨 번호, 확률 배열), ...]
+    # 여러 문장: predict_batch(list[str]) → [ClassificationResult, ...]
     print("predict_batch():")
-    for text, (label, scores) in zip(texts, clf.predict_batch(texts)):
-        print(f"  {label} {clf.labels[label]:<14} {max(scores):.3f}  {text}")
+    for text, result in zip(texts, clf.predict_batch(texts)):
+        print(f"  {result.label_num} {result.label_name:<14} {result.confidence:.3f}  {text}")
 
 
 if __name__ == "__main__":

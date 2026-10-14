@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
@@ -24,6 +25,36 @@ class ClassifierProtocol(Protocol):
     def predict(self, texts: list[str]) -> list[str]: ...
 
     def describe(self) -> dict: ...
+
+
+@dataclass(frozen=True)
+class ClassificationResult:
+    """분류 결과 하나. Classifier.predict와 predict_batch의 반환값.
+
+        result = clf.predict("사이즈가 맞지 않아 반품하려는데 환불은 언제 되나요?")
+
+        result.label_num   # 1
+        result.label_name  # 'refund'
+        result.scores      # (0.00105, 0.99812, 0.00083)
+        result.confidence  # 0.99812
+
+    label_num과 scores의 순서는 labels.json의 labels 순서다 (inquiries: 0=shipping, 1=refund, 2=account).
+    고쳐 쓸 일이 없는 값이라 frozen으로 두고 scores도 튜플로 둔다.
+    """
+
+    label_num: int
+    """라벨 번호. scores에서 확률이 가장 큰 칸의 위치다."""
+
+    label_name: str
+    """라벨 이름. clf.labels[label_num]과 같다."""
+
+    scores: tuple[float, ...]
+    """라벨별 확률. 라벨 순서대로이고 합은 1이다."""
+
+    @property
+    def confidence(self) -> float:
+        """고른 라벨의 확률 (scores[label_num])."""
+        return self.scores[self.label_num]
 
 
 def read_meta(model_dir: Path) -> dict:
@@ -65,17 +96,27 @@ class Classifier:
         """라벨 이름. labels[번호]로 predict가 돌려준 번호를 이름으로 바꾼다 (labels.json 순서)."""
         return self.model.label_set.labels
 
-    def predict(self, text: str) -> tuple[int, list[float]]:
-        """문장 하나 → (라벨 번호, 라벨별 확률 배열).
+    def predict(self, text: str) -> ClassificationResult:
+        """문장 하나 → ClassificationResult.
 
-        - 라벨 번호와 배열 순서는 labels.json의 labels 순서다 (inquiries: 0=shipping, 1=refund, 2=account).
-        - 라벨 번호는 확률이 가장 큰 칸의 위치이고, 확률 배열의 합은 1이다.
-
-        예) label, scores = clf.predict("환불은 언제 되나요?")  →  1, [0.00105, 0.99812, 0.00083]
+        예) result = clf.predict("환불은 언제 되나요?")
+            result.label_num, result.label_name, result.confidence  →  1, 'refund', 0.99812
         """
         return self.predict_batch([text])[0]
 
-    def predict_batch(self, texts: list[str]) -> list[tuple[int, list[float]]]:
-        """문장 여러 개 → [(라벨 번호, 라벨별 확률 배열), ...]. 형식은 predict와 같다."""
-        probs = self.model.predict_proba(texts)
-        return [(int(row.argmax()), [float(p) for p in row]) for row in probs]
+    def predict_batch(self, texts: list[str]) -> list[ClassificationResult]:
+        """문장 여러 개 → ClassificationResult 리스트. 순서는 넣은 문장 순서와 같다.
+
+        예) for result in clf.predict_batch(texts):
+                print(result.label_name, round(result.confidence, 5))
+        """
+        labels = self.labels
+        results = []
+        for row in self.model.predict_proba(texts):
+            label_num = int(row.argmax())
+            results.append(ClassificationResult(
+                label_num=label_num,
+                label_name=labels[label_num],
+                scores=tuple(float(p) for p in row),
+            ))
+        return results
