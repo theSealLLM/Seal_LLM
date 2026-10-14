@@ -2,7 +2,7 @@
 
 Prompt().build_prompt(result)          분류 결과 → 분류 후처리(router) → 최종 라벨에 맞는 PromptSpec
 Prompt().build_with_routing(result)    위와 같고 분류 후처리 결과(RoutingResult)도 함께 (API · LCEL 체인용)
-Prompt().build_for_label(label, text)  라벨을 직접 줄 때 (분류 · 후처리 건너뜀)
+Prompt().build_for_label(label, customer_inquiry)  라벨을 직접 줄 때 (분류 · 후처리 건너뜀)
 build_common_policy_prompt(...)   shipping · refund · account: 공통 상담 규칙 + 라벨별 정책 (B, A/B 실험으로 선정)
 build_label_unknown_prompt(...)   unknown(범위 밖): 툴(날짜 · 날씨 · 검색) 사용 지시 포함
 """
@@ -49,24 +49,24 @@ class Prompt:
             prompt=prompt_for_label(routing_result.label, routing_result.text),
         )
 
-    def build_for_label(self, label: Label, text: str) -> RoutedPrompt:
+    def build_for_label(self, label: Label, customer_inquiry: str) -> RoutedPrompt:
         """라벨을 직접 줄 때 (분류 · 후처리를 건너뛴다)."""
-        return RoutedPrompt(routing=None, prompt=prompt_for_label(label, text))
+        return RoutedPrompt(routing=None, prompt=prompt_for_label(label, customer_inquiry))
 
 
-def prompt_for_label(label: Label, text: str) -> PromptSpec:
+def prompt_for_label(label: Label, customer_inquiry: str) -> PromptSpec:
     """최종 라벨 → 프롬프트. unknown은 범위 밖 프롬프트(툴 사용), 나머지는 공통 정책 프롬프트(B).
     B는 프롬프트 A/B 실험(runs/llm/prompt_comparison, PR #6)에서 라벨별 프롬프트(A)보다 나아 선정됐다.
     Prompt 객체의 메서드들이 이 함수로 프롬프트를 고른다."""
     if label == "unknown":
-        return build_label_unknown_prompt(text)
-    return build_common_policy_prompt(text, label)
+        return build_label_unknown_prompt(customer_inquiry)
+    return build_common_policy_prompt(customer_inquiry, label)
     
     
-def build_common_policy_prompt(text: str, label: Label) -> PromptSpec:
+def build_common_policy_prompt(customer_inquiry: str, label: Label) -> PromptSpec:
     """공통 상담 지침과 라벨별 정책을 조합한 프롬프트를 생성한다."""
 
-    if not isinstance(text, str) or not text.strip():
+    if not isinstance(customer_inquiry, str) or not customer_inquiry.strip():
         raise ValueError("고객 질문은 공백이 아닌 문자열이어야 합니다.")
 
     policies = {
@@ -112,7 +112,7 @@ def build_common_policy_prompt(text: str, label: Label) -> PromptSpec:
     return PromptSpec(
         label=label,
         system=system.strip(),
-        user=text,
+        customer_inquiry=customer_inquiry,
         prompt_version="common-policy-v1",
     )
 
@@ -177,10 +177,10 @@ def unknown_prompt_version(system: str) -> str:
     return f"{UNKNOWN_PROMPT_MAJOR_VERSION}-{hashlib.sha256(system.encode('utf-8')).hexdigest()[:8]}"
 
 
-def build_label_unknown_prompt(text: str, *, config: LLMConfig | None = None) -> PromptSpec:
-    """범위 밖 문의의 PromptSpec. 프롬프트 생성 모듈의 함수와 같이 text를 받는다."""
-    if not isinstance(text, str) or not text.strip():
+def build_label_unknown_prompt(customer_inquiry: str, *, config: LLMConfig | None = None) -> PromptSpec:
+    """범위 밖 문의의 PromptSpec. 프롬프트 생성 모듈의 함수와 같이 customer_inquiry를 받는다."""
+    if not isinstance(customer_inquiry, str) or not customer_inquiry.strip():
         raise ValueError("고객 질문은 공백이 아닌 문자열이어야 합니다.")
     system = build_unknown_system(config)
-    return PromptSpec(label="unknown", system=system, user=text.strip(),
+    return PromptSpec(label="unknown", system=system, customer_inquiry=customer_inquiry.strip(),
                       prompt_version=unknown_prompt_version(system))

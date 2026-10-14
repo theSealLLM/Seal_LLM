@@ -2,10 +2,10 @@
 
 from ..common.schemas import Label, PromptSpec
 
-def build_label_specific_prompt(text: str, label: Label) -> PromptSpec:
+def build_label_specific_prompt(customer_inquiry: str, label: Label) -> PromptSpec:
     """라벨별 독립 프롬프트를 생성한다."""
     
-    if not isinstance(text, str) or not text.strip():
+    if not isinstance(customer_inquiry, str) or not customer_inquiry.strip():
         raise ValueError("고객 질문은 공백이 아닌 문자열이어야 합니다.")
     
     if label == "shipping":
@@ -79,16 +79,16 @@ def build_label_specific_prompt(text: str, label: Label) -> PromptSpec:
     return PromptSpec(
         label=label,
         system=system.strip(),
-        user=text,
+        customer_inquiry=customer_inquiry,
         prompt_version="label-specific-v1"
     )
     
     
     
-def build_common_policy_prompt(text: str, label: Label) -> PromptSpec:
+def build_common_policy_prompt(customer_inquiry: str, label: Label) -> PromptSpec:
     """공통 상담 지침과 라벨별 정책을 조합한 프롬프트를 생성한다."""
 
-    if not isinstance(text, str) or not text.strip():
+    if not isinstance(customer_inquiry, str) or not customer_inquiry.strip():
         raise ValueError("고객 질문은 공백이 아닌 문자열이어야 합니다.")
 
     policies = {
@@ -134,7 +134,7 @@ def build_common_policy_prompt(text: str, label: Label) -> PromptSpec:
     return PromptSpec(
         label=label,
         system=system.strip(),
-        user=text,
+        customer_inquiry=customer_inquiry,
         prompt_version="common-policy-v1",
     )
      
