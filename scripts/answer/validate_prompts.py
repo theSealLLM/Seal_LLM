@@ -1,6 +1,6 @@
 import _common
 
-from theseal.llm.prompt import (
+from theseal.prompt import (
     build_label_specific_prompt,
     build_common_policy_prompt,
 )

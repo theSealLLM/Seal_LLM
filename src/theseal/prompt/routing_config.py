@@ -11,7 +11,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from theseal.classifier.config import DEFAULT_TASK, MODEL_SUBDIR, display_path, task_paths
-from theseal.llm.config import ENV_FILE, config_from_env
+from theseal.common.config import ENV_FILE, config_from_env
 
 CALIBRATION_FILENAME = "route_rule.json"
 EXAMPLE_PARAMS = {"temperature": 1.0, "tau": 0.60, "tau_low": 0.45, "delta": 0.15}

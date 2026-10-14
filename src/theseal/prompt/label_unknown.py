@@ -3,7 +3,7 @@
 shipping · refund · account는 prompt_generator.py가 만들고, unknown만 이 함수가 만든다.
 출력 형식은 같은 PromptSpec이다.
 
-    from theseal.llm.prompt.label_unknown import build_label_unknown_prompt
+    from theseal.prompt.label_unknown import build_label_unknown_prompt
     spec = build_label_unknown_prompt(text)
 
 툴(날짜 5종 · 기상청 날씨 · 웹 검색)은 TOOLS_BY_LABEL 설정으로 unknown에 붙는다. 이 지시문이 툴을 언제 쓸지 정한다.
@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import hashlib
 
-from ..config import LLMConfig, get_config
-from ..schemas import PromptSpec
+from ..common.config import LLMConfig, get_config
+from ..common.schemas import PromptSpec
 
 PROMPT_MAJOR_VERSION = "unknown-v1"
 SCOPE_SENTENCE = "이 창구에서는 배송, 환불·반품·주문 취소, 계정 관련 문의를 도와드리고 있습니다."

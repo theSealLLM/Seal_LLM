@@ -15,8 +15,8 @@ from pydantic import BaseModel, Field
 import _common
 
 # 팀에서 구현한 LLM 연결 기능을 그대로 재사용
-from theseal.llm.client import make_llm, model_name
-from theseal.llm.config import LLMConfig
+from theseal.common.client import make_llm, model_name
+from theseal.common.config import LLMConfig
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNS_DIR = ROOT / "runs" / "llm" / "prompt_comparison"

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from langchain_core.tools import tool
 
-from ...config import get_config
+from ...common.config import get_config
 
 MAX_RESULTS = 3
 MAX_CONTENT_CHARS = 500

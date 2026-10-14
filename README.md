@@ -31,7 +31,7 @@ cp .env.example .env
 ```
 
 ```bash
-uv run scripts/llm/fetch_models.py
+uv run scripts/answer/fetch_models.py
 ```
 
 `fetch_models.py`는 `.env`의 `OLLAMA_MODEL`을 Ollama로 내려받고, 모델 ID가 팀 기준과 같은지
@@ -47,7 +47,7 @@ uv run scripts/llm/fetch_models.py
 ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신된 것이므로 팀에 알려 주세요.
 
 ```bash
-uv run scripts/llm/check_llm.py
+uv run scripts/answer/check_llm.py
 ```
 
 `check_llm.py`는 Ollama 연결 · 모델 · 호출과 OpenAI · 기상청 · Tavily 키 설정을 한 번에 확인합니다.

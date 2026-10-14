@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from langchain_core.tools import BaseTool
 
-from ...config import LLMConfig, get_config
+from ...common.config import LLMConfig, get_config
 from .api_weather import get_weather
 from .api_web_search import web_search
 from .tool_date import DATE_TOOLS

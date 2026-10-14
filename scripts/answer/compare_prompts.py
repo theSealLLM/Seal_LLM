@@ -12,10 +12,10 @@ from zoneinfo import ZoneInfo
 
 import _common
 
-from theseal.llm.answer.answer_generator import generate
-from theseal.llm.client import make_llm
-from theseal.llm.config import LLMConfig
-from theseal.llm.prompt import(
+from theseal.answer.answer_generator import generate
+from theseal.common.client import make_llm
+from theseal.common.config import LLMConfig
+from theseal.prompt import(
     build_label_specific_prompt,
     build_common_policy_prompt,
 )
