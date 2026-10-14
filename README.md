@@ -1,5 +1,114 @@
 # Seal_LLM
 
+## 빠르게 실행해 보기
+
+처음 받은 저장소에서 서버를 띄우고 답변까지 받아 보는 순서입니다.
+분류 모델은 CPU로 1초 안에 학습되는 기준선(TF-IDF)을 쓰므로 GPU가 없어도 됩니다.
+
+### 준비물
+
+| 항목 | 용도 | 설치 |
+| --- | --- | --- |
+| Python 3.12 | 실행 환경 | `uv`가 맞는 버전을 알아서 준비합니다 |
+| [uv](https://docs.astral.sh/uv/) | 패키지 · 가상환경 관리 | 공식 설치 안내 참고 |
+| [Ollama](https://ollama.com/download) | 로컬 LLM (답변 생성 · LLM 검증) | 설치 후 실행해 두기 |
+| 디스크 약 7GB | 로컬 LLM 약 6GB + 패키지 | |
+
+### 1. 패키지 설치
+
+```bash
+uv sync
+```
+
+### 2. 환경 파일 만들기
+
+```bash
+cp .env.example .env
+```
+
+PowerShell은 `Copy-Item .env.example .env`입니다.
+`.env`에는 비밀 키와 PC별 값만 둡니다. 키가 없어도 기본 기능은 동작합니다.
+
+| 항목 | 없으면 |
+| --- | --- |
+| `OPENAI_API_KEY` | `provider: "openai"` 요청만 오류 (기본은 로컬 LLM) |
+| `KMA_AUTH_KEY` | 날씨 질문에 기상청 대신 검색 툴이 답함 |
+| `TAVILY_API_KEY` | 검색 툴이 빠짐 (날씨 · 상식 질문은 안내 문구로 답함) |
+
+그 밖의 설정은 코드 기본값을 씁니다 (`src/theseal/common/config.py` 등).
+
+### 3. 분류 모델 준비
+
+가중치(`model/`)는 git에 없으므로 직접 학습합니다. 서버는
+`src/theseal/classifier/config.py`의 `FINAL_MODEL`(현재 `baseline/20261013-1057`)이
+가리키는 폴더를 씁니다.
+
+```bash
+uv run python scripts/classifier/train_baseline.py
+```
+
+마지막에 출력되는 `모델: runs/classifier/inquiries/baseline/<새 실행 ID>/model`을
+`FINAL_MODEL`의 실행 ID 폴더로 옮깁니다. 기준선은 같은 설정이면 결과가 똑같아서
+팀 최종 모델과 같은 모델입니다 (`val_report.json`의 점수로 확인할 수 있습니다).
+
+```bash
+mv runs/classifier/inquiries/baseline/<새 실행 ID>/model runs/classifier/inquiries/baseline/20261013-1057/model
+```
+
+PowerShell은 `Move-Item`을 씁니다.
+
+### 4. 로컬 LLM 받기 · 연결 확인
+
+Ollama가 실행 중이어야 합니다.
+
+```bash
+uv run scripts/answer/fetch_models.py
+```
+
+```bash
+uv run scripts/answer/check_llm.py
+```
+
+`fetch_models.py`는 Gemma 4 E4B(약 6GB)를 받고 팀 기준 모델 ID인지 확인합니다.
+`check_llm.py`는 Ollama 호출과 키 설정을 확인합니다. 마지막 줄이 `모두 정상`이면 준비 완료이고,
+비어 있는 키는 `[-]`(선택 사항)로 표시됩니다. OpenAI · 기상청 · Tavily를 실제로
+호출해 보려면 `--all`을 붙이세요 (OpenAI는 과금).
+
+### 5. 서버 실행
+
+```bash
+uv run uvicorn --app-dir src theseal.api.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Windows에서는 `localhost` 대신 `127.0.0.1`로 접속하세요 (`localhost`는 요청마다 약 2초 늦습니다).
+`.env`를 고친 뒤에는 서버를 다시 켜야 합니다.
+
+### 6. 테스트
+
+**상태 확인:** http://127.0.0.1:8000/health 에서 `classifier`가 `baseline/20261013-1057`이고
+`classifier_error`가 `null`이면 준비 완료입니다.
+
+**문서 화면에서 직접 호출 (추천):** http://127.0.0.1:8000/docs 에서 `POST /api/answer` →
+**Try it out** → 아래 본문을 넣고 **Execute**.
+
+```json
+{"text": "주문한 상품이 일주일째 배송 준비중이에요. 언제 받을 수 있나요?"}
+```
+
+**터미널에서 호출 (macOS · Linux):**
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/answer -H "Content-Type: application/json" -d '{"text": "비밀번호를 잊어버려서 로그인이 안 돼요."}'
+```
+
+**Windows:** 위 `curl` 명령은 쓰지 마세요. Git Bash에서는 한글이 UTF-8로 전달되지 않아
+`400 There was an error parsing the body`가 나고, PowerShell에서는 `curl`이 PowerShell 명령
+(`Invoke-WebRequest`)의 별칭이라 옵션 오류가 납니다. 문서 화면이나 아래 PowerShell 명령을 쓰세요.
+
+```powershell
+Invoke-RestMethod -Uri http://127.0.0.1:8000/api/answer -Method Post -ContentType "application/json; charset=utf-8" -Body ([Text.Encoding]::UTF8.GetBytes('{"text": "비밀번호를 잊어버려서 로그인이 안 돼요."}'))
+```
+
 ## 개발 환경 세팅
 
 ```bash
@@ -112,12 +221,3 @@ uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000
 문서 화면은 http://127.0.0.1:8000/docs 입니다. Windows에서는 `localhost`가 IPv6를 먼저 시도해 요청마다
 약 2초 늦으므로 `127.0.0.1`을 쓰세요.
 
-### OneDrive 주의
-
-이 저장소가 OneDrive 동기화 폴더 안에 있으면 `uv sync`가 캐시에서 하드링크를
-걸다 `os error 396`으로 실패합니다. `pyproject.toml`의 `[tool.uv]`에
-`link-mode = "copy"`를 넣어 해결해 두었습니다.
-
-`models/`는 gitignore 대상이지만 OneDrive는 그대로 업로드합니다. 1.75GB를
-클라우드로 올리고 싶지 않다면 OneDrive 설정에서 `models/` 폴더를 동기화
-제외하세요.
