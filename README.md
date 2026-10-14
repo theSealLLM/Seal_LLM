@@ -7,36 +7,44 @@ LLM이 답변 초안을 만드는 서비스입니다. 상담 범위 밖의 질�
 ## 전체 흐름
 
 ```mermaid
-flowchart TD
-    A["고객 문의 (text)"] --> B
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "14px", "lineColor": "#94A3B8", "clusterBkg": "#FFFFFF", "clusterBorder": "#E2E8F0", "edgeLabelBackground": "#FFFFFF", "textColor": "#334155"}}}%%
+flowchart LR
+    Q(["고객 문의"]):::io --> CLS
 
-    subgraph C1["① 분류기 · classifier/"]
-        B["TF-IDF 또는 BERT 계열<br/>라벨별 확률"]
+    subgraph S1["① 분류"]
+        CLS["분류기<br/>TF-IDF · BERT"]:::cls
     end
-    B -->|ClassificationResult| R
 
-    subgraph C2["② Prompt · prompt/"]
-        R["분류 후처리<br/>확률 보정 → 확신 · 확신 부족 · 접전 · 모름"]
-        R -->|확신이 아님| V["LLM 검증<br/>라벨이 맞는지 다시 확인"]
-        R -->|최종 라벨| P
-        V -->|최종 라벨| P
-        P{"라벨"}
-        P -->|shipping · refund · account| P1["공통 정책 프롬프트"]
-        P -->|unknown| P2["툴 사용 프롬프트"]
+    subgraph S2["② Prompt"]
+        direction TB
+        RT["경로 규칙<br/>확률 보정"]:::prm
+        VF["LLM 검증"]:::prm
+        PS["상담 정책 프롬프트<br/>배송 · 환불 · 계정"]:::prm
+        PU["범위 밖 프롬프트<br/>unknown"]:::prm
+        RT -. 확신 아님 .-> VF
+        RT --> PS
+        VF --> PS
+        RT --> PU
     end
-    P1 -->|PromptSpec| G
-    P2 -->|PromptSpec| G
 
-    subgraph C3["③ 답변 생성 · answer/"]
-        G["로컬 LLM (Ollama Gemma 4 E4B)<br/>또는 OpenAI"]
-        G <-.->|unknown만| T["툴: 날짜 · 날씨 · 검색"]
+    subgraph S3["③ 답변 생성"]
+        direction TB
+        LLM["LLM<br/>Gemma 4 · OpenAI"]:::ans
+        TOOL["툴<br/>날짜 · 날씨 · 검색"]:::ans
+        LLM <-. unknown .-> TOOL
     end
-    G -->|AnswerResult| API
 
-    subgraph C4["API · api/"]
-        API["FastAPI · LCEL 체인<br/>POST /api/answer · /api/answer/stream"]
-    end
-    API --> OUT["답변 + 분류 근거 (classification)"]
+    CLS --> RT
+    PS --> LLM
+    PU --> LLM
+    LLM --> API["FastAPI<br/>/api/answer"]:::api
+    API --> OUT(["답변 + 분류 근거"]):::io
+
+    classDef io  fill:#F1F5F9,stroke:#64748B,color:#0F172A
+    classDef cls fill:#EEF2FF,stroke:#6366F1,color:#312E81
+    classDef prm fill:#F0FDF4,stroke:#22C55E,color:#14532D
+    classDef ans fill:#FFF7ED,stroke:#F97316,color:#7C2D12
+    classDef api fill:#FDF2F8,stroke:#EC4899,color:#831843
 ```
 
 ## 폴더 구조
