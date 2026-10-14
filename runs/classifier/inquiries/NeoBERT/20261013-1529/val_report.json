@@ -1,0 +1,276 @@
+{
+  "name": "NeoBERT/20261013-1529",
+  "model": "NeoBERT",
+  "run": "20261013-1529",
+  "kind": "bert",
+  "task": "inquiries",
+  "split": "validation",
+  "num_samples": 120,
+  "model_dir": "runs/classifier/inquiries/NeoBERT/20261013-1529/model",
+  "created_at": "2026-10-13T15:32:00+09:00",
+  "metrics": {
+    "accuracy": 0.9167,
+    "macro_f1": 0.9157,
+    "macro_precision": 0.9177,
+    "macro_recall": 0.9167,
+    "per_class": {
+      "shipping": {
+        "precision": 0.95,
+        "recall": 0.95,
+        "f1": 0.95,
+        "support": 40
+      },
+      "refund": {
+        "precision": 0.9167,
+        "recall": 0.825,
+        "f1": 0.8684,
+        "support": 40
+      },
+      "account": {
+        "precision": 0.8864,
+        "recall": 0.975,
+        "f1": 0.9286,
+        "support": 40
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "shipping",
+        "refund",
+        "account"
+      ],
+      "matrix": [
+        [
+          38,
+          2,
+          0
+        ],
+        [
+          2,
+          33,
+          5
+        ],
+        [
+          0,
+          1,
+          39
+        ]
+      ]
+    }
+  },
+  "efficiency": {
+    "device": "cuda",
+    "latency_ms_median": 17.925,
+    "latency_ms_p95": 20.149,
+    "latency_samples": 100,
+    "throughput_per_sec": 55.6,
+    "peak_gpu_memory_mb_infer": 1553.6,
+    "model_size_mb": 848.79,
+    "num_parameters": 222258435,
+    "base_model": "C:\\projects\\Seal_LLM\\models\\chandar-lab__NeoBERT",
+    "max_length": 512,
+    "train_time_sec": 132.9,
+    "peak_gpu_memory_mb_train": 6486.3
+  },
+  "config": {
+    "model_name": "C:\\projects\\Seal_LLM\\models\\chandar-lab__NeoBERT",
+    "max_length": 512,
+    "batch_size": 16,
+    "eval_batch_size": 64,
+    "epochs": 10,
+    "lr": 3e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "max_grad_norm": 1.0,
+    "patience": 3,
+    "precision": "auto",
+    "local_files_only": false,
+    "trust_remote_code": true,
+    "seed": 42
+  },
+  "training": {
+    "best_epoch": 7,
+    "best_val_macro_f1": 0.9157,
+    "stopped_early": true,
+    "precision": "bf16",
+    "token_lengths": {
+      "max": 193,
+      "p95": 168,
+      "truncated": 0
+    },
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 1.1982,
+        "val_loss": 1.108,
+        "val_accuracy": 0.3333,
+        "val_macro_f1": 0.1667,
+        "lr": 3e-05,
+        "elapsed_sec": 13.1
+      },
+      {
+        "epoch": 2,
+        "train_loss": 1.1061,
+        "val_loss": 1.0156,
+        "val_accuracy": 0.6333,
+        "val_macro_f1": 0.6168,
+        "lr": 2.6666666666666667e-05,
+        "elapsed_sec": 26.2
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.8252,
+        "val_loss": 0.5197,
+        "val_accuracy": 0.8083,
+        "val_macro_f1": 0.7901,
+        "lr": 2.3333333333333336e-05,
+        "elapsed_sec": 39.8
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.6001,
+        "val_loss": 0.5916,
+        "val_accuracy": 0.8,
+        "val_macro_f1": 0.7817,
+        "lr": 1.9999999999999998e-05,
+        "elapsed_sec": 53.3
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.3374,
+        "val_loss": 0.4869,
+        "val_accuracy": 0.8833,
+        "val_macro_f1": 0.8788,
+        "lr": 1.6666666666666667e-05,
+        "elapsed_sec": 66.6
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.3057,
+        "val_loss": 0.7498,
+        "val_accuracy": 0.7833,
+        "val_macro_f1": 0.7695,
+        "lr": 1.3333333333333333e-05,
+        "elapsed_sec": 79.5
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.1828,
+        "val_loss": 0.4266,
+        "val_accuracy": 0.9167,
+        "val_macro_f1": 0.9157,
+        "lr": 9.999999999999999e-06,
+        "elapsed_sec": 92.8
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.1394,
+        "val_loss": 0.4426,
+        "val_accuracy": 0.9083,
+        "val_macro_f1": 0.9071,
+        "lr": 6.666666666666667e-06,
+        "elapsed_sec": 106.1
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.0706,
+        "val_loss": 0.4833,
+        "val_accuracy": 0.9,
+        "val_macro_f1": 0.8993,
+        "lr": 3.3333333333333333e-06,
+        "elapsed_sec": 119.4
+      },
+      {
+        "epoch": 10,
+        "train_loss": 0.058,
+        "val_loss": 0.3998,
+        "val_accuracy": 0.9167,
+        "val_macro_f1": 0.9154,
+        "lr": 0.0,
+        "elapsed_sec": 132.9
+      }
+    ]
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "4.57.6",
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "cuda": "12.8"
+  },
+  "errors": [
+    {
+      "id": "inquiries-v2-refund-validation-018-v2",
+      "text": "반환 처리 뒤 받은 확인서에 숫자만 있고 통화 단위가 없습니다. 기존 환급액을 바꾸려는 것이 아니라 증빙을 보완하고 싶습니다. 취소 금액과 통화를 함께 표시한 문서를 요청하는 경로를 알려 주세요.",
+      "label": "refund",
+      "pred": "account",
+      "confidence": 0.9976
+    },
+    {
+      "id": "inquiries-v2-shipping-validation-010-v1",
+      "text": "냉동품을 받을 때 기사에게 보관 상태 확인표를 제출해야 한다고 합니다. 받는 사람이 작성할 부분을 미리 확인하고 싶습니다.",
+      "label": "shipping",
+      "pred": "refund",
+      "confidence": 0.6057
+    },
+    {
+      "id": "inquiries-v2-refund-validation-005-v1",
+      "text": "대여 공간을 결제했는데 운영자가 같은 시간에 다른 예약도 잡혔다고 합니다. 제안받은 대체 시간에는 이용할 수 없습니다. 공간 변경 대신 예약 철회와 결제 반환을 요청할 방법을 알려 주세요.",
+      "label": "refund",
+      "pred": "account",
+      "confidence": 0.9974
+    },
+    {
+      "id": "inquiries-v2-refund-validation-011-v2",
+      "text": "반품 입고 확인 후 판매자가 창고에서 물건을 잃었다고 합니다. 입고 안내와 배송 완료 기록이 있는데 재발송 없이 환불 심사를 이어갈 수 있나요?",
+      "label": "refund",
+      "pred": "shipping",
+      "confidence": 0.9982
+    },
+    {
+      "id": "inquiries-v2-refund-validation-013-v2",
+      "text": "제 돈으로 단체에 보낼 물건을 샀지만 기증이 취소됐습니다. 아직 출고 전인데 수령인이 아닌 구매자인 제가 취소하고 환급받을 수 있나요?",
+      "label": "refund",
+      "pred": "shipping",
+      "confidence": 0.9958
+    },
+    {
+      "id": "inquiries-v2-account-validation-013-v2",
+      "text": "계정의 상담 내역을 보다가 불필요한 파일까지 올린 것을 발견했습니다. 문의 전체를 취소하려는 것은 아닙니다. 본문과 답변을 유지하면서 제가 올린 첨부 자료만 제거할 수 있을까요?",
+      "label": "account",
+      "pred": "refund",
+      "confidence": 0.9663
+    },
+    {
+      "id": "inquiries-v2-refund-validation-012-v2",
+      "text": "체험 종료 전에 해지했다는 확인을 받았는데 유료 요금이 나갔습니다. 재가입이나 다음 달 해지가 아니라 이번 청구를 되돌리고 싶습니다. 취소 시각과 체험 약정을 제출해 확인받는 방법을 알려 주세요.",
+      "label": "refund",
+      "pred": "account",
+      "confidence": 0.9972
+    },
+    {
+      "id": "inquiries-v2-refund-validation-009-v2",
+      "text": "환급 송금이 예금주 명의 불일치로 실패했습니다. 이름 변경은 확인할 수 있지만 서류를 공개하고 싶지 않습니다. 공식 창구에서 정보를 보완할 절차를 알려 주세요.",
+      "label": "refund",
+      "pred": "account",
+      "confidence": 0.9973
+    },
+    {
+      "id": "inquiries-v2-refund-validation-005-v2",
+      "text": "결제한 공간이 중복 예약됐고 제안받은 다른 시간에는 못 갑니다. 대체 이용 대신 예약을 취소하고 대여료를 돌려받으려면 어떻게 하나요?",
+      "label": "refund",
+      "pred": "account",
+      "confidence": 0.9966
+    },
+    {
+      "id": "inquiries-v2-shipping-validation-003-v1",
+      "text": "판매처가 이용하던 집하 노선의 운행이 중단됐다는 공지를 받았습니다. 제 주문을 어느 노선으로 접수할지 확인할 경로가 필요합니다.",
+      "label": "shipping",
+      "pred": "refund",
+      "confidence": 0.9147
+    }
+  ]
+}
