@@ -7,7 +7,7 @@ uv run python scripts/classifier/calibrate_route_rule.py --final                
 uv run python scripts/classifier/calibrate_route_rule.py --model-dir <모델 폴더>    # 위 구조 밖의 폴더
 
 - 대상: runs/classifier/<task>/<모델>/<실행 ID>/model 이 있는 모델 (가중치는 git에 없으므로 학습했거나 share_model.py pull로 받은 것)
-- 결과: src/theseal/routing/config.py의 ROUTE_CALIBRATIONS에 넣을 줄을 출력한다 (직접 붙여 넣는다. 서비스는 이 값만 읽는다).
+- 결과: src/theseal/prompt/routing_config.py의 ROUTE_CALIBRATIONS에 넣을 줄을 출력한다 (직접 붙여 넣는다. 서비스는 이 값만 읽는다).
   키는 모델 폴더 이름(<모델>/<실행 ID>, 예전 구조는 <모델>). 보정값은 가중치마다 다르므로 모델마다 따로 둔다.
   모델 폴더 옆 route_rule.json에는 평가 수치까지 담은 기록을 남긴다 (서비스는 읽지 않는다)
 - 값은 실제 문의(validation)로만 정한다. 범위 밖 글(--ood-task의 validation)은 평가에만 쓴다
@@ -143,7 +143,7 @@ def evaluate(z_in: np.ndarray, y_in: np.ndarray, z_ood: np.ndarray, folds, keep,
 
 
 def config_values(report: dict) -> dict:
-    """routing/config.py ROUTE_CALIBRATIONS에 넣을 값."""
+    """prompt/routing_config.py ROUTE_CALIBRATIONS에 넣을 값."""
     return {"temperature": report["temperature"], **report["thresholds"]}
 
 
@@ -236,7 +236,7 @@ def main(argv: list[str] | None = None) -> list[dict]:
     print(f"[data] {args.task} validation={len(data['in'])} · 범위 밖 {args.ood_task} "
           f"validation={len(data['ood'])} · 보정 파일 이름 {CALIBRATION_FILENAME}")
     reports = [calibrate_one(d, args, data) for d in model_dirs]
-    print("\n서비스에 쓰려면 아래 줄을 src/theseal/routing/config.py의 ROUTE_CALIBRATIONS에 넣으세요 (같은 키는 바꾸기):")
+    print("\n서비스에 쓰려면 아래 줄을 src/theseal/prompt/routing_config.py의 ROUTE_CALIBRATIONS에 넣으세요 (같은 키는 바꾸기):")
     for r in reports:
         print(config_line(r))
     return reports

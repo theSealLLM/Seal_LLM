@@ -81,7 +81,7 @@ class LLMConfig:
 
 def config_from_env(cls, env_file: Path | None = ENV_FILE):
     """설정 dataclass를 환경변수로 채운다. 필드 이름을 대문자로 바꾼 이름을 읽는다
-    (예: ollama_model → OLLAMA_MODEL). theseal.routing.config도 같은 방식을 쓴다."""
+    (예: ollama_model → OLLAMA_MODEL). theseal.prompt.routing_config도 같은 방식을 쓴다."""
     if env_file is not None:
         load_dotenv(env_file, override=False)
     values = {}

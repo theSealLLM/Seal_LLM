@@ -65,7 +65,7 @@ result = await router.run(clf.predict(text), text, labels=clf.labels, model_dir=
 result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프롬프트 생성
 ```
 
-보정값(T · tau · tau_low · delta)은 학습한 가중치마다 다르므로 `src/theseal/routing/config.py`의
+보정값(T · tau · tau_low · delta)은 학습한 가중치마다 다르므로 `src/theseal/prompt/routing_config.py`의
 `ROUTE_CALIBRATIONS`에 모델별로 적어 둡니다. 키는 모델 폴더 이름(`<모델>/<실행 ID>`, 예전 구조는 `<모델>`)이고,
 서비스는 쓰는 분류 모델의 키를 자동으로 찾습니다. 키가 없으면 예시 값을 씁니다 (`/api/classify` 응답의
 `route.calibration_key`가 찾아본 키, `route.source`가 값의 출처).
@@ -84,8 +84,19 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 
 ### API 서버 (FastAPI)
 
-분류 → 분류 후처리 → 프롬프트 → 답변 생성을 HTTP로 묶은 서버입니다. 분류 모델은 `.env`의 `API_CLASSIFIER`로
-고릅니다 (기본 `final`: `classifier/config.py`의 `FINAL_MODEL`). 모델이 없어도 서버는 뜨고, `/health`에 이유가 나옵니다.
+분류 → 분류 후처리 → 프롬프트 → 답변 생성을 HTTP로 묶은 서버입니다. 분류 모델은 `classifier/config.py`의
+`FINAL_MODEL`이 가리키는 `runs/classifier/<task>/<모델>/<실행 ID>/model/`을 씁니다. 모델이 없어도 서버는 뜨고,
+`/health`에 이유가 나옵니다.
+
+가중치(`model/`)는 git에 없으므로 처음에는 직접 만들어야 합니다. `FINAL_MODEL`과 같은 설정으로 학습한 뒤,
+생긴 `model/` 폴더를 `FINAL_MODEL`의 실행 ID 폴더로 옮깁니다. 기준선(TF-IDF)은 같은 설정이면 결과가 똑같습니다.
+
+```bash
+uv run python scripts/classifier/train_baseline.py
+```
+
+예) 학습 결과가 `runs/classifier/inquiries/baseline/20261014-0900/model`이면
+`runs/classifier/inquiries/baseline/20261013-1057/model`로 옮깁니다 (`val_report.json`의 점수가 같은지 확인).
 
 ```bash
 uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000

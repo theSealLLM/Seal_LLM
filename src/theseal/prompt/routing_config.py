@@ -23,8 +23,8 @@ UNCERTAIN_ACTIONS = ("top1", "unknown")
 # 보정값은 그 가중치에서만 맞다. 가중치는 git에 없으므로, 각 값은 아래 주석의 PC에서 학습한 가중치 기준이다.
 ROUTE_CALIBRATIONS: dict[str, dict[str, float]] = {
     # yunpilsoo PC · 2026-10-13 보정 (inquiries validation 120건, 범위 밖 평가는 documents validation 120건)
-    # 새 구조: train_baseline.py로 학습한 실행
-    "baseline/20261013-2116": {"temperature": 2.009732, "tau": 0.504869, "tau_low": 0.45, "delta": 0.095286},
+    # FINAL_MODEL. 같은 설정으로 다시 학습한 기준선 (설정 · validation 결과가 팀 실행과 같음 → 같은 모델)
+    "baseline/20261013-1057": {"temperature": 2.009732, "tau": 0.504869, "tau_low": 0.45, "delta": 0.095286},
     # 예전 구조 (runs/classifier/inquiries/<모델>/model, 10:22~10:24 저장). 팀 실행 ID(1029 · 1055 …)와는 다른 가중치
     "baseline": {"temperature": 2.009732, "tau": 0.504869, "tau_low": 0.45, "delta": 0.095286},
     "bert-base": {"temperature": 6.232053, "tau": 0.505653, "tau_low": 0.45, "delta": 0.109825},
@@ -59,7 +59,7 @@ class RoutingConfig:
                 f"ROUTE_UNCERTAIN_ACTION은 {UNCERTAIN_ACTIONS} 중 하나여야 합니다: "
                 f"{self.route_uncertain_action!r}")
         if self.route_calibration != "auto" and self.route_calibration not in ROUTE_CALIBRATIONS:
-            raise ValueError(f"ROUTE_CALIBRATION={self.route_calibration!r}이 routing/config.py의 "
+            raise ValueError(f"ROUTE_CALIBRATION={self.route_calibration!r}이 prompt/routing_config.py의 "
                              f"ROUTE_CALIBRATIONS에 없습니다 (있는 키: {list(ROUTE_CALIBRATIONS)})")
 
     @classmethod

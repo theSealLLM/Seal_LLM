@@ -37,8 +37,8 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from theseal.common.client import model_name
 from theseal.common.config import PROVIDERS, get_config
-from theseal.prompt.routing_config import get_routing_config
 from theseal.prompt.router import RoutingResult
+from theseal.prompt.routing_config import get_routing_config
 
 from . import pipeline
 from .schemas import AnswerRequest, AnswerResponse, ClassifyRequest, ErrorBody, ErrorResponse

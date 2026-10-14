@@ -12,21 +12,19 @@ from pathlib import Path
 
 from fastapi.concurrency import run_in_threadpool
 
+from theseal.answer.answer_generator import generate, generate_stream
 from theseal.classifier.classifier import Classifier
 from theseal.classifier.config import DEFAULT_TASK, PROJECT_ROOT, FinalModelNotSetError, task_paths
-from theseal.answer.answer_generator import generate, generate_stream
 from theseal.common.config import ENV_FILE, LLMConfig, config_from_env
-from theseal.prompt import build_label_specific_prompt, build_label_unknown_prompt
 from theseal.common.schemas import AnswerResult, PromptSpec
-from theseal.prompt import router
+from theseal.prompt import build_label_specific_prompt, build_label_unknown_prompt, router
 from theseal.prompt.router import RoutingResult
 
 
 @dataclass
 class ApiConfig:
-    # final: config.py FINAL_MODEL · "<모델>/<실행 ID>": runs/classifier/<task>/<모델>/<실행 ID>/model ·
-    # 그 밖에는 모델 폴더 경로 (저장소 기준 상대 경로 가능)
-    api_classifier: str = "final"
+    # 분류 모델은 classifier/config.py의 FINAL_MODEL[api_classifier_task]를 쓴다.
+    # 모델 폴더(runs/classifier/<task>/<모델>/<실행 ID>/model)가 없으면 같은 설정으로 학습해 그 자리에 둔다 (README)
     api_classifier_task: str = DEFAULT_TASK
     api_classifier_device: str | None = None  # None이면 자동 (GPU가 있으면 cuda)
     # 브라우저에서 직접 호출을 허용할 프론트 주소 (쉼표로 구분). "*"면 전부, "off"면 CORS를 켜지 않는다.
@@ -49,9 +47,10 @@ class ClassifierNotReady(Exception):
     """학습된 분류 모델을 찾지 못함 → config_error"""
 
 
-def classifier_dir(config: ApiConfig) -> Path:
-    paths = task_paths(config.api_classifier_task)
-    name = config.api_classifier
+def classifier_dir(name: str = "final", task: str = DEFAULT_TASK) -> Path:
+    """분류 모델 폴더. API는 항상 final(FINAL_MODEL)을 쓴다.
+    로컬 평가 스크립트는 "<모델>/<실행 ID>"나 모델 폴더 경로로 다른 모델도 고를 수 있다."""
+    paths = task_paths(task)
     if name == "final":
         try:
             return paths.final_model_dir
@@ -64,11 +63,12 @@ def classifier_dir(config: ApiConfig) -> Path:
     return path if path.is_absolute() else PROJECT_ROOT / path
 
 
-def load_classifier(config: ApiConfig) -> Classifier:
-    model_dir = classifier_dir(config)
+def load_classifier(config: ApiConfig, name: str = "final") -> Classifier:
+    model_dir = classifier_dir(name, config.api_classifier_task)
     if not model_dir.exists():
         raise ClassifierNotReady(
-            f"분류 모델이 없습니다: {model_dir} (train_*.py로 학습하거나 share_model.py pull로 받으세요)")
+            f"분류 모델이 없습니다: {model_dir} (FINAL_MODEL과 같은 설정으로 train_*.py를 돌려 이 폴더에 두거나 "
+            "share_model.py pull로 받으세요)")
     return Classifier(model_dir, device=config.api_classifier_device)
 
 

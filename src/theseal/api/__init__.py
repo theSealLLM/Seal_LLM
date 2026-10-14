@@ -5,5 +5,5 @@ schemas.py  요청 형식과 /api/answer 응답 형식
 pipeline.py  실제 기능 연결 (분류기 → 분류 후처리 → 프롬프트 → 답변 생성)
 
 실행: uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000 → http://127.0.0.1:8000/docs
-분류 모델은 .env의 API_CLASSIFIER로 고른다 (기본 final = classifier/config.py FINAL_MODEL)
+분류 모델은 classifier/config.py의 FINAL_MODEL을 쓴다
 """
