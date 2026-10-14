@@ -1,6 +1,11 @@
-"""LLM 설정. 모델 이름 · 키 · 툴 on/off는 .env에서 읽는다 (코드에 직접 쓰지 않는다).
+"""LLM 설정. 팀이 함께 쓰는 값(모델 이름 · 툴 on/off · 타임아웃 등)은 아래 LLMConfig 기본값이 기준이다.
 
+.env에는 비밀 키와 PC마다 다른 값만 둔다 (.env.example 참고)
+    비밀 키    OPENAI_API_KEY · KMA_AUTH_KEY · TAVILY_API_KEY
+    PC 설정    OLLAMA_BASE_URL · OLLAMA_KEEP_ALIVE
+그 밖의 필드도 이름을 대문자로 적으면 바꿀 수 있다 (예: max_tool_rounds → MAX_TOOL_ROUNDS=3).
 우선순위: 이미 설정된 환경변수 > 프로젝트 루트 .env > 아래 기본값. 값이 빈 항목은 기본값을 쓴다.
+같은 값을 .env에 그대로 두면 이 파일의 기본값을 바꿔도 .env 값이 이기므로, 바꿀 항목만 적는다.
 """
 
 from __future__ import annotations
@@ -29,24 +34,25 @@ LABELS = ("shipping", "refund", "account", "unknown")
 @dataclass
 class LLMConfig:
     # 로컬 LLM (Ollama)
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = "http://localhost:11434"  # .env (PC 설정): Ollama를 다른 주소 · 포트에서 띄울 때
     ollama_model: str = "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M"
     # thinking: None이면 모델 기본값 (Gemma 4 E4B는 켜짐, true를 명시하면 Ollama가 거부한다). .env에서는 default로 None
     # 툴 없는 경로 (shipping · refund · account)와 분류 후처리의 LLM 검증. 켜 두면 검증이 VERIFY_TIMEOUT_SEC를 넘기기 쉬워 끈다
     ollama_reasoning: bool | None = False
     ollama_reasoning_with_tools: bool | None = None  # 툴 경로 (unknown). 끄면 툴을 부르지 않는다
-    ollama_keep_alive: str | None = None  # VRAM 유지 시간. "-1"이면 계속 유지
+    # .env (PC 설정): VRAM 유지 시간. "-1"이면 계속 유지, None이면 Ollama 기본(5분)
+    ollama_keep_alive: str | None = None
 
     # 상용 LLM (OpenAI)
-    openai_api_key: str = ""
+    openai_api_key: str = ""  # .env (비밀 키). 비우면 openai provider는 config_error
     openai_model: str = "gpt-5.6-luna"
     openai_reasoning_effort: str | None = None  # None이면 API 기본값(medium)
 
     default_provider: str = "local"
 
     # 툴
-    tavily_api_key: str = ""
-    kma_auth_key: str = ""  # 기상청 API허브 인증키. 비우면 날씨 툴을 등록하지 않는다
+    tavily_api_key: str = ""  # .env (비밀 키). 비우면 검색 툴을 등록하지 않는다
+    kma_auth_key: str = ""  # .env (비밀 키): 기상청 API허브 인증키. 비우면 날씨 툴을 등록하지 않는다
     kma_api_base: str = "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0"
     tool_date_tools: bool = True
     tool_weather: bool = True
