@@ -33,6 +33,7 @@ class ClassificationResult:
 
         result = clf.predict("사이즈가 맞지 않아 반품하려는데 환불은 언제 되나요?")
 
+        result.text        # '사이즈가 맞지 않아 반품하려는데 환불은 언제 되나요?'
         result.label_num   # 1
         result.label_name  # 'refund'
         result.scores      # (0.00105, 0.99812, 0.00083)
@@ -41,6 +42,9 @@ class ClassificationResult:
     label_num과 scores의 순서는 labels.json의 labels 순서다 (inquiries: 0=shipping, 1=refund, 2=account).
     고쳐 쓸 일이 없는 값이라 frozen으로 두고 scores도 튜플로 둔다.
     """
+
+    text: str
+    """분류한 원문. predict에 넣은 문장 그대로다."""
 
     label_num: int
     """라벨 번호. scores에서 확률이 가장 큰 칸의 위치다."""
@@ -108,13 +112,14 @@ class Classifier:
         """문장 여러 개 → ClassificationResult 리스트. 순서는 넣은 문장 순서와 같다.
 
         예) for result in clf.predict_batch(texts):
-                print(result.label_name, round(result.confidence, 5))
+                print(result.label_name, result.text)
         """
         labels = self.labels
         results = []
-        for row in self.model.predict_proba(texts):
+        for text, row in zip(texts, self.model.predict_proba(texts), strict=True):
             label_num = int(row.argmax())
             results.append(ClassificationResult(
+                text=text,
                 label_num=label_num,
                 label_name=labels[label_num],
                 scores=tuple(float(p) for p in row),
