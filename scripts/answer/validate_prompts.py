@@ -18,12 +18,12 @@ TEST_CASES = [
 def validate_prompt_builder(builder, expected_version):
     """프롬프트 생성 함수의 라벨, 질문, 정책 문구와 버전을 검증한다."""
     
-    for label, text, policy_marker in TEST_CASES:
-        prompt_spec = builder(text, label)
+    for label, customer_inquiry, policy_marker in TEST_CASES:
+        prompt_spec = builder(customer_inquiry, label)
         
         # 분류 라벨과 고객 질문이 출력 객체에 그대로 전달되는지 확인
         assert prompt_spec.label == label
-        assert prompt_spec.user == text
+        assert prompt_spec.customer_inquiry == customer_inquiry
         
         # 해당 라벨의 정책과 실험용 프롬프트 버전이 올바른지 확인
         assert policy_marker in prompt_spec.system

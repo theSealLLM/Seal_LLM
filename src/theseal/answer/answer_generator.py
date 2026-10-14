@@ -35,7 +35,7 @@ from .tools import get_tools_for
 
 
 def to_messages(spec: PromptSpec) -> list[BaseMessage]:
-    return [SystemMessage(spec.system), HumanMessage(spec.user)]
+    return [SystemMessage(spec.system), HumanMessage(spec.customer_inquiry)]
 
 
 def content_text(content: Any) -> str:

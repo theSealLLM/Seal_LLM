@@ -57,19 +57,19 @@ def needs_verification(label: str, route: str | None, mode: str) -> bool:
     return route != "confident"
 
 
-def build_messages(text: str, label: str) -> list:
-    human = f"[라벨]\n{label} — {LABEL_DESCRIPTIONS[label]}\n\n[입력]\n{text}"
+def build_messages(customer_inquiry: str, label: str) -> list:
+    human = f"[라벨]\n{label} — {LABEL_DESCRIPTIONS[label]}\n\n[입력]\n{customer_inquiry}"
     return [SystemMessage(SYSTEM), HumanMessage(human)]
 
 
-async def verify(llm: BaseChatModel, text: str, label: str) -> VerifyResult:
+async def verify(llm: BaseChatModel, customer_inquiry: str, label: str) -> VerifyResult:
     """label이 검증 대상이 아니면(unknown 등) 그대로 둔다. LLM 오류는 삼키고 분류 라벨을 유지한다 (fail-open)."""
     start = time.perf_counter()
     if label not in LABEL_DESCRIPTIONS:
         return VerifyResult(match=True, reason="검증 대상 아님", label=label, final_label=label, latency_ms=0)
     try:
         out: VerifyOutput = await llm.with_structured_output(VerifyOutput).ainvoke(
-            build_messages(text, label))
+            build_messages(customer_inquiry, label))
         return VerifyResult(
             match=out.match,
             reason=out.reason,
