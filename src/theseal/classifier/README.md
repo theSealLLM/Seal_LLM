@@ -1,7 +1,6 @@
 # 분류기 사용하기
 
-학습해 둔 분류 모델을 불러와 문장을 분류합니다. 모델 종류(TF-IDF 베이스라인,
-파인튜닝 모델)와 상관없이 쓰는 방법은 같습니다.
+학습해 둔 분류 모델을 불러와 문장을 분류합니다.
 
 ## 세 줄 요약
 
@@ -13,13 +12,14 @@ result = clf.predict("사이즈가 맞지 않아 반품하려는데 환불은 �
 result.label_name                             # 'refund'
 ```
 
-`src`가 import 경로에 있어야 합니다.
+위 코드가 돌아가려면 학습이 끝난 모델이 있어야 합니다. 아직 학습한 모델을
+공유하지 않고 있어서 각자 직접 학습해야 합니다. 순서는 아래
+[모델 학습하기](#모델-학습하기)에 정리해 두었습니다.
 
 ## 모델 불러오기
 
 ```python
-clf = Classifier.from_final()                 # 최종 모델 (기본 task: inquiries)
-clf = Classifier.from_final("documents")      # task 지정
+clf = Classifier.from_final()                 # 최종 모델 (기본 task: inquiries, 추후 documents도 추가 예정)
 clf = Classifier("runs/classifier/inquiries/mmBERT-small/20261013-1458/model")  # 폴더 직접 지정
 clf = Classifier.from_final(device="cpu")     # auto(기본) | cuda | cuda:0 | mps | cpu
 ```
@@ -89,9 +89,75 @@ clf.meta             # dict   classifier_meta.json 내용
 clf.meta["kind"]     # str    'baseline'(TF-IDF) 또는 'bert'(파인튜닝 모델)
 ```
 
+## 모델 학습하기
+
+스크립트 번호 순서대로 돌리면 됩니다. 모두 `--task`를 주지 않으면 `inquiries`로
+돌아가고, 다른 주제를 쓰려면 `--task documents`를 붙입니다.(아직 documents 학습 기능은 추가되지 않았습니다.)
+
+### 0. 사전학습 모델 받기
+
+```bash
+uv run scripts/classifier/fetch_models.py
+```
+
+`config.py`의 `MODEL_CANDIDATES`에 적힌 후보를 `models/` 아래로 내려받습니다. 베이스라인만 쓸 거면
+건너뛰어도 됩니다.
+
+### 1. 베이스라인 학습
+
+```bash
+uv run python scripts/classifier/train_baseline.py
+```
+
+TF-IDF + 로지스틱 회귀입니다. 파인튜닝 모델이 이것보다
+나은지 재는 기준선이 됩니다.
+
+### 2. 사전학습 모델 파인튜닝
+
+```bash
+uv run python scripts/classifier/train_classifier_model.py
+```
+
+`--model`을 주지 않으면 후보 목록이 번호로 나옵니다. 다운받은 모델이 없으면 다운받고 진행합니다.
+
+결과는 `runs/classifier/<task>/<모델 이름>/<실행 ID>/` 아래에 `model/`(가중치)과
+`val_report.json`(validation 결과 + 그때 쓴 설정)으로 남습니다. 실행 ID는 학습을
+시작한 시각(초 단위)이라, 같은 모델을 다시 학습해도 이전 결과를 덮어쓰지 않습니다.
+그 실행에서 무엇을 바꿨는지는 `val_report.json`의 `config`를 보면 됩니다.
+
+### 3. 비교표 만들기
+
+```bash
+uv run python scripts/classifier/compare.py
+```
+
+`val_report.json`이 있는 실행을 전부 같은 조건에서 다시 평가해
+`runs/classifier/<task>/comparison.md`에 표로 남깁니다. 모델을 복사하거나
+확정하지는 않습니다.
+
+### 4. 최종 모델 정하기
+
+`comparison.md`를 보고 `config.py`의 `FINAL_MODEL`에 직접 적습니다.
+
+```python
+FINAL_MODEL = {
+    "inquiries": {"model": "mmBERT-small", "run": "20261013-1458"},
+    "documents": None,
+}
+```
+
+
+### 5. test 평가
+
+```bash
+uv run python scripts/classifier/evaluate_test.py
+```
+
+모델과 조건을 모두 정한 뒤 **딱 한 번만** 돌립니다. 이미 `test_report.json`이
+있으면 `--force` 없이는 다시 실행되지 않습니다.
+
 ## 직접 돌려 보기
 
 ```bash
 uv run src/theseal/classifier/demo.py                      # 문장을 입력하며 대화형으로
-uv run python scripts/classifier/classifier_example.py     # 예제 문장으로 한 번에
 ```

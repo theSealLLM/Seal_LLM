@@ -45,12 +45,12 @@ META_FILENAME = "classifier_meta.json"
 # 실행 폴더 안에서 모델 파일을 두는 하위 폴더 이름
 MODEL_SUBDIR = "model"
 VAL_REPORT_FILENAME = "val_report.json"
-# 실행 ID = 학습을 시작한 시각 (분 단위). Windows 폴더 이름에 못 쓰는 ':'는 쓰지 않는다
-RUN_ID_FORMAT = "%Y%m%d-%H%M"
+# 실행 ID = 학습을 시작한 시각 (초 단위). Windows 폴더 이름에 못 쓰는 ':'는 쓰지 않는다
+RUN_ID_FORMAT = "%Y%m%d-%H%M%S"
 
 # 최종 모델: comparison.md를 보고 task별로 모델 이름과 실행 ID를 직접 적는다.
-# 예) "inquiries": {"model": "roberta-base", "run": "20261013-1411"}
-#     → runs/classifier/inquiries/roberta-base/20261013-1411/model/ 을 그대로 사용 (복사하지 않음)
+# 예) "inquiries": {"model": "roberta-base", "run": "20261013-141107"}
+#     → runs/classifier/inquiries/roberta-base/20261013-141107/model/ 을 사용
 FINAL_MODEL: dict[str, dict[str, str] | None] = {
     "inquiries": {"model": "baseline", "run": "20261013-1057"},
     "documents": None,
@@ -169,10 +169,10 @@ def safe_name(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]+", "-", text).strip("-") or "model"
 
 
-def new_run_id(tag: str | None = None, now: datetime | None = None) -> str:
-    """학습 시작 시각으로 실행 ID를 만든다. 예) 20261013-1411, 태그가 있으면 20261013-1411_lr2e5."""
-    run = (now or datetime.now()).strftime(RUN_ID_FORMAT)
-    return f"{run}_{safe_name(tag)}" if tag else run
+def new_run_id(now: datetime | None = None) -> str:
+    """학습 시작 시각으로 실행 ID를 만든다. 예) 20261013-141107.
+    """
+    return (now or datetime.now()).strftime(RUN_ID_FORMAT)
 
 
 def model_overrides(model_name_or_path: str) -> dict:
