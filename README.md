@@ -12,56 +12,55 @@ LLM이 답변 초안을 만드는 서비스입니다. 상담 범위 밖의 질�
 flowchart TD
     IN(["고객 문의"]):::io
 
-    subgraph API_LAYER["① API 계층"]
-        API_IN["FastAPI<br/>POST /api/answer"]:::api
+    subgraph API_LAYER["① API 계층 · api/"]
+        API_IN["FastAPI · LCEL 체인<br/>POST /api/answer"]:::api
         API_OUT["응답 직렬화<br/>JSON 반환"]:::api
     end
 
-    subgraph CLASSIFY["② 문의 분류"]
+    subgraph CLASSIFY["② 문의 분류 · classifier/"]
         CLS["분류기<br/>TF-IDF · BERT"]:::cls
-        RESULT["분류 결과<br/>카테고리 · 신뢰도"]:::data
     end
 
-    subgraph ROUTING["③ 경로 결정 및 프롬프트"]
-        ROUTER{"신뢰도 기준<br/>충족 여부"}:::decision
-        VERIFY["LLM 검증<br/>모호한 문의 재판단"]:::prm
+    subgraph PROMPT["③ Prompt 객체 · prompt/  —  Prompt().build_with_routing()"]
+        ROUTER{"경로 규칙<br/>신뢰도 판정"}:::decision
+        VERIFY["LLM 검증<br/>라벨이 맞는지 확인"]:::prm
+        SELECT{"최종 라벨"}:::decision
         POLICY["상담 정책 프롬프트<br/>배송 · 환불 · 계정"]:::prm
-        UNKNOWN["범위 밖 처리<br/>unknown · 추가 확인"]:::unknown
+        UNKNOWN["범위 밖 프롬프트<br/>unknown · 도구 사용 지시"]:::prm
     end
 
-    subgraph GENERATION["④ 답변 생성 및 도구 실행"]
-        LLM["LLM<br/>Gemma · OpenAI"]:::ans
-        TOOL{"외부 도구가<br/>필요한가?"}:::decision
+    subgraph GENERATION["④ 답변 생성 · answer/"]
+        LLM["LLM 1회 호출<br/>Gemma · OpenAI"]:::ans
+        LLM_T["LLM + 도구 반복<br/>Gemma · OpenAI"]:::ans
         EXEC["도구 실행<br/>날짜 · 날씨 · 검색"]:::tool
-        CONTEXT["도구 결과 및<br/>대화 문맥 구성"]:::data
     end
 
     subgraph RESPONSE["⑤ 응답 구성"]
-        CHECK["응답 검증<br/>정책 · 형식 · 근거"]:::prm
-        OUT(["답변 + 분류 근거"]):::io
+        BUILD["AnswerResponse<br/>답변 + 분류 근거"]:::data
     end
+
+    OUT(["JSON 응답"]):::io
 
     IN --> API_IN
     API_IN --> CLS
-    CLS --> RESULT
-    RESULT --> ROUTER
+    CLS -->|ClassificationResult| ROUTER
 
-    ROUTER -->|신뢰도 높음| POLICY
-    ROUTER -->|신뢰도 낮음| VERIFY
-    VERIFY -->|상담 범위 내| POLICY
-    VERIFY -->|범위 밖 또는 판단 불가| UNKNOWN
+    ROUTER -->|신뢰도 높음| SELECT
+    ROUTER -->|신뢰도 낮음 · 접전| VERIFY
+    ROUTER -->|신뢰도 매우 낮음 → unknown| SELECT
+    VERIFY -->|맞음 · 검증 실패 시 유지| SELECT
+    VERIFY -->|아님 → unknown| SELECT
 
-    POLICY --> LLM
-    UNKNOWN --> LLM
+    SELECT -->|shipping · refund · account| POLICY
+    SELECT -->|unknown| UNKNOWN
 
-    LLM --> TOOL
-    TOOL -->|필요함| EXEC
-    EXEC --> CONTEXT
-    CONTEXT --> LLM
-    TOOL -->|불필요함| CHECK
+    POLICY -->|PromptSpec| LLM
+    UNKNOWN -->|PromptSpec| LLM_T
+    LLM_T <-->|필요할 때| EXEC
 
-    LLM --> CHECK
-    CHECK --> API_OUT
+    LLM -->|AnswerResult| BUILD
+    LLM_T -->|AnswerResult| BUILD
+    BUILD --> API_OUT
     API_OUT --> OUT
 
     classDef io fill:#F1F5F9,stroke:#64748B,color:#0F172A,stroke-width:1.5px
@@ -72,7 +71,6 @@ flowchart TD
     classDef tool fill:#FFEDD5,stroke:#EA580C,color:#9A3412
     classDef data fill:#F8FAFC,stroke:#94A3B8,color:#334155
     classDef decision fill:#FEF3C7,stroke:#D97706,color:#92400E
-    classDef unknown fill:#FEE2E2,stroke:#EF4444,color:#991B1B
 ```
 
 ## 폴더 구조
