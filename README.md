@@ -14,6 +14,8 @@ flowchart TD
 
     subgraph CLASSIFY["① 분류 · classifier/"]
         CLS["분류기<br/>TF-IDF · BERT"]:::cls
+        R1["ClassificationResult"]:::out
+        CLS --> R1
     end
 
     subgraph PROMPT["② Prompt 모듈 · prompt/"]
@@ -22,36 +24,38 @@ flowchart TD
         LABEL["최종 라벨"]:::prm
         POLICY["상담 정책 프롬프트"]:::prm
         UNKNOWN["범위 밖 프롬프트"]:::prm
-        SPEC["PromptSpec"]:::out
+        R2["PromptSpec"]:::out
         ROUTER -->|신뢰도 높음| LABEL
         ROUTER -->|낮음 · 접전| VERIFY
         ROUTER -->|매우 낮음 → unknown| LABEL
         VERIFY --> LABEL
         LABEL -->|배송 · 환불 · 계정| POLICY
         LABEL -->|unknown| UNKNOWN
-        POLICY --> SPEC
-        UNKNOWN --> SPEC
+        POLICY --> R2
+        UNKNOWN --> R2
     end
 
     subgraph GENERATION["③ 답변 생성 · answer/"]
         GEN["LLM 호출<br/>Gemma · OpenAI"]:::ans
         EXEC["도구 실행<br/>날짜 · 날씨 · 검색"]:::ans
-        RESULT["AnswerResult"]:::out
+        R3["AnswerResult"]:::out
         GEN <-.->|unknown일 때만| EXEC
-        GEN --> RESULT
+        GEN --> R3
     end
 
     subgraph RESPONSE["④ 응답 · api/"]
-        BUILD["AnswerResponse<br/>답변 + 분류 근거"]:::api
+        BUILD["응답 구성<br/>답변 + 분류 근거"]:::api
+        R4["AnswerResponse"]:::out
+        BUILD --> R4
     end
 
     OUT(["JSON 응답"]):::io
 
     IN --> CLS
-    CLS -->|ClassificationResult| ROUTER
-    SPEC --> GEN
-    RESULT --> BUILD
-    BUILD --> OUT
+    R1 --> ROUTER
+    R2 --> GEN
+    R3 --> BUILD
+    R4 --> OUT
 
     style CLASSIFY fill:#F8F9FF,stroke:#6366F1
     style PROMPT fill:#F7FEF9,stroke:#22C55E
