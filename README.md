@@ -7,70 +7,62 @@ LLM이 답변 초안을 만드는 서비스입니다. 상담 범위 밖의 질�
 ## 전체 흐름
 
 ```mermaid
-%%{init: {"theme": "base", "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 35, "rankSpacing": 45}, "themeVariables": {"fontSize": "14px", "lineColor": "#94A3B8", "clusterBkg": "#FFFFFF", "clusterBorder": "#CBD5E1", "edgeLabelBackground": "#FFFFFF", "primaryTextColor": "#334155"}}}%%
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 30, "rankSpacing": 40}, "themeVariables": {"fontSize": "14px", "lineColor": "#94A3B8", "clusterBkg": "#FFFFFF", "clusterBorder": "#CBD5E1", "edgeLabelBackground": "#FFFFFF", "primaryTextColor": "#334155"}}}%%
 
 flowchart TD
-    IN(["고객 문의"]):::io
+    IN(["고객 문의 · POST /api/answer"]):::io
 
-    subgraph API_LAYER["① API 계층 · api/"]
-        API_IN["FastAPI · LCEL 체인<br/>POST /api/answer"]:::api
-        API_OUT["응답 직렬화<br/>JSON 반환"]:::api
-    end
-
-    subgraph CLASSIFY["② 문의 분류 · classifier/"]
+    subgraph CLASSIFY["① 분류 · classifier/"]
         CLS["분류기<br/>TF-IDF · BERT"]:::cls
     end
 
-    subgraph PROMPT["③ Prompt 객체 · prompt/  —  Prompt().build_with_routing()"]
-        ROUTER{"경로 규칙<br/>신뢰도 판정"}:::decision
+    subgraph PROMPT["② Prompt 모듈 · prompt/"]
+        ROUTER["경로 규칙<br/>신뢰도 판정"]:::prm
         VERIFY["LLM 검증<br/>라벨이 맞는지 확인"]:::prm
-        SELECT{"최종 라벨"}:::decision
-        POLICY["상담 정책 프롬프트<br/>배송 · 환불 · 계정"]:::prm
-        UNKNOWN["범위 밖 프롬프트<br/>unknown · 도구 사용 지시"]:::prm
+        LABEL["최종 라벨"]:::prm
+        POLICY["상담 정책 프롬프트"]:::prm
+        UNKNOWN["범위 밖 프롬프트"]:::prm
+        SPEC["PromptSpec"]:::out
+        ROUTER -->|신뢰도 높음| LABEL
+        ROUTER -->|낮음 · 접전| VERIFY
+        ROUTER -->|매우 낮음 → unknown| LABEL
+        VERIFY --> LABEL
+        LABEL -->|배송 · 환불 · 계정| POLICY
+        LABEL -->|unknown| UNKNOWN
+        POLICY --> SPEC
+        UNKNOWN --> SPEC
     end
 
-    subgraph GENERATION["④ 답변 생성 · answer/"]
-        LLM["LLM 1회 호출<br/>Gemma · OpenAI"]:::ans
-        LLM_T["LLM + 도구 반복<br/>Gemma · OpenAI"]:::ans
-        EXEC["도구 실행<br/>날짜 · 날씨 · 검색"]:::tool
+    subgraph GENERATION["③ 답변 생성 · answer/"]
+        GEN["LLM 호출<br/>Gemma · OpenAI"]:::ans
+        EXEC["도구 실행<br/>날짜 · 날씨 · 검색"]:::ans
+        RESULT["AnswerResult"]:::out
+        GEN <-.->|unknown일 때만| EXEC
+        GEN --> RESULT
     end
 
-    subgraph RESPONSE["⑤ 응답 구성"]
-        BUILD["AnswerResponse<br/>답변 + 분류 근거"]:::data
+    subgraph RESPONSE["④ 응답 · api/"]
+        BUILD["AnswerResponse<br/>답변 + 분류 근거"]:::api
     end
 
     OUT(["JSON 응답"]):::io
 
-    IN --> API_IN
-    API_IN --> CLS
+    IN --> CLS
     CLS -->|ClassificationResult| ROUTER
+    SPEC --> GEN
+    RESULT --> BUILD
+    BUILD --> OUT
 
-    ROUTER -->|신뢰도 높음| SELECT
-    ROUTER -->|신뢰도 낮음 · 접전| VERIFY
-    ROUTER -->|신뢰도 매우 낮음 → unknown| SELECT
-    VERIFY -->|맞음 · 검증 실패 시 유지| SELECT
-    VERIFY -->|아님 → unknown| SELECT
-
-    SELECT -->|shipping · refund · account| POLICY
-    SELECT -->|unknown| UNKNOWN
-
-    POLICY -->|PromptSpec| LLM
-    UNKNOWN -->|PromptSpec| LLM_T
-    LLM_T <-->|필요할 때| EXEC
-
-    LLM -->|AnswerResult| BUILD
-    LLM_T -->|AnswerResult| BUILD
-    BUILD --> API_OUT
-    API_OUT --> OUT
-
+    style CLASSIFY fill:#F8F9FF,stroke:#6366F1
+    style PROMPT fill:#F7FEF9,stroke:#22C55E
+    style GENERATION fill:#FFFBF5,stroke:#F97316
+    style RESPONSE fill:#FFF8FC,stroke:#EC4899
     classDef io fill:#F1F5F9,stroke:#64748B,color:#0F172A,stroke-width:1.5px
-    classDef api fill:#FDF2F8,stroke:#EC4899,color:#831843
     classDef cls fill:#EEF2FF,stroke:#6366F1,color:#312E81
     classDef prm fill:#F0FDF4,stroke:#22C55E,color:#14532D
     classDef ans fill:#FFF7ED,stroke:#F97316,color:#7C2D12
-    classDef tool fill:#FFEDD5,stroke:#EA580C,color:#9A3412
-    classDef data fill:#F8FAFC,stroke:#94A3B8,color:#334155
-    classDef decision fill:#FEF3C7,stroke:#D97706,color:#92400E
+    classDef api fill:#FDF2F8,stroke:#EC4899,color:#831843
+    classDef out fill:#FFFFFF,stroke:#334155,color:#0F172A,stroke-width:1.5px
 ```
 
 ## 폴더 구조
