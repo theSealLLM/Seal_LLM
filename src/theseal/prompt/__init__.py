@@ -4,7 +4,7 @@
 """
 
 from .label_unknown import build_label_unknown_prompt
-from .prompt_generator import build_common_policy_prompt, build_label_specific_prompt
+from .prompt_ab_experiment import build_common_policy_prompt, build_label_specific_prompt
 
 __all__ = [
     "build_label_specific_prompt",

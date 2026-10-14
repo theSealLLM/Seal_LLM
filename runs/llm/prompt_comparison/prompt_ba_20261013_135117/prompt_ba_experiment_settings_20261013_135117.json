@@ -1,0 +1,25 @@
+{
+  "run_id": "prompt_ba_20261013_135117",
+  "created_at": "2026-10-13T13:51:17+09:00",
+  "experiment": "prompt_comparison",
+  "data_path": "data\\inquiries\\generation_development.jsonl",
+  "data_split": "generation_development",
+  "number_of_cases": 15,
+  "number_of_expected_responses": 30,
+  "execution_order": "ba",
+  "provider": "local",
+  "model": "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
+  "with_tools": false,
+  "label_source": "generation_development.expected_label",
+  "prompt_methods": [
+    {
+      "method": "B",
+      "structure": "common_policy"
+    },
+    {
+      "method": "A",
+      "structure": "label_specific"
+    }
+  ],
+  "evaluation_data_sent_to_llm": false
+}
