@@ -3,8 +3,6 @@
 build_prompt(result)              분류 결과 → 분류 후처리(router) → 최종 라벨에 맞는 PromptSpec
 build_common_policy_prompt(...)   shipping · refund · account: 공통 상담 규칙 + 라벨별 정책 (B, A/B 실험으로 선정)
 build_label_unknown_prompt(...)   unknown(범위 밖): 툴(날짜 · 날씨 · 검색) 사용 지시 포함
-
-실험용 라벨별 프롬프트(A)는 prompt_ab_experiment.py에 남아 있다.
 """
 
 from __future__ import annotations
@@ -14,6 +12,21 @@ import hashlib
 from ..common.config import LLMConfig, get_config
 from ..common.schemas import Label, PromptSpec
 from . import router
+
+
+class Prompt:
+    """분류 결과를 라우팅하고 최종 PromptSpec을 완성한다."""
+    
+    async def route(self, prediction) -> router.RoutingResult:
+        """분류 결과를 후처리해 최종 라벨을 결정한다."""
+        return await router.run(prediction)
+    
+    def build(self, routing_result: router.RoutingResult) -> PromptSpec:
+        """라우팅 결과에 맞는 프롬프트를 생성한다."""
+        return prompt_for_label(
+            routing_result.label,
+            routing_result.text,
+        )
 
 
 async def build_prompt(prediction) -> PromptSpec:
