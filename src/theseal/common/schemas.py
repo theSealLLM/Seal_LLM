@@ -22,7 +22,7 @@ class PromptSpec(BaseModel):
 
     label: Label  # 분류 단계의 최종 라벨. 툴 사용 여부를 정한다 (기본: unknown만)
     system: str = Field(min_length=1)  # 지시문 (공통 규칙 + 라벨별 규칙 + 예시)
-    user: str = Field(min_length=1)  # 사용자의 원래 질문 (분류 단계에서 받은 text 그대로)
+    customer_inquiry: str = Field(min_length=1)  # 고객 문의 원문
     prompt_version: str  # 템플릿 버전. 비교 기록이 섞이지 않게 템플릿이 바뀌면 같이 바뀐다
 
 

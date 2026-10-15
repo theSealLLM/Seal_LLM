@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 class RoutingResult(BaseModel):
     label: str  # 최종 라벨 → 프롬프트 생성
-    text: str  # 원래 질문 → 프롬프트 생성 (그대로 전달)
+    text: str  # 고객 문의 원문(customer_inquiry) → 프롬프트 생성. API 응답 키라 이름 유지 (Classifier 변경 때 함께 변경)
     classifier_label: str  # 분류기가 낸 1등 라벨
     scores: dict[str, float]  # 분류기 확률 (보정 전)
     route: dict | None = None  # ② 결과 (RouteDecision + 값 출처). 경로 규칙을 끄면 null
@@ -77,17 +77,17 @@ async def run(
 
     FINAL_MODEL이 아닌 모델로 실험할 때는 to_scores(labels) · apply_route_rule(model_dir)를 직접 쓴다."""
     config = config or get_routing_config()
-    text = prediction.text
+    customer_inquiry = prediction.text  # 고객 문의 원문 (Classifier 입력 text → 이 모듈부터 customer_inquiry)
     classifier_label, scores = to_scores(prediction, task_labels(config.route_task))
     label, route = apply_route_rule(classifier_label, scores, config)
-    result = RoutingResult(label=label, text=text, classifier_label=classifier_label,
+    result = RoutingResult(label=label, text=customer_inquiry, classifier_label=classifier_label,
                            scores=scores, route=route)
 
     if not llm_verifier.needs_verification(label, route and route["route"], config.verify_mode):
         return result
     try:
         llm = llm or make_llm(config.verify_provider, llm_config or get_config())
-        v = await asyncio.wait_for(llm_verifier.verify(llm, text, label), config.verify_timeout_sec)
+        v = await asyncio.wait_for(llm_verifier.verify(llm, customer_inquiry, label), config.verify_timeout_sec)
     except Exception as e:  # noqa: BLE001 — 설정 오류(키 없음) · 시간 초과도 분류 라벨 유지
         err = "시간 초과" if isinstance(e, TimeoutError) else f"{type(e).__name__}: {e}"
         v = llm_verifier.VerifyResult(match=True, reason="", label=label, final_label=label,

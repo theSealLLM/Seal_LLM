@@ -1,5 +1,104 @@
 # Seal_LLM
 
+한국어 고객 문의를 배송(shipping) · 환불(refund) · 계정(account)으로 분류하고, 분류 결과에 맞는 상담 정책으로
+LLM이 답변 초안을 만드는 서비스입니다. 상담 범위 밖의 질문(unknown)은 날짜 · 날씨 · 검색 툴을 써서 답하고,
+상담 범위를 함께 안내합니다.
+
+## 전체 흐름
+
+```mermaid
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 30, "rankSpacing": 40}, "themeVariables": {"fontSize": "14px", "lineColor": "#94A3B8", "clusterBkg": "#FFFFFF", "clusterBorder": "#CBD5E1", "edgeLabelBackground": "#FFFFFF", "primaryTextColor": "#334155"}}}%%
+
+flowchart TD
+    IN(["고객 문의 · POST /api/answer"]):::io
+
+    subgraph CLASSIFY["① 분류 · classifier/"]
+        CLS["분류기<br/>TF-IDF · BERT"]:::cls
+        R1["ClassificationResult"]:::out
+        CLS --> R1
+    end
+
+    subgraph PROMPT["② Prompt 모듈 · prompt/"]
+        ROUTER["경로 규칙<br/>신뢰도 판정"]:::prm
+        VERIFY["LLM 검증<br/>라벨이 맞는지 확인"]:::prm
+        LABEL["최종 라벨"]:::prm
+        POLICY["상담 정책 프롬프트"]:::prm
+        UNKNOWN["범위 밖 프롬프트"]:::prm
+        R2["PromptSpec"]:::out
+        ROUTER -->|신뢰도 높음| LABEL
+        ROUTER -->|낮음 · 접전| VERIFY
+        ROUTER -->|매우 낮음 → unknown| LABEL
+        VERIFY --> LABEL
+        LABEL -->|배송 · 환불 · 계정| POLICY
+        LABEL -->|unknown| UNKNOWN
+        POLICY --> R2
+        UNKNOWN --> R2
+    end
+
+    subgraph GENERATION["③ 답변 생성 · answer/"]
+        GEN["LLM 호출<br/>Gemma · OpenAI"]:::ans
+        EXEC["도구 실행<br/>날짜 · 날씨 · 검색"]:::ans
+        R3["AnswerResult"]:::out
+        GEN <-.->|unknown일 때만| EXEC
+        GEN --> R3
+    end
+
+    subgraph RESPONSE["④ 응답 · api/"]
+        BUILD["응답 구성<br/>답변 + 분류 근거"]:::api
+        R4["AnswerResponse"]:::out
+        BUILD --> R4
+    end
+
+    OUT(["JSON 응답"]):::io
+
+    IN --> CLS
+    R1 --> ROUTER
+    R2 --> GEN
+    R3 --> BUILD
+    R4 --> OUT
+
+    style CLASSIFY fill:#F8F9FF,stroke:#6366F1
+    style PROMPT fill:#F7FEF9,stroke:#22C55E
+    style GENERATION fill:#FFFBF5,stroke:#F97316
+    style RESPONSE fill:#FFF8FC,stroke:#EC4899
+    classDef io fill:#F1F5F9,stroke:#64748B,color:#0F172A,stroke-width:1.5px
+    classDef cls fill:#EEF2FF,stroke:#6366F1,color:#312E81
+    classDef prm fill:#F0FDF4,stroke:#22C55E,color:#14532D
+    classDef ans fill:#FFF7ED,stroke:#F97316,color:#7C2D12
+    classDef api fill:#FDF2F8,stroke:#EC4899,color:#831843
+    classDef out fill:#FFFFFF,stroke:#334155,color:#0F172A,stroke-width:1.5px
+```
+
+## 폴더 구조
+
+```
+Seal_LLM/
+├─ src/theseal/
+│  ├─ api/          FastAPI 서버 · LCEL 체인 (main.py · pipeline.py · schemas.py)
+│  ├─ classifier/   분류 모델 학습 · 불러오기 · 예측 (Classifier · ClassificationResult)
+│  ├─ prompt/       분류 후처리(router · route_rule · llm_verifier)와 프롬프트 생성(Prompt)
+│  ├─ answer/       LLM 호출 · 툴 호출 반복 · 툴(tools/: 날짜 · 기상청 날씨 · Tavily 검색)
+│  └─ common/       공용 설정(config) · LLM 연결(client) · 데이터 형식(schemas)
+├─ scripts/
+│  ├─ classifier/   분류기 다운로드 · 학습 · 비교 · test 평가 · 보정값 계산
+│  └─ answer/       로컬 LLM 다운로드 · 연결 확인 · 프롬프트 A/B 실험
+├─ data/            교육용 한국어 합성 데이터 (inquiries · documents)
+├─ runs/            실험 결과 (분류기 val_report · comparison.md, 프롬프트 A/B 결과). 가중치(model/)는 git 제외
+├─ models/          받아 둔 사전학습 분류 모델 (git 제외)
+├─ .env.example     비밀 키 · PC별 설정 견본
+└─ pyproject.toml   의존성 (uv)
+```
+
+## 기술 스택
+
+| 구분 | 사용 |
+| --- | --- |
+| 언어 · 환경 | Python 3.12, uv |
+| API | FastAPI, Uvicorn, Pydantic |
+| LLM 연결 | LangChain (LCEL), Ollama — Gemma 4 E4B (Q4_K_M), OpenAI — gpt-5.6-luna |
+| 분류기 | scikit-learn (TF-IDF + 로지스틱 회귀), PyTorch · Transformers (klue/bert · roberta, KoELECTRA, mmBERT, NeoBERT 파인튜닝) |
+| 툴 | 기상청 API허브 단기예보, Tavily 검색 |
+
 ## 빠르게 실행해 보기
 
 [uv](https://docs.astral.sh/uv/)와 [Ollama](https://ollama.com/download)를 설치하고 Ollama를 실행해 둔 상태에서 시작합니다.
@@ -161,3 +260,37 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 
 `provider`는 `local` · `openai`(비우면 `DEFAULT_PROVIDER`, 기본 `local`), `label`을 넣으면 분류를 건너뜁니다.
 
+#### 응답 예시 (`POST /api/answer`)
+
+요청: `{"text": "사이즈가 맞지 않아 반품하려는데 환불은 언제 되나요?"}`
+
+```json
+{
+  "status": "ok",
+  "label": "refund",
+  "answer": "반품을 원하시는군요. 먼저 반품 접수를 하셨는지 확인해 주시겠어요? … 상품을 수령하신 날로부터 7일 이내에 반품을 접수하셔야 한다는 가상 기준이 있습니다. …",
+  "provider": "local",
+  "model": "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
+  "prompt_version": "common-policy-v1",
+  "tools_used": [],
+  "latency_ms": 5167,
+  "usage": {"input_tokens": 297, "output_tokens": 202},
+  "error": null,
+  "classification": {
+    "label": "refund",
+    "classifier_label": "refund",
+    "scores": {"shipping": 0.1025, "refund": 0.7776, "account": 0.1199},
+    "route": {"route": "confident", "p1": 0.5684, "margin": 0.3442, "calibration": "baseline/20261013-1057", "…": "…"},
+    "verification": null
+  }
+}
+```
+
+| 필드 | 내용 |
+| --- | --- |
+| `answer` | 답변. 오류면 `null` |
+| `label` | 최종 라벨 (shipping · refund · account · unknown) |
+| `prompt_version` | 사용한 프롬프트 (`common-policy-v1`, `unknown-v1-…`) |
+| `tools_used` | unknown 질문에서 호출한 툴과 결과 성공 여부 |
+| `classification` | 분류 근거: 분류기 확률(`scores`), 판정 경로(`route`), LLM 검증(`verification`, 확신일 때는 생략돼 `null`) |
+| `status` · `error` | 오류가 나도 같은 형식으로 `status: "error"`와 `error.code` (`invalid_input` · `config_error` · `llm_error` · `llm_timeout`) |
