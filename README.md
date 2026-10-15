@@ -119,7 +119,7 @@ uv run scripts/classifier/fetch_models.py
 uv run python scripts/classifier/train_classifier_model.py
 ```
 
-`scripts/classifier/fetch_models.py`는 분류기 후보 모델을 `models/`에 받고,
+`scripts/classifier/fetch_models.py`는 번호로 고른 분류기 후보 모델을 `src/theseal/classifier/models/`에 받고,
 `train_classifier_model.py`는 번호로 고른 모델을 파인튜닝합니다 (GPU 권장).
 마지막에 출력되는 `runs/classifier/inquiries/<모델>/<실행 ID>/model`의 모델 이름과 실행 ID를
 `src/theseal/classifier/config.py`의 `FINAL_MODEL`에 적습니다.
@@ -189,9 +189,9 @@ uv run scripts/answer/check_llm.py --kma --tavily
 uv run scripts/classifier/fetch_models.py
 ```
 
-`fetch_models.py`는 `models/` 아래에 분류기 후보 모델을 내려받습니다. 후보 목록은
-`src/theseal/classifier/config.py`의 `MODEL_CANDIDATES`에 있습니다. 이미 받은 모델은
-건너뛰므로 여러 번 돌려도 안전합니다. 다시 받으려면 해당 폴더를 지우고 실행하세요.
+`fetch_models.py`는 후보를 번호로 보여 주고, 고른 모델만 `src/theseal/classifier/models/` 아래에 내려받습니다
+(여러 개는 쉼표, 전부는 `a`). 후보 목록은 `src/theseal/classifier/config.py`의 `MODEL_CANDIDATES`에 있습니다.
+이미 받은 모델은 건너뛰므로 여러 번 돌려도 안전합니다. 다시 받으려면 해당 폴더를 지우고 실행하세요.
 
 
 ## 분류기
@@ -205,7 +205,7 @@ uv run scripts/classifier/fetch_models.py
 연결과 키 설정은 `uv run scripts/answer/check_llm.py`로 확인합니다 (`--all`을 붙이면 OpenAI · 기상청 · Tavily도 실제로 호출, OpenAI는 과금).
 
 `scripts/answer/fetch_models.py`는 `OLLAMA_MODEL`을 Ollama로 내려받고, 모델 ID가 팀 기준과 같은지
-확인합니다. 모델은 프로젝트 `models/`가 아니라 Ollama 저장소(`~/.ollama`)에 저장됩니다.
+확인합니다. 모델은 분류기 모델 폴더(`src/theseal/classifier/models/`)가 아니라 Ollama 저장소(`~/.ollama`)에 저장됩니다.
 
 | 구분 | 모델 | 용량 | 준비 |
 | --- | --- | --- | --- |
