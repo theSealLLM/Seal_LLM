@@ -11,8 +11,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_ROOT / "data"
 # 학습/평가 결과: runs/classifier/<task>/<모델 이름>/<실행 ID>/ 아래에 모델(model/)과 리포트를 함께 둔다
 RUNS_DIR = PROJECT_ROOT / "runs" / "classifier"
-# fetch_models.py가 사전학습 모델을 받아 두는 곳
-MODELS_DIR = PROJECT_ROOT / "models"
+# fetch_models.py가 사전학습 모델을 받아 두는 곳: src/theseal/classifier/models/ (gitignore의 models/)
+MODELS_DIR = Path(__file__).resolve().parent / "models"
 
 # 파인튜닝 후보 (train_classifier_model.py의 번호 메뉴 순서이자 fetch_models.py의 목록)
 MODEL_CANDIDATES = (
@@ -188,7 +188,7 @@ def model_overrides(model_name_or_path: str) -> dict:
 
 
 def local_model_dir(repo_id: str) -> Path:
-    """fetch_models.py가 내려받아 두는 위치: models/<저장소 이름의 /를 __로 바꾼 것>."""
+    """fetch_models.py가 내려받아 두는 위치: src/theseal/classifier/models/<저장소 이름의 /를 __로 바꾼 것>."""
     return MODELS_DIR / repo_id.replace("/", "__")
 
 

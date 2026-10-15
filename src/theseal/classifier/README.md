@@ -103,8 +103,8 @@ clf.meta["kind"]     # str    'baseline'(TF-IDF) 또는 'bert'(파인튜닝 모�
 uv run scripts/classifier/fetch_models.py
 ```
 
-`config.py`의 `MODEL_CANDIDATES`에 적힌 후보를 `models/` 아래로 내려받습니다. 베이스라인만 쓸 거면
-건너뛰어도 됩니다.
+`config.py`의 `MODEL_CANDIDATES`에 적힌 후보를 번호로 보여 주고, 고른 모델만 `src/theseal/classifier/models/`
+아래로 내려받습니다 (여러 개는 쉼표, 전부는 `a`). 베이스라인만 쓸 거면 건너뛰어도 됩니다.
 
 ### 1. 베이스라인 학습
 
