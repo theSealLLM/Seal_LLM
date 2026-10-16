@@ -1,4 +1,4 @@
-"""② 경로 규칙: 기준선과 비교 규칙만 정의한다. 확률 보정 · p1 · margin 계산은 router.py의 Router가 한다.
+"""② 경로 규칙: 기준선과 비교 규칙만 정의한다. p1 · margin 계산은 router.py의 Router가 한다.
 
     p1     = 최대 확률 (얼마나 자신 있나)
     margin = p1 - p2 (1등이 2등을 얼마나 따돌렸나)
@@ -30,7 +30,7 @@ REASONS = {
 
 @dataclass(frozen=True)
 class RouteRule:
-    """경로 규칙 기준선 세 개. 값은 router.py의 RULE (FINAL_MODEL에서 보정한 값)."""
+    """경로 규칙 기준선 세 개. 서비스가 쓰는 값은 router.py의 RULE (모든 모델에 고정)."""
 
     tau: float
     """확신: p1이 이 값 이상 (margin도 delta 이상)"""

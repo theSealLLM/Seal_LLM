@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,16 +21,11 @@ from .route_rule import CONFIDENT, REASONS, UNKNOWN, RouteRule
 if TYPE_CHECKING:
     from theseal.classifier.classifier import ClassificationResult
 
-# 경로 규칙 보정값. FINAL_MODEL(classifier/config.py)에서 구한 값이라 그 가중치에서만 맞다.
-# FINAL_MODEL을 바꾸면 scripts/classifier/calibrate_route_rule.py --final이 출력한 세 줄로 바꾼다.
-# 지금 FINAL_MODEL(mmBERT-base-kor-16384/20261014-160932)은 아직 보정하지 않아 예시 값을 쓴다 (CALIBRATED_MODEL = None).
-# 예전 baseline/20261013-1057 보정값: TEMPERATURE = 2.009732, RouteRule(tau=0.504869, tau_low=0.45, delta=0.095286)
-CALIBRATED_MODEL: str | None = None
-TEMPERATURE = 1.0
+# 경로 규칙 기준선. 지금은 분류 모델과 상관없이 이 값 하나로 고정해 쓴다.
+# 모델별로 다른 값(확률 보정 포함)이 필요해지면 그때 Router가 모델에 맞는 RouteRule을 고르도록 확장한다.
 RULE = RouteRule(tau=0.60, tau_low=0.45, delta=0.15)
 
 VERIFY_MODES = ("off", "uncertain", "all")
-MIN_PROB = 1e-12  # log(0)을 피하기 위한 하한
 
 
 @dataclass
@@ -66,10 +60,10 @@ class RouteDecision:
     top2: str
 
     p1: float
-    """보정 후 1등 확률"""
+    """1등 확률"""
 
     p2: float
-    """보정 후 2등 확률"""
+    """2등 확률"""
 
     margin: float
     """p1 - p2"""
@@ -77,13 +71,9 @@ class RouteDecision:
     reason: str
     """경로를 고른 조건 (route_rule.REASONS)"""
 
-    temperature: float
     tau: float
     tau_low: float
     delta: float
-
-    calibration: str | None
-    """보정값을 구한 모델 (CALIBRATED_MODEL). None이면 보정하지 않은 예시 값"""
 
 
 @dataclass(frozen=True)
@@ -111,7 +101,7 @@ class RoutingResult:
     """분류기가 낸 1등 라벨"""
 
     scores: dict[str, float]
-    """분류기 확률 (보정 전). {라벨 이름: 확률}, labels.json 순서"""
+    """분류기 확률. {라벨 이름: 확률}, labels.json 순서"""
 
     route: RouteDecision | None = None
     """② 결과. 경로 규칙을 끄면 None"""
@@ -127,23 +117,21 @@ class Router:
         config: RouterConfig | None = None,
         *,
         rule: RouteRule = RULE,
-        temperature: float = TEMPERATURE,
         llm: BaseChatModel | None = None,
         llm_config: LLMConfig | None = None,
     ) -> None:
         """labels: 분류기 확률 순서 (labels.json). config: 없으면 코드 기본값
-        rule · temperature: 경로 규칙 보정값 (기본: FINAL_MODEL 것)
+        rule: 경로 규칙 기준선 (기본: 고정값 RULE)
         llm · llm_config: 검증 LLM. 없으면 처음 검증할 때 VERIFY_PROVIDER로 만든다 (테스트에서 가짜 LLM을 끼울 때 넘긴다)"""
         self.labels = tuple(labels)
         self.config = config or RouterConfig()
         self.rule = rule
-        self.temperature = temperature
         self.llm = llm
         self.llm_config = llm_config
 
     @classmethod
     def from_final(cls, task: str = DEFAULT_TASK) -> Router:
-        """서비스가 쓰는 Router: 라벨은 data/<task>/labels.json, 설정은 .env, 보정값은 FINAL_MODEL 것."""
+        """서비스가 쓰는 Router: 라벨은 data/<task>/labels.json, 설정은 .env, 기준선은 고정값 RULE."""
         return cls(load_labels(task_paths(task).data_dir).labels, RouterConfig.from_env())
 
     async def run(self, prediction: ClassificationResult) -> RoutingResult:
@@ -179,24 +167,9 @@ class Router:
                              f"({self.labels[index]!r})와 다릅니다")
         return self.labels[index], {name: float(p) for name, p in zip(self.labels, probs, strict=True)}
 
-    def calibrate(self, scores: dict[str, float]) -> dict[str, float]:
-        """확률 보정 (temperature scaling, 모델 재학습 없음). 확률 = softmax(log(확률) / T), T=1이면 그대로.
-
-        파인튜닝 모델은 범위 밖 글에도 0.99 이상을 주므로 T > 1로 펴고, 확률이 몰린 모델은 T < 1로 벌린다.
-        분류기는 원점수를 내지 않아 log(확률)을 원점수로 쓴다 (softmax는 모든 원점수에 같은 값을 더해도 같다).
-        """
-        if self.temperature == 1.0:
-            return dict(scores)
-        z = {k: math.log(max(p, MIN_PROB)) / self.temperature for k, p in scores.items()}
-        m = max(z.values())
-        e = {k: math.exp(v - m) for k, v in z.items()}
-        total = sum(e.values())
-        return {k: v / total for k, v in e.items()}
-
     def apply_route_rule(self, scores: dict[str, float]) -> RouteDecision:
-        """② 보정한 확률에서 p1 · margin을 구해 경로 규칙에 넘긴다. 확신 아님(ambiguous)도 1등 라벨을 쓴다."""
-        probs = self.calibrate(scores)
-        (top1, p1), (top2, p2) = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)[:2]
+        """② 분류기 확률에서 p1 · margin을 구해 경로 규칙에 넘긴다. 확신 아님(ambiguous)도 1등 라벨을 쓴다."""
+        (top1, p1), (top2, p2) = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)[:2]
         margin = p1 - p2
         route = self.rule.route(p1, margin)
         return RouteDecision(
@@ -208,11 +181,9 @@ class Router:
             p2=round(p2, 4),
             margin=round(margin, 4),
             reason=REASONS[route],
-            temperature=self.temperature,
             tau=self.rule.tau,
             tau_low=self.rule.tau_low,
             delta=self.rule.delta,
-            calibration=CALIBRATED_MODEL,
         )
 
     def needs_verification(self, label: str, route: RouteDecision | None) -> bool:
