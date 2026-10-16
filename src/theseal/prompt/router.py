@@ -24,10 +24,11 @@ if TYPE_CHECKING:
 
 # 경로 규칙 보정값. FINAL_MODEL(classifier/config.py)에서 구한 값이라 그 가중치에서만 맞다.
 # FINAL_MODEL을 바꾸면 scripts/classifier/calibrate_route_rule.py --final이 출력한 세 줄로 바꾼다.
-# yunpilsoo PC · 2026-10-13 보정 (inquiries validation 120건, 범위 밖 평가는 documents validation 120건)
-CALIBRATED_MODEL = "baseline/20261013-1057"
-TEMPERATURE = 2.009732
-RULE = RouteRule(tau=0.504869, tau_low=0.45, delta=0.095286)
+# 지금 FINAL_MODEL(mmBERT-base-kor-16384/20261014-160932)은 아직 보정하지 않아 예시 값을 쓴다 (CALIBRATED_MODEL = None).
+# 예전 baseline/20261013-1057 보정값: TEMPERATURE = 2.009732, RouteRule(tau=0.504869, tau_low=0.45, delta=0.095286)
+CALIBRATED_MODEL: str | None = None
+TEMPERATURE = 1.0
+RULE = RouteRule(tau=0.60, tau_low=0.45, delta=0.15)
 
 VERIFY_MODES = ("off", "uncertain", "all")
 MIN_PROB = 1e-12  # log(0)을 피하기 위한 하한
@@ -81,8 +82,8 @@ class RouteDecision:
     tau_low: float
     delta: float
 
-    calibration: str
-    """보정값을 구한 모델 (CALIBRATED_MODEL)"""
+    calibration: str | None
+    """보정값을 구한 모델 (CALIBRATED_MODEL). None이면 보정하지 않은 예시 값"""
 
 
 @dataclass(frozen=True)

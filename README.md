@@ -232,6 +232,7 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 
 보정값(T · tau · tau_low · delta)은 학습한 가중치마다 다르므로 `FINAL_MODEL`에서 구한 값 하나를 `router.py`의
 `CALIBRATED_MODEL` · `TEMPERATURE` · `RULE`에 적어 둡니다 (`/api/answer` 응답 `classification`의 `route.calibration`).
+보정하지 않은 모델이면 `CALIBRATED_MODEL = None`과 예시 값(T=1, tau 0.60 · tau_low 0.45 · delta 0.15)을 씁니다.
 
 켜고 끄기는 `.env`에서 합니다.
 
