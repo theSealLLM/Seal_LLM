@@ -54,9 +54,7 @@ class LLMConfig:
     tavily_api_key: str = ""  # .env (비밀 키). 비우면 검색 툴을 등록하지 않는다
     kma_auth_key: str = ""  # .env (비밀 키): 기상청 API허브 인증키. 비우면 날씨 툴을 등록하지 않는다
     kma_api_base: str = "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0"
-    tool_date_tools: bool = True
-    tool_weather: bool = True
-    tool_web_search: bool = True
+    # 라벨별로 붙일 툴 그룹 (answer/tools의 TOOL_GROUPS). 키가 없는 툴은 여기 적혀 있어도 빠진다
     tools_by_label: dict[str, list[str]] = field(
         default_factory=lambda: {"unknown": ["date_tools", "weather", "web_search"]}
     )
