@@ -15,13 +15,13 @@ from pydantic import BaseModel
 
 from ..common.config import LLMConfig, get_config
 from ..common.schemas import Label, PromptSpec
-from . import router
+from .router import Router, RoutingResult
 
 
 class RoutedPrompt(BaseModel):
     """프롬프트와 그 프롬프트를 고른 근거. API 응답의 classification이 routing에서 나온다."""
 
-    routing: router.RoutingResult | None  # 분류 후처리 결과. 라벨을 직접 주면 None
+    routing: RoutingResult | None  # 분류 후처리 결과. 라벨을 직접 주면 None
     prompt: PromptSpec
 
     @property
@@ -32,6 +32,16 @@ class RoutedPrompt(BaseModel):
 class Prompt:
     """분류 결과를 라우팅하고 최종 PromptSpec을 생성한다."""
 
+    def __init__(self, router: Router | None = None) -> None:
+        """router: 분류 후처리. 없으면 처음 쓸 때 Router.from_final()로 만든다 (.env · labels.json을 그때 한 번 읽는다)"""
+        self._router = router
+
+    @property
+    def router(self) -> Router:
+        if self._router is None:
+            self._router = Router.from_final()
+        return self._router
+
     async def build_prompt(self, prediction) -> PromptSpec:
         """Classifier 분류 결과를 받아 PromptSpec을 반환한다."""
         return (await self.build_with_routing(prediction)).prompt
@@ -41,7 +51,7 @@ class Prompt:
         라우팅(LLM 검증 포함)을 한 번만 하고 그 근거를 응답에 남길 때 쓴다 (API LCEL 체인)."""
 
         # 분류 결과를 후처리해 최종 라벨 결정
-        routing_result = await router.run(prediction)
+        routing_result = await self.router.run(prediction)
 
         # 최종 라벨과 원본 질문으로 PromptSpec 생성
         return RoutedPrompt(

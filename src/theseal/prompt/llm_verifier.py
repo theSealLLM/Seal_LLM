@@ -2,7 +2,7 @@
 
 분류기는 단어 패턴으로 판단해, 고객 문의가 아닌 글(공지 · 매뉴얼 등)도 비슷한 단어가 있으면 라벨을 붙인다.
 LLM은 의미를 보고 "고객이 보낸 문의이고 주제가 그 라벨인가"를 확인한다. 아니면 unknown으로 돌린다.
-LLM 객체는 호출한 쪽에서 받는다 (theseal.llm.client.make_llm).
+검증할지 · LLM 만들기 · 시간 제한은 router.py의 Router가 정한다. 여기서는 묻고 답을 해석만 한다.
 """
 
 from __future__ import annotations
@@ -45,16 +45,6 @@ class VerifyResult(BaseModel):
     final_label: str  # match면 label, 아니면 unknown
     latency_ms: int
     error: str | None = None  # LLM 호출 실패 시 (이때는 분류 라벨을 그대로 둔다)
-
-
-def needs_verification(label: str, route: str | None, mode: str) -> bool:
-    """all: unknown이 아닌 라벨 전부 / uncertain: 경로 규칙이 confident라고 하지 않은 것
-    (경로 규칙을 쓰지 않아 route가 없으면 confident 판단이 없으므로 uncertain도 전부 검증한다)"""
-    if mode == "off" or label == "unknown":
-        return False
-    if mode == "all":
-        return True
-    return route != "confident"
 
 
 def build_messages(customer_inquiry: str, label: str) -> list:

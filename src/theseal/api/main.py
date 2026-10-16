@@ -25,6 +25,7 @@ import logging
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from dataclasses import asdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -37,7 +38,6 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from theseal.common.client import model_name
 from theseal.common.config import PROVIDERS, get_config
 from theseal.prompt.router import RoutingResult
-from theseal.prompt.routing_config import get_routing_config
 
 from . import pipeline
 from .schemas import AnswerRequest, AnswerResponse
@@ -118,8 +118,8 @@ async def health() -> dict:
         "classifier": pipeline.classifier_name(p) if p else None,
         "classifier_device": str(getattr(p.model, "device", "cpu")) if p else None,
         "classifier_error": state["error"],
-        "route_rule_enabled": get_routing_config().route_rule_enabled,
-        "verify_mode": get_routing_config().verify_mode,
+        "route_rule_enabled": pipeline.prompt.router.config.route_rule_enabled,
+        "verify_mode": pipeline.prompt.router.config.verify_mode,
         "default_provider": get_config().default_provider,
     }
 
@@ -176,7 +176,7 @@ async def _answer_events(req: AnswerRequest, ctx: dict) -> AsyncIterator[str]:
     classification, label = prepared["classification"], prepared["label"]
     ctx.update(classification=classification, label=label)
     if classification is not None:
-        yield _sse("classification", classification.model_dump())
+        yield _sse("classification", asdict(classification))
 
     yield status("adventure" if label == "unknown" else "answering")
     async for event in pipeline.answer_stream(prepared["prompt"], req.provider, get_config()):

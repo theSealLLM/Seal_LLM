@@ -7,8 +7,9 @@ uv run python scripts/classifier/calibrate_route_rule.py --final                
 uv run python scripts/classifier/calibrate_route_rule.py --model-dir <모델 폴더>    # 위 구조 밖의 폴더
 
 - 대상: runs/classifier/<task>/<모델>/<실행 ID>/model 이 있는 모델 (가중치는 git에 없으므로 학습했거나 share_model.py pull로 받은 것)
-- 결과: src/theseal/prompt/routing_config.py의 ROUTE_CALIBRATIONS에 넣을 줄을 출력한다 (직접 붙여 넣는다. 서비스는 이 값만 읽는다).
-  키는 모델 폴더 이름(<모델>/<실행 ID>, 예전 구조는 <모델>). 보정값은 가중치마다 다르므로 모델마다 따로 둔다.
+- 결과: src/theseal/prompt/router.py의 CALIBRATED_MODEL · TEMPERATURE · RULE에 넣을 세 줄을 출력한다
+  (직접 붙여 넣는다. 서비스는 이 값만 읽는다). 서비스는 FINAL_MODEL 하나만 쓰므로 --final 결과를 넣는다.
+  보정값은 가중치마다 다르므로 FINAL_MODEL을 바꾸면 다시 돌린다.
   모델 폴더 옆 route_rule.json에는 평가 수치까지 담은 기록을 남긴다 (서비스는 읽지 않는다)
 - 값은 실제 문의(validation)로만 정한다. 범위 밖 글(--ood-task의 validation)은 평가에만 쓴다
   T            보정 후 실제 문의 p1의 (1-keep) 분위수가 --target-tau-low가 되는 값
@@ -30,16 +31,23 @@ import _common
 import numpy as np
 
 from theseal.classifier.classifier import Classifier
-from theseal.classifier.config import SEED, TASKS, FinalModelNotSetError, display_path, task_paths
+from theseal.classifier.config import (
+    MODEL_SUBDIR,
+    SEED,
+    TASKS,
+    FinalModelNotSetError,
+    display_path,
+    task_paths,
+)
 from theseal.classifier.data_loader import load_task
 from theseal.classifier.metrics import environment_info, now_iso, save_json
-from theseal.prompt.routing_config import CALIBRATION_FILENAME, calibration_key, calibration_path
 
 KEEP = 0.975  # 실제 문의 중 unknown으로 잘못 버려도 되는 비율 2.5%
 TARGET_TAU_LOW = 0.45
 TAU_QUANTILE = 0.10
 EXAMPLE = {"temperature": 1.0, "tau": 0.60, "tau_low": 0.45, "delta": 0.15}
 MIN_PROB = 1e-12
+CALIBRATION_FILENAME = "route_rule.json"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -58,6 +66,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                    help=f"보정 후 tau_low가 될 값 (기본: {TARGET_TAU_LOW})")
     p.add_argument("--device", default=None, help="auto | cuda | cpu (기본: 자동)")
     return p.parse_args(argv)
+
+
+def calibration_key(model_dir: Path, task: str, runs_dir: Path | None = None) -> str:
+    """모델 폴더 → 이름. runs/classifier/<task>/ 기준 경로에서 끝의 model/을 뺀 것.
+
+    runs/classifier/inquiries/baseline/20261013-2116/model → "baseline/20261013-2116"
+    runs/classifier/inquiries/bert-base/model (예전 구조)  → "bert-base"
+    runs 밖의 폴더는 저장소 기준 경로를 그대로 쓴다."""
+    path = Path(model_dir).resolve()
+    if path.name == MODEL_SUBDIR:
+        path = path.parent
+    try:
+        return path.relative_to(task_paths(task, runs_dir=runs_dir).runs_dir.resolve()).as_posix()
+    except ValueError:
+        return display_path(path)
+
+
+def calibration_path(model_dir: Path) -> Path:
+    """기록을 남기는 곳: 분류 모델 폴더 옆의 route_rule.json (서비스는 읽지 않는다)."""
+    return Path(model_dir).parent / CALIBRATION_FILENAME
 
 
 # ---------------------------------------------------------------- 계산 (배치)
@@ -98,11 +126,10 @@ def fit(z: np.ndarray, keep: float, target: float) -> dict:
 
 
 def routes(z: np.ndarray, prm: dict) -> np.ndarray:
-    """theseal.routing.route_rule.decide와 같은 판정 순서 (배치)"""
+    """theseal.prompt.route_rule.decide와 같은 판정 순서 (배치)"""
     p1, margin = p1_margin(z, prm["temperature"])
     return np.where(p1 < prm["tau_low"], "unknown",
-                    np.where(margin < prm["delta"], "ambiguous",
-                             np.where(p1 >= prm["tau"], "confident", "low_confidence")))
+                    np.where((p1 >= prm["tau"]) & (margin >= prm["delta"]), "confident", "ambiguous"))
 
 
 def group_folds(group_ids: list[str]) -> list[np.ndarray]:
@@ -133,7 +160,7 @@ def evaluate(z_in: np.ndarray, y_in: np.ndarray, z_ood: np.ndarray, folds, keep,
             conf = r_in == "confident"
             pred = z_in[ev_idx].argmax(axis=1)
             agg["in_unknown"].append((r_in == "unknown").mean())
-            agg["in_uncertain"].append(np.isin(r_in, ["ambiguous", "low_confidence"]).mean())
+            agg["in_uncertain"].append((r_in == "ambiguous").mean())
             agg["in_confident_acc"].append(
                 (pred[conf] == y_in[ev_idx][conf]).mean() if conf.any() else np.nan)
             agg["ood_unknown"].append((r_ood == "unknown").mean())
@@ -142,13 +169,12 @@ def evaluate(z_in: np.ndarray, y_in: np.ndarray, z_ood: np.ndarray, folds, keep,
     return out
 
 
-def config_values(report: dict) -> dict:
-    """prompt/routing_config.py ROUTE_CALIBRATIONS에 넣을 값."""
-    return {"temperature": report["temperature"], **report["thresholds"]}
-
-
-def config_line(report: dict) -> str:
-    return f'    {json.dumps(report["name"], ensure_ascii=False)}: {json.dumps(config_values(report))},'
+def router_lines(report: dict) -> str:
+    """prompt/router.py에 넣을 세 줄 (CALIBRATED_MODEL · TEMPERATURE · RULE)."""
+    t = report["thresholds"]
+    return (f"CALIBRATED_MODEL = {json.dumps(report['name'], ensure_ascii=False)}\n"
+            f"TEMPERATURE = {report['temperature']}\n"
+            f"RULE = RouteRule(tau={t['tau']}, tau_low={t['tau_low']}, delta={t['delta']})")
 
 
 # ---------------------------------------------------------------- 모델 하나
@@ -200,7 +226,6 @@ def calibrate_one(model_dir: Path, args: argparse.Namespace, data: dict) -> dict
         print(f"  {title:18} {m['in_unknown']:>12.1%} {m['in_uncertain']:>10.1%}  | "
               f"{m['ood_unknown']:>15.1%} {m['ood_confident']:>16.1%}")
     print(f"  기록 → {display_path(path)}")
-    print(f"  config.py 항목 → {config_line(report).strip()}")
     return report
 
 
@@ -236,9 +261,9 @@ def main(argv: list[str] | None = None) -> list[dict]:
     print(f"[data] {args.task} validation={len(data['in'])} · 범위 밖 {args.ood_task} "
           f"validation={len(data['ood'])} · 보정 파일 이름 {CALIBRATION_FILENAME}")
     reports = [calibrate_one(d, args, data) for d in model_dirs]
-    print("\n서비스에 쓰려면 아래 줄을 src/theseal/prompt/routing_config.py의 ROUTE_CALIBRATIONS에 넣으세요 (같은 키는 바꾸기):")
+    print("\n서비스에 쓰려면 FINAL_MODEL의 세 줄로 src/theseal/prompt/router.py의 같은 줄을 바꾸세요:")
     for r in reports:
-        print(config_line(r))
+        print(f"\n# {r['name']}\n{router_lines(r)}")
     return reports
 
 
