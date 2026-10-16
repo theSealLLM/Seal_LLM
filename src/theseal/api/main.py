@@ -49,25 +49,25 @@ STAGE_MESSAGES = {
     "adventure": "챗봇이 알 수 없는 것을 찾아 모험을 떠나는 중...",
 }
 logger = logging.getLogger("uvicorn.error")
-state: dict = {"predictor": None, "error": None}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 분류 모델은 서버 시작 때 한 번 불러온다. 없어도 서버는 뜬다 (label을 직접 넣은 /api/answer는 동작)
-    api_config = pipeline.ApiConfig.from_env()
-    try:
-        state["predictor"] = await run_in_threadpool(pipeline.load_classifier, api_config)
-        p = state["predictor"]
-        logger.info("분류 모델 로드: %s (%s)", pipeline.classifier_name(p), getattr(p.model, "device", "cpu"))
-    except Exception as e:  # noqa: BLE001 — 모델이 없어도 서버는 띄운다
-        state["error"] = f"{type(e).__name__}: {e}"
-        logger.warning("분류 모델 없음: %s", state["error"])
+    p = await run_in_threadpool(pipeline.Pipeline.from_env)
+    if p.classifier is not None:
+        logger.info("분류 모델 로드: %s (%s)", pipeline.classifier_name(p.classifier),
+                    getattr(p.classifier.model, "device", "cpu"))
+    else:
+        logger.warning("분류 모델 없음: %s", p.classifier_error)
+    app.state.pipeline = p
     yield
 
 
 app = FastAPI(title="Seal_LLM", version="0.1.0", description="고객 문의 분류 · 답변 초안 API",
               lifespan=lifespan)
+# 서버가 쓰는 Pipeline. lifespan이 분류 모델을 불러와 바꿔 넣는다 (그 전에는 분류기 없이 label을 준 요청만 처리)
+app.state.pipeline = pipeline.Pipeline()
 
 # 프론트(다른 포트 · 주소)가 브라우저에서 직접 부를 수 있게 허용한다. 미들웨어는 앱을 만들 때 붙여야 해서 여기서 .env를 읽는다
 _cors_origins = pipeline.ApiConfig.from_env().cors_origins()
@@ -112,14 +112,15 @@ async def invalid_input(request: Request, exc: RequestValidationError) -> JSONRe
 
 @app.get("/health")
 async def health() -> dict:
-    p = state["predictor"]
+    p = app.state.pipeline
+    clf = p.classifier
     return {
         "status": "ok",
-        "classifier": pipeline.classifier_name(p) if p else None,
-        "classifier_device": str(getattr(p.model, "device", "cpu")) if p else None,
-        "classifier_error": state["error"],
-        "route_rule_enabled": pipeline.prompt.router.config.route_rule_enabled,
-        "verify_mode": pipeline.prompt.router.config.verify_mode,
+        "classifier": pipeline.classifier_name(clf) if clf else None,
+        "classifier_device": str(getattr(clf.model, "device", "cpu")) if clf else None,
+        "classifier_error": p.classifier_error,
+        "route_rule_enabled": p.prompt.router.config.route_rule_enabled,
+        "verify_mode": p.prompt.router.config.verify_mode,
         "default_provider": get_config().default_provider,
     }
 
@@ -128,10 +129,11 @@ async def health() -> dict:
           responses={400: {"model": AnswerResponse}, 500: {"model": AnswerResponse},
                      502: {"model": AnswerResponse}, 504: {"model": AnswerResponse}})
 async def answer(req: AnswerRequest) -> JSONResponse:
-    """질문 → 분류 → 프롬프트 → 답변 (LCEL 체인 pipeline.answer_chain). label을 넣으면 분류를 건너뛴다."""
-    if req.label is None and state["predictor"] is None:
-        return _error_answer("config_error", f"분류 모델을 불러오지 못했습니다: {state['error']}", req.provider)
-    response = await pipeline.answer_chain(state["predictor"]).ainvoke(
+    """질문 → 분류 → 프롬프트 → 답변 (LCEL 체인 Pipeline.answer_chain). label을 넣으면 분류를 건너뛴다."""
+    p = app.state.pipeline
+    if req.label is None and p.classifier is None:
+        return _error_answer("config_error", f"분류 모델을 불러오지 못했습니다: {p.classifier_error}", req.provider)
+    response = await p.answer_chain().ainvoke(
         {"text": req.text, "label": req.label, "provider": req.provider})
     status = STATUS_BY_ERROR[response.error.code] if response.error else 200
     return JSONResponse(response.model_dump(), status_code=status)
@@ -163,23 +165,24 @@ async def _answer_events(req: AnswerRequest, ctx: dict) -> AsyncIterator[str]:
     def status(stage: str) -> str:
         return _sse("status", {"stage": stage, "message": STAGE_MESSAGES[stage]})
 
+    p = app.state.pipeline
     if req.label is None:
-        if state["predictor"] is None:
-            err = _error_response("config_error", f"분류 모델을 불러오지 못했습니다: {state['error']}",
+        if p.classifier is None:
+            err = _error_response("config_error", f"분류 모델을 불러오지 못했습니다: {p.classifier_error}",
                                   req.provider)
             yield _sse("done", err.model_dump())
             return
         yield status("classifying")
 
     # 분류 → 프롬프트는 /api/answer와 같은 체인의 앞부분, 답변만 글자 조각으로 흘린다
-    prepared = await pipeline.prepare_chain(state["predictor"]).ainvoke({"text": req.text, "label": req.label})
+    prepared = await p.prepare_chain().ainvoke({"text": req.text, "label": req.label})
     classification, label = prepared["classification"], prepared["label"]
     ctx.update(classification=classification, label=label)
     if classification is not None:
         yield _sse("classification", asdict(classification))
 
     yield status("adventure" if label == "unknown" else "answering")
-    async for event in pipeline.answer_stream(prepared["prompt"], req.provider, get_config()):
+    async for event in p.answer_stream(prepared["prompt"], req.provider):
         if event["type"] == "delta":
             yield _sse("delta", {"text": event["text"]})
         else:
