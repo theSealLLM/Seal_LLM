@@ -1,0 +1,178 @@
+{
+  "name": "mmBERT-small/20261013-1458",
+  "model": "mmBERT-small",
+  "run": "20261013-1458",
+  "kind": "bert",
+  "task": "inquiries",
+  "split": "validation",
+  "num_samples": 120,
+  "model_dir": "runs/classifier/inquiries/mmBERT-small/20261013-1458/model",
+  "created_at": "2026-10-13T14:58:54+09:00",
+  "metrics": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "per_class": {
+      "shipping": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      },
+      "refund": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      },
+      "account": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "shipping",
+        "refund",
+        "account"
+      ],
+      "matrix": [
+        [
+          40,
+          0,
+          0
+        ],
+        [
+          0,
+          40,
+          0
+        ],
+        [
+          0,
+          0,
+          40
+        ]
+      ]
+    }
+  },
+  "efficiency": {
+    "device": "cuda",
+    "latency_ms_median": 11.095,
+    "latency_ms_p95": 11.486,
+    "latency_samples": 100,
+    "throughput_per_sec": 777.3,
+    "peak_gpu_memory_mb_infer": 675.5,
+    "model_size_mb": 569.34,
+    "num_parameters": 140642691,
+    "base_model": "C:\\projects\\Seal_LLM\\models\\jhu-clsp__mmBERT-small",
+    "max_length": 128,
+    "train_time_sec": 15.48,
+    "peak_gpu_memory_mb_train": 2753.1
+  },
+  "config": {
+    "model_name": "C:\\projects\\Seal_LLM\\models\\jhu-clsp__mmBERT-small",
+    "max_length": 128,
+    "batch_size": 16,
+    "eval_batch_size": 64,
+    "epochs": 10,
+    "lr": 3e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "max_grad_norm": 1.0,
+    "patience": 3,
+    "precision": "auto",
+    "local_files_only": false,
+    "trust_remote_code": false,
+    "seed": 42
+  },
+  "training": {
+    "best_epoch": 4,
+    "best_val_macro_f1": 1.0,
+    "stopped_early": true,
+    "precision": "bf16",
+    "token_lengths": {
+      "max": 80,
+      "p95": 76,
+      "truncated": 0
+    },
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 1.0754,
+        "val_loss": 0.248,
+        "val_accuracy": 0.9417,
+        "val_macro_f1": 0.9415,
+        "lr": 3e-05,
+        "elapsed_sec": 2.6
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.179,
+        "val_loss": 0.0439,
+        "val_accuracy": 0.9833,
+        "val_macro_f1": 0.9833,
+        "lr": 2.6666666666666667e-05,
+        "elapsed_sec": 4.8
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.0128,
+        "val_loss": 0.0133,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 2.3333333333333336e-05,
+        "elapsed_sec": 7.0
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.0,
+        "val_loss": 0.0035,
+        "val_accuracy": 1.0,
+        "val_macro_f1": 1.0,
+        "lr": 1.9999999999999998e-05,
+        "elapsed_sec": 9.2
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.0001,
+        "val_loss": 0.1702,
+        "val_accuracy": 0.9583,
+        "val_macro_f1": 0.9589,
+        "lr": 1.6666666666666667e-05,
+        "elapsed_sec": 11.4
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.0,
+        "val_loss": 0.0156,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 1.3333333333333333e-05,
+        "elapsed_sec": 13.4
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.0,
+        "val_loss": 0.0343,
+        "val_accuracy": 0.9833,
+        "val_macro_f1": 0.9833,
+        "lr": 9.999999999999999e-06,
+        "elapsed_sec": 15.5
+      }
+    ]
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "4.57.6",
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "cuda": "12.8"
+  },
+  "errors": []
+}

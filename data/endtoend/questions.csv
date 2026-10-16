@@ -1,0 +1,1001 @@
+﻿id,text,expected_label,category,source
+q001,회원탈퇴는 어떻게 하나요,account,07.온오프라인안내,shopping7_0001.json
+q002,탈퇴 시 유의사항이 있나요,account,07.온오프라인안내,shopping7_0001.json
+q003,재가입하면 개인정보는 어떻게 되나요,account,07.온오프라인안내,shopping7_0001.json
+q004,아이디 찾기 좀 도와주세요,account,07.온오프라인안내,shopping7_0007.json
+q005,비밀번호를 변경할 때 사용불가의 메시지가 나오는데 어떻게 하죠,account,07.온오프라인안내,shopping7_0008.json
+q006,탈퇴하면 개인정보를 복원할 수 없는거죠,account,07.온오프라인안내,shopping7_0010.json
+q007,아이디는 설정할 수 없나요,account,07.온오프라인안내,shopping7_0015.json
+q008,회원탈퇴한 고객은 주문내역을 못 보나요,account,07.온오프라인안내,shopping7_0019.json
+q009,로그인은 계속 새로 해야되나요,account,07.온오프라인안내,shopping7_0020.json
+q010,회원탈퇴 시 적립금이 사라지나요,account,07.온오프라인안내,shopping7_0022.json
+q011,제가 휴면회원처리 됐다고 문자를 받았는데 어떻게 해야 하나요,account,07.온오프라인안내,shopping7_0032.json
+q012,기존 아이디를 사용할 수 있나요,account,07.온오프라인안내,shopping7_0036.json
+q013,회원탈퇴를 하고싶은데 어떻게 해야 하나요,account,07.온오프라인안내,shopping7_0041.json
+q014,재가입은 언제부터 가능한가요,account,07.온오프라인안내,shopping7_0041.json
+q015,재가입을 해도 복구되지 않나요,account,07.온오프라인안내,shopping7_0043.json
+q016,휴먼 아이디로 전환된다는 게 뭔가요,account,07.온오프라인안내,shopping7_0045.json
+q017,회원가입에 필요한 나이 제한이 있나요,account,07.온오프라인안내,shopping7_0056.json
+q018,본인확인을 하라고 뜨는데 꼭 해야 되나요,account,07.온오프라인안내,shopping7_0059.json
+q019,본인확인만 하면 변경이 가능한거죠,account,07.온오프라인안내,shopping7_0059.json
+q020,학생은 가입이 되지 않나요,account,07.온오프라인안내,shopping7_0062.json
+q021,외국인은 회원가입이 가능한가요,account,07.온오프라인안내,shopping7_0062.json
+q022,법인인 경우 가입이 가능한가요,account,07.온오프라인안내,shopping7_0062.json
+q023,탈퇴한 아이디로 재가입이 가능한가요,account,07.온오프라인안내,shopping7_0079.json
+q024,혹시 회원 탈퇴 후에 동일한 이메일로 회원가입할 수 있나요,account,07.온오프라인안내,shopping7_0084.json
+q025,비밀번호 찾기 버튼이 어디 있어요,account,07.온오프라인안내,shopping7_0089.json
+q026,인증을 해야 전환할 수 있나요,account,07.온오프라인안내,shopping7_0090.json
+q027,회원가입을 어떻게 할 수 있어요,account,07.온오프라인안내,shopping7_0107.json
+q028,인증 후에는 어떻게 해야 되요,account,07.온오프라인안내,shopping7_0107.json
+q029,브이아이피 창업 회원 가입은 어떻게 하나요,account,07.온오프라인안내,shopping7_0108.json
+q030,연령인증은 관련 상품을 주문 할 때마다 해야 하나요,account,07.온오프라인안내,shopping7_0117.json
+q031,인증 정보의 보관 기간은 어떻게 되나요,account,07.온오프라인안내,shopping7_0117.json
+q032,인증을 한번 하면 일년동안 인증을 하지 않아도 되나요,account,07.온오프라인안내,shopping7_0117.json
+q033,사이트에서 회원정보 수정은 어떻게 하나요,account,07.온오프라인안내,shopping7_0124.json
+q034,인터넷으로도 탈퇴 가능한 건가요,account,07.온오프라인안내,shopping7_0137.json
+q035,회원탈퇴를 하고 싶은데요,account,07.온오프라인안내,shopping7_0140.json
+q036,탈퇴하면 적립금은 어떻게 되나요,account,07.온오프라인안내,shopping7_0144.json
+q037,비밀번호를 그런 거 하라 비밀번호를 사용 없이 이거 하는데 뭐가 뭔지,account,07.온오프라인안내,shopping7_0145.json
+q038,비밀번호도 바꿀 수 있나요,account,07.온오프라인안내,shopping7_0146.json
+q039,회원 탈퇴 시 보유하고 있던 마일리지 예치금은 어떻게 받나요,account,07.온오프라인안내,shopping7_0149.json
+q040,회원가입은 유료인가요 무료인가요,account,07.온오프라인안내,shopping7_0154.json
+q041,전화로도 회원 탈퇴 가능한가요,account,07.온오프라인안내,shopping7_0156.json
+q042,법인 회원 가입은 어떻게 하나요,account,07.온오프라인안내,shopping7_0160.json
+q043,아이디를 변경하고 싶은데 가능한가요,account,07.온오프라인안내,shopping7_0162.json
+q044,안녕하세요 회원 가입을 하고 싶은데요,account,07.온오프라인안내,shopping7_0179.json
+q045,저 나이가 열아홉살인데요 회원가입 가능한가요,account,07.온오프라인안내,shopping7_0182.json
+q046,안녕하세요 계정 연동을 하고 싶은데 자꾸 오류가 나요 도와주세요,account,07.온오프라인안내,shopping7_0184.json
+q047,아이디를 뭐로 했는지 조회를 해주실래요,account,07.온오프라인안내,shopping7_0197.json
+q048,싸이즈를 큰 걸로 교환이 가능한지 알고 싶어서요,refund,05.환불반품교환,shopping5_0009.json
+q049,카드 결제로 했어요 일단은 취소해주세요,refund,05.환불반품교환,shopping5_0010.json
+q050,반품 요청이 거절되었다고 나와있던데 어떻게 된 건가요,refund,05.환불반품교환,shopping5_0013.json
+q051,취소되면은 문자를 좀 보내주세요 그래야 확인이 되니까요,refund,05.환불반품교환,shopping5_0017.json
+q052,교환 신청했었는데요 본인 확인 좀 해주세요,refund,05.환불반품교환,shopping5_0025.json
+q053,일대일로 교환을 해줘야 하는 거예요 무슨 말인건가요,refund,05.환불반품교환,shopping5_0025.json
+q054,본인들의 실수인데 맞교환이 왜 안되나요,refund,05.환불반품교환,shopping5_0036.json
+q055,코랄 핑크로 교환되나요,refund,05.환불반품교환,shopping5_0037.json
+q056,주문한 상품을 교환하고 싶은데요,refund,05.환불반품교환,shopping5_0043.json
+q057,반품 회수는 언제 되나요,refund,05.환불반품교환,shopping5_0074.json
+q058,반품 신청한지 일주일이 지났는데 왜 처리가 안 되나요,refund,05.환불반품교환,shopping5_0077.json
+q059,반품을 치시든 뭐든간에 어떻게 된거에요,refund,05.환불반품교환,shopping5_0087.json
+q060,불량 반품으로 해주시나요,refund,05.환불반품교환,shopping5_0121.json
+q061,불량이 없으면 불량이 없으면 교환 안 해주나요,refund,05.환불반품교환,shopping5_0152.json
+q062,왜 무상교환을 해주세요,refund,05.환불반품교환,shopping5_0158.json
+q063,교환이나 수리 필요 없고 환불하고 싶어요,refund,05.환불반품교환,shopping5_0172.json
+q064,반품 요청했는데 입금이 언제 되는지 확인이 가능할까요,refund,05.환불반품교환,shopping5_0187.json
+q065,오늘 반품하고 환불 신청을 했는데 시간이 얼마나 걸리나요,refund,05.환불반품교환,shopping5_0190.json
+q066,지금 추석에 뭐가 배송이 되는 중이라고 말씀하셨어요,shipping,04.배송,shopping4_0003.json
+q067,상품이 배송이 안 돼서 확인 좀 부탁드려요,shipping,04.배송,shopping4_0036.json
+q068,제가 지난 주에 마스크 주문했는데 아직 배송이 안 돼서 한 번 물어보려고요,shipping,04.배송,shopping4_0053.json
+q069,출고가 언제 된 거예요,shipping,04.배송,shopping4_0053.json
+q070,배송 온다고 알림톡만 오고 물건은 어떻게 된 거예요,shipping,04.배송,shopping4_0057.json
+q071,배달 중이요 운반 중이라는 건가요,shipping,04.배송,shopping4_0059.json
+q072,상품 배송이 언제 되는지 알고 싶어요,shipping,04.배송,shopping4_0070.json
+q073,방금 구매한 제품이 언제 배송되는지 궁금해서요,shipping,04.배송,shopping4_0073.json
+q074,도착하는 건 어디서 확인하나요,shipping,04.배송,shopping4_0094.json
+q075,택배사가 어느 택배사 인가요,shipping,04.배송,shopping4_0101.json
+q076,지금 배송 중 이라는 건가요,shipping,04.배송,shopping4_0113.json
+q077,출고가 되었다는 건 나갔다는 거죠,shipping,04.배송,shopping4_0113.json
+q078,지금 배송이 왜 안 되는 겁니까,shipping,04.배송,shopping4_0116.json
+q079,오늘 출고 한다고요 제조사가 따로 있어서 늦었던 건가요,shipping,04.배송,shopping4_0127.json
+q080,잠시만요 송장 번호로 한 번 확인해 보도록 할게요,shipping,04.배송,shopping4_0136.json
+q081,배송이 완료됐네 언제 완료됐나요,shipping,04.배송,shopping4_0138.json
+q082,택배 대란이요 그게 뭐예요,shipping,04.배송,shopping4_0139.json
+q083,배송에 뭐 문제가 있는 건가요,shipping,04.배송,shopping4_0140.json
+q084,배송 어떻게 처리되고 있나요,shipping,04.배송,shopping4_0147.json
+q085,제대로 출고가 됐는지 궁금해서 그래요,shipping,04.배송,shopping4_0155.json
+q086,화요일 택배사 집하라고 돼 있는데 이게 언제쯤 도착합니까,shipping,04.배송,shopping4_0189.json
+q087,불량 반품인데 작동이 됐을 경우 비용은 택배비만 차감될 수 있나요,shipping,04.배송,shopping4_0195.json
+q088,오배송으로 글을 올렸는데 확인 좀 해주세요,shipping,04.배송,shopping4_0198.json
+q089,오배송 때문에 사진 찍어서 올렸거든요 확인 좀 해 주세요,shipping,04.배송,shopping4_0199.json
+q090,근처에 서비스센터 알려주세요,unknown,01.AS문의,shopping1_0002.json
+q091,신촌역 쪽엔 없나요 거기는 너무 먼데,unknown,01.AS문의,shopping1_0002.json
+q092,지금 메모는 좀 곤란하고 문자는 못 받을까요,unknown,01.AS문의,shopping1_0003.json
+q093,보통 이런 경우에는 판매 업체에서는 어떻게 하시나요,unknown,01.AS문의,shopping1_0009.json
+q094,아까 말씀하신게 소견서 비용은 안된다 하셨죠,unknown,01.AS문의,shopping1_0011.json
+q095,저게 얼마죠 만 사천 얼마죠,unknown,01.AS문의,shopping1_0017.json
+q096,만 칠천 사백 원이에요 뭐 얼마예요,unknown,01.AS문의,shopping1_0017.json
+q097,경비실에 이렇게 놓으면 되나요,unknown,01.AS문의,shopping1_0018.json
+q098,제가 다시 전화드려도 될까요,unknown,01.AS문의,shopping1_0019.json
+q099,사이즈 하나 정하면 되는거죠,unknown,01.AS문의,shopping1_0022.json
+q100,두세 시간이요 네 그렇게 해 주세요,unknown,01.AS문의,shopping1_0030.json
+q101,최대한 빨리 오면 좋겠어요 오늘도 되나요,unknown,01.AS문의,shopping1_0036.json
+q102,언제인지는 정확히 기억이 안 나는데 어디에 써 있나요,unknown,01.AS문의,shopping1_0037.json
+q103,모델명은 지금 바로 알려드려야 되나요,unknown,01.AS문의,shopping1_0046.json
+q104,언제든지 괜찮아요 편하실 때 오세요,unknown,01.AS문의,shopping1_0048.json
+q105,출장 부르면 비용은 얼마 정도 나올까요,unknown,01.AS문의,shopping1_0053.json
+q106,설치 시간은요 빨리하고 싶은데,unknown,01.AS문의,shopping1_0058.json
+q107,먼지를 안 털어내도 되나요,unknown,01.AS문의,shopping1_0062.json
+q108,전화 주신다고 했는데 언제 주시나요,unknown,01.AS문의,shopping1_0063.json
+q109,뭐 나는 그런 거 모르는데 그냥 해줘요,unknown,01.AS문의,shopping1_0068.json
+q110,따로 있어요 그럼 그렇게 해주세요,unknown,01.AS문의,shopping1_0076.json
+q111,뭐 제공이요 예 그래요,unknown,01.AS문의,shopping1_0078.json
+q112,세탁기 수평이 맞는지요 이거 그냥 하던대로 되던데,unknown,01.AS문의,shopping1_0081.json
+q113,배수 호스면 그 물 빠지는 까만 거 말씀하시는 거죠,unknown,01.AS문의,shopping1_0096.json
+q114,요청 했다라고 어디다 남겨 주신 거예요,unknown,01.AS문의,shopping1_0111.json
+q115,조회가 안되나요 그럼 주문번호 불러드릴게요,unknown,01.AS문의,shopping1_0112.json
+q116,구월 삼 일 건인데 구월 삼 일 아닌가요,unknown,01.AS문의,shopping1_0112.json
+q117,잠깐만요 십삼 일 체중계 인가요,unknown,01.AS문의,shopping1_0112.json
+q118,잠시만요 구매한게 뭐였죠 잠시만요,unknown,01.AS문의,shopping1_0113.json
+q119,휴대폰번호 말씀드리면 되나요,unknown,01.AS문의,shopping1_0113.json
+q120,분명 주문했는데 주문이 안들어간건가요,unknown,01.AS문의,shopping1_0113.json
+q121,문자로 그 업체 번호좀 남겨주세요,unknown,01.AS문의,shopping1_0114.json
+q122,알겠습니다 지금 전화하면 통화 될까요,unknown,01.AS문의,shopping1_0114.json
+q123,쇼파는 별도로 판매하지 않나요,unknown,01.AS문의,shopping1_0116.json
+q124,제가 쇼파만 한개 구입하려고 하는데 가능한가요,unknown,01.AS문의,shopping1_0117.json
+q125,의자 번호는 알려드리면 됩니까,unknown,01.AS문의,shopping1_0117.json
+q126,혹시 조금 도와주실 수 있으신가요,unknown,01.AS문의,shopping1_0122.json
+q127,입력을 어디에 하면 됩니까,unknown,01.AS문의,shopping1_0122.json
+q128,신용카드 입력란에 입력하면 된다는 말씀이시죠,unknown,01.AS문의,shopping1_0122.json
+q129,유선 상으로 해주시면 설정으로 들어가는거 맞죠,unknown,01.AS문의,shopping1_0129.json
+q130,오늘 기사분이 오실 수 있나요,unknown,01.AS문의,shopping1_0134.json
+q131,인식이 안 되던데 이거를 좀 해결할 수 있을까요,unknown,01.AS문의,shopping1_0145.json
+q132,다음 주 화요일은 몇 시에 가능한가요,unknown,01.AS문의,shopping1_0146.json
+q133,청소하는 금액은 얼마인가요,unknown,01.AS문의,shopping1_0148.json
+q134,빨리 점검 예약 좀 해주세요,unknown,01.AS문의,shopping1_0155.json
+q135,언제쯤 전화를 주시나요,unknown,01.AS문의,shopping1_0160.json
+q136,에이에스 기간 내에는 상관 없잖아요 맞죠,unknown,01.AS문의,shopping1_0165.json
+q137,전화로 어떻게 해결이 안 되나요 좀 억울하네요,unknown,01.AS문의,shopping1_0169.json
+q138,제가 찾아볼게요 혹시 접수 예약이 빨리 되나요,unknown,01.AS문의,shopping1_0173.json
+q139,가까운 센터 안내 가능할까요,unknown,01.AS문의,shopping1_0174.json
+q140,원격으로 작업하는 게 왜 안 돼요,unknown,01.AS문의,shopping1_0176.json
+q141,업체 쪽 에다가 전화를 해서 그쪽에서 왜 이렇게 되느냐고요,unknown,01.AS문의,shopping1_0180.json
+q142,금액이 얼마나 차이가 나는 거죠,unknown,01.AS문의,shopping1_0184.json
+q143,다른 제품은 없나요 바퀴로 돼 있으면 문제가 없잖아요,unknown,01.AS문의,shopping1_0185.json
+q144,매트가 바닥에 별도로 있어야 되는 건가요,unknown,01.AS문의,shopping1_0186.json
+q145,지금 통화하시는 분 성함은 어떻게 되실까요,unknown,01.AS문의,shopping1_0191.json
+q146,알겠습니다 메모 전달해 주세요,unknown,01.AS문의,shopping1_0191.json
+q147,가까운 센터의 전화번호는 무엇인가요,unknown,01.AS문의,shopping1_0192.json
+q148,뭐라고요 그럼 전 상담원이 처리를 제대로 안 했다는 거잖아요,unknown,01.AS문의,shopping1_0201.json
+q149,다 됐구요 저 상담 이력을 좀 확인해 주시고요,unknown,01.AS문의,shopping1_0202.json
+q150,상담원 교육 좀 받으라고 해 주세요,unknown,01.AS문의,shopping1_0203.json
+q151,업체 전화 번호 어떻게 돼요,unknown,01.AS문의,shopping1_0207.json
+q152,하여튼 그 업체 쪽에 강력하게 얘기 해주시구요 저한테 전화 좀 주세요,unknown,01.AS문의,shopping1_0207.json
+q153,지금 바로 해주시는 건가요,unknown,01.AS문의,shopping1_0211.json
+q154,상품 페이지에 보면 하나를 꽂고 멀티탭을 따로 꼽으라는 건가요,unknown,01.AS문의,shopping1_0212.json
+q155,주문 내역 좀 확인해주시겠어요,unknown,01.AS문의,shopping1_0213.json
+q156,알겠습니다 문자 보내 주세요,unknown,01.AS문의,shopping1_0214.json
+q157,하나 구매할 때는 얼마고 몇 개 구매할 때 어떻게 되는 거죠,unknown,01.AS문의,shopping1_0215.json
+q158,제가 그쪽으로 보내드리면 안 될까요,unknown,01.AS문의,shopping1_0218.json
+q159,문자 보낼 데가 없구나 그렇죠,unknown,01.AS문의,shopping1_0221.json
+q160,무슨 얘기인지 이해 이해가 안 가요 시간 장애 뭐예요,unknown,01.AS문의,shopping1_0223.json
+q161,오히려 그러면 백 미리가 지금 저렴하게 계산이 되는 거죠,unknown,01.AS문의,shopping1_0226.json
+q162,현장에서 결제가 된다고요 기사한테 주면 되죠,unknown,01.AS문의,shopping1_0230.json
+q163,잠시만요 여보세요 운영체제가 미제공됐다는 게 어떤 말씀이신가요,unknown,01.AS문의,shopping1_0238.json
+q164,운영체제 그러니까 소프트웨어요 방문을 해도 도움을 안 주시나요,unknown,01.AS문의,shopping1_0238.json
+q165,혹시 이거 원격으로 좀 봐 주실 수 있는지 요청 드렸구요,unknown,01.AS문의,shopping1_0239.json
+q166,모델번호가 어디에 나와있어요,unknown,01.AS문의,shopping1_0243.json
+q167,지금 이걸로는 안 되나요,unknown,01.AS문의,shopping1_0247.json
+q168,한 시 하튼 최대한으로 빨리 보내주세요,unknown,01.AS문의,shopping1_0249.json
+q169,알겠어요 아무튼 언제와요,unknown,01.AS문의,shopping1_0250.json
+q170,친절하게 접수해주셔서 감사합니다 빨리 연락주세요,unknown,01.AS문의,shopping1_0259.json
+q171,저희가 업무를 지금 중간에 못한 게 있어서요 더 빨리는 안 될까요,unknown,01.AS문의,shopping1_0260.json
+q172,혹시 그리고 이게 원격으로 할 수가 있나요,unknown,01.AS문의,shopping1_0260.json
+q173,게시판이 어디있는 거죠,unknown,01.AS문의,shopping1_0271.json
+q174,번호 좀 불러주시겠어요,unknown,01.AS문의,shopping1_0274.json
+q175,액정 파손은 아닌데 케이스 교체가 가능할까요,unknown,01.AS문의,shopping1_0277.json
+q176,문의 내용 확인 되시나요,unknown,01.AS문의,shopping1_0279.json
+q177,열두시 반에 전화 주세요,unknown,01.AS문의,shopping1_0280.json
+q178,수고하십니다 제가 조금 전에 문의한 내용이 있는데 확인 부탁드려요,unknown,01.AS문의,shopping1_0283.json
+q179,문제가 있는 것 같은데 어떻게 해야 하나요,unknown,01.AS문의,shopping1_0286.json
+q180,김치가 적당히 익었는데  더 익히려면 어떤 게 좋은가요,unknown,01.AS문의,shopping1_0287.json
+q181,맛지킴과 땅속 발효 중에서 추천해 주세요,unknown,01.AS문의,shopping1_0287.json
+q182,살짝 익은 김치를 보관하고 맛을 유지하려면 어떻게 해야 하나요,unknown,01.AS문의,shopping1_0288.json
+q183,강동으로 안내해 주세요,unknown,01.AS문의,shopping1_0289.json
+q184,잠시만 기다려주세요 네 불러주세요,unknown,01.AS문의,shopping1_0290.json
+q185,혹시 접수 시간을 알 수 있을까요,unknown,01.AS문의,shopping1_0291.json
+q186,문자 입력하는 방식이 불편하다고 하는데 방법이 있을까요,unknown,01.AS문의,shopping1_0294.json
+q187,아까 통화한 사람인데요 제가 말씀드린 거 확인하셨나요,unknown,01.AS문의,shopping1_0295.json
+q188,좀 전에 다른 상담원이 문자로 유알엘 보내줬는데 다른 방법은 없나요,unknown,01.AS문의,shopping1_0299.json
+q189,혹시 다른 방법은 없나요,unknown,01.AS문의,shopping1_0299.json
+q190,제조사에서 필름도 같이 판매를 하긴 하는 건가요,unknown,02.제품사용문의,shopping2_0009.json
+q191,스마트워치를 구입 했었는데요 이거 필름만 따로 구입 안 되나요,unknown,02.제품사용문의,shopping2_0010.json
+q192,상품 종류가 네가지 던데 뭐가 많이 나가요,unknown,02.제품사용문의,shopping2_0012.json
+q193,엑스엘이 백칠십에서 백칠십오가 키를 얘기하는 거죠,unknown,02.제품사용문의,shopping2_0022.json
+q194,충전하면 조끼 안에 따뜻하게 하는 기능이 돼 있는 거죠,unknown,02.제품사용문의,shopping2_0025.json
+q195,제가 사면은 보온 조끼 사용할 수 없는 거죠,unknown,02.제품사용문의,shopping2_0026.json
+q196,사만 오천구백 원 주고 제가 사게 되면 보조배터리도 같이 오는 건가요,unknown,02.제품사용문의,shopping2_0027.json
+q197,말씀을 좀 천천히 해주시겠어요,unknown,02.제품사용문의,shopping2_0028.json
+q198,만약 사이즈 변경을 해서 다시 주문할려면 어떻게 해야 돼요,unknown,02.제품사용문의,shopping2_0031.json
+q199,전화오고 하는 뭐 통화는 안 되고요,unknown,02.제품사용문의,shopping2_0033.json
+q200,사이즈가 이게 다 맞는 건가요 아니면 허리 사이즈별로 다른 건가요,unknown,02.제품사용문의,shopping2_0035.json
+q201,백 매 플러스 이십 매 서비스죠,unknown,02.제품사용문의,shopping2_0040.json
+q202,광고 보고 전화했는데요 좋은 안마기 좀 추천해주실 수 있나요,unknown,02.제품사용문의,shopping2_0041.json
+q203,뭐라더라 마사지 건이라던가 그거 추천해주세요,unknown,02.제품사용문의,shopping2_0041.json
+q204,선생님이 추천해 주실 그 또 따로 있나요,unknown,02.제품사용문의,shopping2_0041.json
+q205,페어링이요 그게 뭔가요,unknown,02.제품사용문의,shopping2_0042.json
+q206,고장이 아니라는 소리인가 그럼 연결해 주세요,unknown,02.제품사용문의,shopping2_0042.json
+q207,상품명은 어디서 확인할 수 있나요,unknown,02.제품사용문의,shopping2_0045.json
+q208,전기장판을 당뇨가 있는 사람도 사용해도 되나요,unknown,02.제품사용문의,shopping2_0046.json
+q209,오십 장 플러스 뭐 해놓은 거 있죠,unknown,02.제품사용문의,shopping2_0050.json
+q210,홍보 피피티 자료를 화면에 연결하고 싶은데 가능한가요,unknown,02.제품사용문의,shopping2_0057.json
+q211,부품 구입 전문 상담사가 전화 준다고 했는데 언제 주나요,unknown,02.제품사용문의,shopping2_0058.json
+q212,제가 스마트폰을 임대해서 쓰고 싶은데 가능한가요,unknown,02.제품사용문의,shopping2_0078.json
+q213,제가 이사를 해야 되는데 냉장고 이전은 어떻게 해야 하나요,unknown,02.제품사용문의,shopping2_0079.json
+q214,얼마나 기다려야 되나요,unknown,02.제품사용문의,shopping2_0085.json
+q215,정상적으로 작동은 됐는데 세탁기 기능이 끝나도 물을 틀어놔야 되나요,unknown,02.제품사용문의,shopping2_0087.json
+q216,뭔데요 근데 거기 건 다 없잖아요 터치펜 있는게 없잖아요 그죠,unknown,02.제품사용문의,shopping2_0088.json
+q217,언어 및 입력으로 들어가면 되나요,unknown,02.제품사용문의,shopping2_0092.json
+q218,좀 불편해서 다른 걸로 못 바꾸나요,unknown,02.제품사용문의,shopping2_0093.json
+q219,전문상담사 연결해 주세요,unknown,02.제품사용문의,shopping2_0093.json
+q220,제가 주문한 거 백 매 맞죠,unknown,02.제품사용문의,shopping2_0095.json
+q221,커버는 그냥 그러면 세탁해서 사용하면 되는 거예요,unknown,02.제품사용문의,shopping2_0097.json
+q222,배터리 용량이요 그걸 어떻게 확인해요,unknown,02.제품사용문의,shopping2_0099.json
+q223,국산 케이 에프 구십사로 나오는데 정상제품이죠,unknown,02.제품사용문의,shopping2_0101.json
+q224,투 플러스 투 제품으로 하면 얼마인가요,unknown,02.제품사용문의,shopping2_0102.json
+q225,벽면이랑 연결하는거요 그걸 뭐라고 해야 되지요,unknown,02.제품사용문의,shopping2_0107.json
+q226,번호 그러면 문자로 하나 넣어주시겠어요,unknown,02.제품사용문의,shopping2_0107.json
+q227,모델명이요 잠시 확인 해볼게요 부평쪽에 센터가 있나요,unknown,02.제품사용문의,shopping2_0109.json
+q228,파일을 설치를 하면 어디에 저장이 되지요,unknown,02.제품사용문의,shopping2_0110.json
+q229,기계안에 하드가 있어 가지고 거기에 프로그램이 깔릴 수 있는지요,unknown,02.제품사용문의,shopping2_0110.json
+q230,다른 이상이 있어 그런게 아니죠,unknown,02.제품사용문의,shopping2_0111.json
+q231,홈페이지 들어가서 하는 법도 모르나요,unknown,02.제품사용문의,shopping2_0115.json
+q232,없고요 프로그램 충돌이라고 사라지나요,unknown,02.제품사용문의,shopping2_0117.json
+q233,사용자가 키켓으로 언제 업데이트 했는지 알 수 있나요,unknown,02.제품사용문의,shopping2_0127.json
+q234,내가 지금 바로 확인을 할 수 있나요,unknown,02.제품사용문의,shopping2_0127.json
+q235,죄송한데 지금 외근중인데 전화가 와서요 잠깐 이따가 통화 가능한가요,unknown,02.제품사용문의,shopping2_0127.json
+q236,수평이 약간 안 맞긴 한데 이게 그렇게 문제가 되나요,unknown,02.제품사용문의,shopping2_0128.json
+q237,알겠습니다 그시간에 예약 부탁드려요,unknown,02.제품사용문의,shopping2_0130.json
+q238,위약금이 지금 해지하면 얼마죠,unknown,02.제품사용문의,shopping2_0133.json
+q239,투인원인가 지금 두 개를 같이 설치하니깐 지금 그러는 거죠,unknown,02.제품사용문의,shopping2_0134.json
+q240,다른게 아니고 저기 설치 요금이 얼마나 들까 싶어서요,unknown,02.제품사용문의,shopping2_0135.json
+q241,뭐라고요 받아적어야 할 것 같은데 지금 잠깐 밖이라서요,unknown,02.제품사용문의,shopping2_0137.json
+q242,십분쯤 뒤에 전화해주실수 있나요,unknown,02.제품사용문의,shopping2_0137.json
+q243,고장은 아니면 이대로 쓰는 건가요,unknown,02.제품사용문의,shopping2_0139.json
+q244,언제쯤 연락을 주실 수 있나요,unknown,02.제품사용문의,shopping2_0140.json
+q245,시간 안에 꼭 연락을 부탁드리고요,unknown,02.제품사용문의,shopping2_0140.json
+q246,제조사의 전화번호는 어떻게 되나요,unknown,02.제품사용문의,shopping2_0141.json
+q247,겨울에 쓸 거니까 대형 블랙으로 하나 주세요,unknown,02.제품사용문의,shopping2_0153.json
+q248,언제 먹어야 효과가 좋은 거예요,unknown,02.제품사용문의,shopping2_0154.json
+q249,알겠습니다 여기로 전화하면 해결해 주는 거죠,unknown,02.제품사용문의,shopping2_0155.json
+q250,몇 가지 좀 물어봐도 될까요,unknown,02.제품사용문의,shopping2_0156.json
+q251,대사간격이 얼마나 되는지 확인할 수 있나요,unknown,02.제품사용문의,shopping2_0160.json
+q252,양천구 서비스 센터로 전화 연결 가능한가요,unknown,02.제품사용문의,shopping2_0162.json
+q253,설치는 아니고 그거 껴달라고 하면 껴주나요,unknown,02.제품사용문의,shopping2_0162.json
+q254,결제를 현금으로 했는데 카드로 바꿀 수 있나요,unknown,02.제품사용문의,shopping2_0171.json
+q255,스마트 기능이 없는 모델도 없나요,unknown,02.제품사용문의,shopping2_0173.json
+q256,고객번호 불러드리면 될까요,unknown,02.제품사용문의,shopping2_0174.json
+q257,바뀐 주소도 불러드려야 하나요,unknown,02.제품사용문의,shopping2_0175.json
+q258,국민은행으로 변경해 주세요,unknown,02.제품사용문의,shopping2_0178.json
+q259,은행은 농협으로 해주세요,unknown,02.제품사용문의,shopping2_0182.json
+q260,제가 찾는 모델이 안 나오는 거 같은데 확인 좀 해주세요,unknown,02.제품사용문의,shopping2_0183.json
+q261,다른 지역에 있는지 알아봐 주세요,unknown,02.제품사용문의,shopping2_0185.json
+q262,지금 전화 하면 받는가요,unknown,02.제품사용문의,shopping2_0193.json
+q263,씨익 씨익한 소리가 나거든요 그거 왜그런 거예요,unknown,02.제품사용문의,shopping2_0196.json
+q264,모델명이요 지금 확인이 돼야되나요 그게 틀린가요,unknown,02.제품사용문의,shopping2_0202.json
+q265,세븐을 제가 새로 구입을 해야되는 거죠 가격은 얼마나 하나요,unknown,02.제품사용문의,shopping2_0202.json
+q266,카메라 달려있는 걸 혹시 씨씨티비 기능 사용할 수 있나요,unknown,02.제품사용문의,shopping2_0212.json
+q267,번호를 그냥 뿔리주세요,unknown,02.제품사용문의,shopping2_0217.json
+q268,기사님이 못하시면 어떻게 해야 하나요,unknown,02.제품사용문의,shopping2_0218.json
+q269,일단 알겠어요 그러면은 설치까지하면 십 오만 육천원이란거죠,unknown,02.제품사용문의,shopping2_0219.json
+q270,창원도 이쪽으로 전화 해도 되는 건가요,unknown,02.제품사용문의,shopping2_0219.json
+q271,에어콘을 좀 철거하고 싶은데 어떻게 해요,unknown,02.제품사용문의,shopping2_0220.json
+q272,에어콘하고 그거 실외기를 버린다고 생각하면 어떻게 버려야 돼요,unknown,02.제품사용문의,shopping2_0220.json
+q273,제가 센터를 방문해서 확인 해야지 알 수 있죠,unknown,02.제품사용문의,shopping2_0222.json
+q274,혹시 메인보드가 나갔으면 중고폰 보상이나 이런게 안 되는 건가요,unknown,02.제품사용문의,shopping2_0222.json
+q275,소리 나는건 정상 아니죠,unknown,02.제품사용문의,shopping2_0223.json
+q276,고장이 아닌가요 예 도와주세요,unknown,02.제품사용문의,shopping2_0230.json
+q277,제가요 메뉴얼을 지금 다운 받았거든요 단계 칠리터 이거 맞죠,unknown,02.제품사용문의,shopping2_0231.json
+q278,표준 물 소비량이랑은 다른 개념인가요,unknown,02.제품사용문의,shopping2_0231.json
+q279,세탁 한번에 헹굼 두번을 한다면 삼백이 넘는거 아닌가요,unknown,02.제품사용문의,shopping2_0231.json
+q280,랜 드라이브를 어떻게 설치하나요,unknown,02.제품사용문의,shopping2_0232.json
+q281,다운받고 있는데 이제 뭘 하면 되나요,unknown,02.제품사용문의,shopping2_0232.json
+q282,전산담당 교사님이 삼십 분뒤에 오실텐데 어쩌죠,unknown,02.제품사용문의,shopping2_0233.json
+q283,외장하드로 옮기려 했는데 안 되네요 어쩌죠,unknown,02.제품사용문의,shopping2_0234.json
+q284,둘이 다른 거에요 같은거 아닌가요,unknown,02.제품사용문의,shopping2_0236.json
+q285,잠시만요 업무 전화가 와서요 삼 분뒤에 다시 전화해주시겠어요,unknown,02.제품사용문의,shopping2_0237.json
+q286,지금 뚜껑만 구매를 할려고 하는데 이거 같은 크기 맞나요,unknown,02.제품사용문의,shopping2_0243.json
+q287,동의할게요 빨리 해주세요,unknown,02.제품사용문의,shopping2_0245.json
+q288,아까 내방해야 포맷 가능하다 하셨죠 근데 그거 무료인가요,unknown,02.제품사용문의,shopping2_0246.json
+q289,고맙습니다 그래요 그럼 동영상 주소 좀 보내주세요,unknown,02.제품사용문의,shopping2_0246.json
+q290,원격으로 해주시면 안 되나요 바이러스 먹은 거 같아서요,unknown,02.제품사용문의,shopping2_0247.json
+q291,머리 아프네요 그럼 기사님 부탁드릴게요,unknown,02.제품사용문의,shopping2_0250.json
+q292,소프트웨어 사용권 계약서 이거 됐는데 동의 뭐 어떻게 해야 됩니까,unknown,02.제품사용문의,shopping2_0253.json
+q293,에스디카드로 옮길 수 있는 방법 좀 알려주세요,unknown,02.제품사용문의,shopping2_0254.json
+q294,머리 아프네요 그럼 방문 부탁드릴게요,unknown,02.제품사용문의,shopping2_0255.json
+q295,하나 뭐 개선해야 될 점 이야기해도 되겠습니까,unknown,02.제품사용문의,shopping2_0256.json
+q296,바람은 나오는 겁니까 어떻게 되는 겁니까,unknown,02.제품사용문의,shopping2_0257.json
+q297,비용은 어떻게 되는지 말씀해 주세요,unknown,02.제품사용문의,shopping2_0259.json
+q298,교체를 하고 싶은데 어떻게 해야 하나요,unknown,02.제품사용문의,shopping2_0260.json
+q299,기사를 한 번 보내주시면 어떻겠어요,unknown,02.제품사용문의,shopping2_0261.json
+q300,내장 메모리가 좀 작아가지구 늘릴 수 있는 방법이 어떻게 돼요,unknown,02.제품사용문의,shopping2_0264.json
+q301,에스디카드를 사면은요 그러면 어떻게 해야 해요,unknown,02.제품사용문의,shopping2_0264.json
+q302,씨디를 노트북에서 쓸 수 있게 하는 게 간단한가요,unknown,02.제품사용문의,shopping2_0267.json
+q303,나중에 와서 연결을 해야 되나 어떻게 해야 되나 싶어서요,unknown,02.제품사용문의,shopping2_0271.json
+q304,모델명을 알아야 돼요 그게 그러면 금액이 얼마나 되죠,unknown,02.제품사용문의,shopping2_0273.json
+q305,하나에 만원 그럼 모델명만 알면 되죠,unknown,02.제품사용문의,shopping2_0273.json
+q306,나중에 커버만 따로 빼가지고 그냥 세탁기에 돌려서 빨래하면 되는 거죠,unknown,02.제품사용문의,shopping2_0276.json
+q307,토퍼는 빨래는 못하는 거죠,unknown,02.제품사용문의,shopping2_0276.json
+q308,첫 번째 타입이 방울솜 그 토퍼하고 토퍼형 그 커버 이렇게 두 개만 파는 건가요,unknown,02.제품사용문의,shopping2_0277.json
+q309,프린터를 추가하려면 씨디를 넣어야 하는데 넣는 곳이 안 보여서요 어떻게 열죠,unknown,02.제품사용문의,shopping2_0286.json
+q310,따로 사거나 장착해야 되나요,unknown,02.제품사용문의,shopping2_0286.json
+q311,벽걸이 스탠드를 단다고 했을 때 그거까지 포함한 티비 전체 폭이 얼마나 될까요,unknown,02.제품사용문의,shopping2_0287.json
+q312,한 십년 정도 됐는데 냉장고 이전 설치 비용이 얼마나 되나요,unknown,02.제품사용문의,shopping2_0289.json
+q313,소요시간은 얼마 정도 걸리는지 알려주세요,unknown,02.제품사용문의,shopping2_0290.json
+q314,정확한 모델명은 잘 모르는데 그거 확인해야 돼요,unknown,02.제품사용문의,shopping2_0291.json
+q315,양쪽에 그게 빠지는데 새 건 어디 가서 구하면 됩니까,unknown,02.제품사용문의,shopping2_0294.json
+q316,좌우지간 하나 사다 주려는데 그게 뭐예요,unknown,02.제품사용문의,shopping2_0296.json
+q317,티브이 연결할 때 케이블 길이가 얼마나 되나요,unknown,02.제품사용문의,shopping2_0297.json
+q318,해상도 차이 때문에 모델이 틀린가요,unknown,02.제품사용문의,shopping2_0298.json
+q319,모니터는 다른 회사 거라 안 맞는 건가요,unknown,02.제품사용문의,shopping2_0300.json
+q320,넙적해가지고 핀 맞춰서 꽂는 건 있는데 그건가요,unknown,02.제품사용문의,shopping2_0300.json
+q321,주문하면은 언제쯤 받을 수 있나요,unknown,03.주문결제,shopping3_0001.json
+q322,상품 번호 말하면 되나요,unknown,03.주문결제,shopping3_0006.json
+q323,쫌 부탁하면 안 될까요,unknown,03.주문결제,shopping3_0015.json
+q324,카드로 하면 안 될까요,unknown,03.주문결제,shopping3_0017.json
+q325,여보세요 주문 좀 하고 싶은데요,unknown,03.주문결제,shopping3_0020.json
+q326,홈페이지 들어가면 볼 수 있나요,unknown,03.주문결제,shopping3_0022.json
+q327,뭐 그렇게 하죠 이게 정확하게 케이 에프 구십 사 백 매죠,unknown,03.주문결제,shopping3_0023.json
+q328,휴대폰 번호는 제가 통화가 가능한 거라야 되나요,unknown,03.주문결제,shopping3_0024.json
+q329,바로 하면 언제쯤 오나요,unknown,03.주문결제,shopping3_0034.json
+q330,세 개 세트가 다 똑같은 거죠,unknown,03.주문결제,shopping3_0036.json
+q331,업체 번호가 어떻게 되죠,unknown,03.주문결제,shopping3_0038.json
+q332,저희 사업자로요 되어 있는 거 맞나요,unknown,03.주문결제,shopping3_0051.json
+q333,연락처요 말씀 드리면 되나요,unknown,03.주문결제,shopping3_0053.json
+q334,세금 계산서 발행이 안 되는 업체가 있나요,unknown,03.주문결제,shopping3_0054.json
+q335,마스크 저기한 거 있죠 뭐야 그거요,unknown,03.주문결제,shopping3_0057.json
+q336,공칠공 지금 전화번호를 주세요,unknown,03.주문결제,shopping3_0068.json
+q337,한 병 주문하려 그러는데요 제가 컴퓨터를 못해서 주문 요청드리려고요,unknown,03.주문결제,shopping3_0073.json
+q338,색상이 지금 이게 쥐색인가요,unknown,03.주문결제,shopping3_0076.json
+q339,까만 거랑 흰 거 섞어서요 오십 장씩 파는 상품이죠,unknown,03.주문결제,shopping3_0081.json
+q340,제가 직접 뭘 해야 하나요,unknown,03.주문결제,shopping3_0083.json
+q341,카드 결제로 할 건데 번호 알려드리면 되나요,unknown,03.주문결제,shopping3_0084.json
+q342,다섯 피스라고 하는 거는 뭔가요,unknown,03.주문결제,shopping3_0088.json
+q343,삼만 오천구백 원이요 예 이걸로 하나요,unknown,03.주문결제,shopping3_0101.json
+q344,축협으로 보내드려도 되나요,unknown,03.주문결제,shopping3_0106.json
+q345,왜요 이거 한 개 색깔만 선택해야 돼요,unknown,03.주문결제,shopping3_0112.json
+q346,사만 원 그럼 계좌번호 좀 하나 주시고요,unknown,03.주문결제,shopping3_0114.json
+q347,카드결제 원했는데요 계좌이체는 어떻게 진행되나요,unknown,03.주문결제,shopping3_0117.json
+q348,앞으로 뭐 당분간은 있기는 있을 거잖아 마스크가요,unknown,03.주문결제,shopping3_0118.json
+q349,제가 계좌 이체를 해야 되는 거잖아 그죠,unknown,03.주문결제,shopping3_0118.json
+q350,두 개 상품 두 개 같이 오나요,unknown,03.주문결제,shopping3_0130.json
+q351,가방은 또 따로 가격이 추가가 되나요,unknown,03.주문결제,shopping3_0134.json
+q352,신발이 사이즈가 맞아야 신지 어떻게 되는 거예요,unknown,03.주문결제,shopping3_0138.json
+q353,사용하는 거야 돌려서 이렇게 쪼이고 뭐 풀르고 하는 거 아니에요,unknown,03.주문결제,shopping3_0138.json
+q354,계좌 계좌번호 좀 넣어주세요,unknown,03.주문결제,shopping3_0140.json
+q355,카드 결제로 바꾸려면 어떻게 해요,unknown,03.주문결제,shopping3_0143.json
+q356,제가 신용카드로 하게 되면 신용카드 되는 건가요,unknown,03.주문결제,shopping3_0147.json
+q357,다른 거는 뭐가 있는데요,unknown,03.주문결제,shopping3_0148.json
+q358,마스크 말고 옆으로 해가지고 뭐죠 마스크 줄하고 이렇게 연결하는 거요,unknown,03.주문결제,shopping3_0148.json
+q359,알았수다 주문 해주세요,unknown,03.주문결제,shopping3_0150.json
+q360,블랙이든지 뭐 저 블룬지 하튼 섞어서 네 개를 주세요,unknown,03.주문결제,shopping3_0150.json
+q361,주세요 네 신한은행 해주세요,unknown,03.주문결제,shopping3_0151.json
+q362,에어 침낭이 아이고 차에 까는 거 에어 매트라고 하나요,unknown,03.주문결제,shopping3_0152.json
+q363,좋아요 그걸로 해주세요,unknown,03.주문결제,shopping3_0153.json
+q364,밀폐용기도 사고 싶어요 카드 되죠,unknown,03.주문결제,shopping3_0155.json
+q365,카드 번호를 누가 상담하는 사람이 없나요,unknown,03.주문결제,shopping3_0155.json
+q366,지금은 그거만 해주세요,unknown,03.주문결제,shopping3_0156.json
+q367,만 사천구백 원 카드 결제 해주세요,unknown,03.주문결제,shopping3_0156.json
+q368,가격이 많이 차이 나요,unknown,03.주문결제,shopping3_0157.json
+q369,편하게 무통장 해주세요,unknown,03.주문결제,shopping3_0158.json
+q370,금액이 알고싶네요 정확하게 얼마죠,unknown,03.주문결제,shopping3_0159.json
+q371,제가 주문한 상품 확인할 수 있나요,unknown,03.주문결제,shopping3_0160.json
+q372,기존에 쓴거 맞지요 기업은행으로 해주세요,unknown,03.주문결제,shopping3_0163.json
+q373,지워진 거 같아요 통화로 불러 주시면 안 될까요,unknown,03.주문결제,shopping3_0165.json
+q374,전화가 끊어졌네요 어디까지 했었죠,unknown,03.주문결제,shopping3_0166.json
+q375,결제 다 끝난거 아닌가요,unknown,03.주문결제,shopping3_0168.json
+q376,알았어요 기업은행 계좌로 주세요,unknown,03.주문결제,shopping3_0168.json
+q377,가상 계좌 주시겠습니까,unknown,03.주문결제,shopping3_0174.json
+q378,아무곳이나 괜찮은데 국민은행으로 해주세요,unknown,03.주문결제,shopping3_0174.json
+q379,투명이랑 편광이면 편광으로 주세요,unknown,03.주문결제,shopping3_0175.json
+q380,색깔이오 블랙 레드 주세요,unknown,03.주문결제,shopping3_0175.json
+q381,하얀색은 집에 있어요 검은색으로 주세요,unknown,03.주문결제,shopping3_0176.json
+q382,알겠어요 그러면 어디다 올리면 되죠,unknown,03.주문결제,shopping3_0178.json
+q383,칫솔 나머지가 다시 오는 건지 안 오는 건지 여쭤보려고요,unknown,03.주문결제,shopping3_0180.json
+q384,일단 그것만 먼저 보내주세요,unknown,03.주문결제,shopping3_0188.json
+q385,회원 혜택 안 받으면 얼마를 더 해야 돼요,unknown,03.주문결제,shopping3_0189.json
+q386,수고하십니다 지금 주문하려고 하는데 마이페이지에 주문 내역은 나오거든요,unknown,03.주문결제,shopping3_0190.json
+q387,구매할게요 어떻게 하면 돼요,unknown,03.주문결제,shopping3_0191.json
+q388,팜플렛이라도 하나 같이 보내 주세요,unknown,03.주문결제,shopping3_0192.json
+q389,고거를 구입하게 되면 고거 한 개 주나요,unknown,03.주문결제,shopping3_0194.json
+q390,구입할라면 어떻게 해야 돼요,unknown,03.주문결제,shopping3_0194.json
+q391,상품 번호로 얘기해도 될까요,unknown,03.주문결제,shopping3_0200.json
+q392,약정 조건 다시 좀 물어보려고요,unknown,06.이벤트,shopping6_0002.json
+q393,오 일 날 전화드려야 되나요,unknown,06.이벤트,shopping6_0002.json
+q394,계약하는 사람들은 왜 그런 건 설명 안 해주죠,unknown,06.이벤트,shopping6_0004.json
+q395,신청을 지금 해야 하나요,unknown,06.이벤트,shopping6_0008.json
+q396,구매하면 바로 지급해 주나요,unknown,06.이벤트,shopping6_0012.json
+q397,안녕하세요 라플 당첨자는 어떻게 확인하나요,unknown,06.이벤트,shopping6_0018.json
+q398,자세한 내용은 어디서 확인하나요,unknown,06.이벤트,shopping6_0018.json
+q399,해당 경품도 변경이 되나요,unknown,06.이벤트,shopping6_0020.json
+q400,제가 고를 수는 없나요,unknown,06.이벤트,shopping6_0020.json
+q401,당첨 적립금은 언제 받을 수 있나요,unknown,06.이벤트,shopping6_0021.json
+q402,당첨 지급된 적립금은 어디서 확인되나요,unknown,06.이벤트,shopping6_0021.json
+q403,상품은 어떻게 받을 수 있나요,unknown,06.이벤트,shopping6_0022.json
+q404,결과가 어떻게 되었나요,unknown,06.이벤트,shopping6_0023.json
+q405,아직 추석 기프트 박스 이벤트 진행 중인가요,unknown,06.이벤트,shopping6_0024.json
+q406,당첨 발표일은 언제인가요,unknown,06.이벤트,shopping6_0024.json
+q407,기프트 박스 내용물은 무엇인가요,unknown,06.이벤트,shopping6_0024.json
+q408,혹시 당첨자가 나왔나요,unknown,06.이벤트,shopping6_0025.json
+q409,몇 명을 추첨하는 건가요,unknown,06.이벤트,shopping6_0025.json
+q410,당첨되면 상품은 무엇인가요,unknown,06.이벤트,shopping6_0025.json
+q411,포인트가 사라졌어요 포인트도 유효기간이 있나요,unknown,06.이벤트,shopping6_0027.json
+q412,소멸 예정 포인트는 어디에서 확인할 수 있죠,unknown,06.이벤트,shopping6_0027.json
+q413,쿠폰을 받은게 있는데 유효기간이 있나요,unknown,06.이벤트,shopping6_0028.json
+q414,지금 진행중인 구매사은이벤트는 무엇인가요,unknown,06.이벤트,shopping6_0029.json
+q415,혹시 중고상품 구매할 때도 추가적립이 되나요,unknown,06.이벤트,shopping6_0032.json
+q416,마일리지로 구매했는데 구매적립을 받을 수 있나요,unknown,06.이벤트,shopping6_0034.json
+q417,주문한지 몇일안에 작성해야 하는건가요,unknown,06.이벤트,shopping6_0035.json
+q418,금액은 원하는 만큼 입력하면 되나요,unknown,06.이벤트,shopping6_0036.json
+q419,주문시 적립되는 포인트는 어떻게 계산되나요,unknown,06.이벤트,shopping6_0037.json
+q420,현금성 수단이라는 게 뭐예요,unknown,06.이벤트,shopping6_0037.json
+q421,머니의 지급 기준을 알려주시겠어요,unknown,06.이벤트,shopping6_0039.json
+q422,말씀해주신 걸로 머니를 지급받을 수 있는 건가요,unknown,06.이벤트,shopping6_0039.json
+q423,혹시 지급 기준이 바뀔 수도 있나요,unknown,06.이벤트,shopping6_0039.json
+q424,홈페이지에요 홈페이지 어디요,unknown,06.이벤트,shopping6_0040.json
+q425,경품액의 얼마를 부과하는건가요,unknown,06.이벤트,shopping6_0042.json
+q426,머니에 있는 금액을 다시 포인트로 전환이 가능한가요,unknown,06.이벤트,shopping6_0047.json
+q427,제가 머니 안 썼는데도 불가능한가요,unknown,06.이벤트,shopping6_0047.json
+q428,참여 대상이 어떻게 되나요,unknown,06.이벤트,shopping6_0048.json
+q429,포인트는 얼마나 지급이 되나요,unknown,06.이벤트,shopping6_0050.json
+q430,포인트로도 결제가 가능한가요,unknown,06.이벤트,shopping6_0053.json
+q431,다음 달에 등급이 올라갈 수 있나요,unknown,06.이벤트,shopping6_0055.json
+q432,순수주문금액이라는 게 어떤 거 말하는 거죠,unknown,06.이벤트,shopping6_0055.json
+q433,오만원이상 추가적립 관련해서 주의사항이 있나요,unknown,06.이벤트,shopping6_0056.json
+q434,국내도서로만 구매해도 되는 거죠,unknown,06.이벤트,shopping6_0056.json
+q435,적립금과 예치금이 무슨 차이가 있나요,unknown,06.이벤트,shopping6_0059.json
+q436,적립금을 현금으로 바꿀 수 있나요,unknown,06.이벤트,shopping6_0059.json
+q437,리뷰 포인트 적립이 안 됐어요 왜 그런가요,unknown,06.이벤트,shopping6_0060.json
+q438,포인트를 다른 사람에게 선물할 수 있나요,unknown,06.이벤트,shopping6_0063.json
+q439,할로윈 아이스크림 이벤트가 뭔가요,unknown,06.이벤트,shopping6_0064.json
+q440,뷰티 포인트는 언제 적립이 되나요,unknown,06.이벤트,shopping6_0065.json
+q441,마니아 포인트도 더해서 지급되는 거 맞죠,unknown,06.이벤트,shopping6_0070.json
+q442,제가 오만원 이상 구매했는데 포인트가 어떻게 계산되나요,unknown,06.이벤트,shopping6_0072.json
+q443,국내도서로만 구매해도 가능한 거죠,unknown,06.이벤트,shopping6_0072.json
+q444,최소 구매 금액도 있나요,unknown,06.이벤트,shopping6_0077.json
+q445,추천 링크는 어디서 볼 수 있어요,unknown,06.이벤트,shopping6_0080.json
+q446,영화예매를 할 때 포인트를 쓰려고 했는데 적립이 안 되나요,unknown,06.이벤트,shopping6_0083.json
+q447,무료 서비스 쿠폰은 종류가 뭐뭐 있어요,unknown,06.이벤트,shopping6_0084.json
+q448,당첨자는 연락이 오나요,unknown,06.이벤트,shopping6_0086.json
+q449,제세한 이벤트 안내는 어디서 확인할 수 있나요,unknown,06.이벤트,shopping6_0086.json
+q450,중복할인 가능한 쿠폰이요,unknown,06.이벤트,shopping6_0089.json
+q451,제가 포인트를 쓰고 싶은데 이거 사용 단위가 어떻게 돼요,unknown,06.이벤트,shopping6_0090.json
+q452,왜 추가적립이 불가능한 거죠,unknown,06.이벤트,shopping6_0092.json
+q453,포인트의 지급 기준을 알려주세요,unknown,06.이벤트,shopping6_0094.json
+q454,선정기준은 어떻게 되나요,unknown,06.이벤트,shopping6_0095.json
+q455,마일리지는 어떻게 이용하나요,unknown,06.이벤트,shopping6_0096.json
+q456,마일리지는 언제 적립이 되는 건가요,unknown,06.이벤트,shopping6_0096.json
+q457,만약 비회원으로 주문해도 마일리지 사용 가능한가요,unknown,06.이벤트,shopping6_0096.json
+q458,진행 중인 이벤트는 어떻게 참여하나요,unknown,06.이벤트,shopping6_0097.json
+q459,현금성 결제수단이 뭘 말하는 거죠,unknown,06.이벤트,shopping6_0098.json
+q460,스마일 테스터가 뭔가요,unknown,06.이벤트,shopping6_0099.json
+q461,그럼 비회원도 구입할 수 있나요,account,02.제품사용문의,VS_1/shopping2_0052.json
+q462,아이디하고 비밀번호를 몰라서요,account,02.제품사용문의,VS_1/shopping2_0121.json
+q463,다시 회원가입을 하려면 어떻게 되나요,account,02.제품사용문의,VS_1/shopping2_0121.json
+q464,네 탈퇴를 하고싶은데 못찾겠어요,account,07.온오프라인안내,VS_1/shopping7_0001.json
+q465,회원탈퇴 시 개인정보 처리에 대해 궁금해요,account,07.온오프라인안내,VS_1/shopping7_0010.json
+q466,그렇군요 회원등급도 삭제되나요,account,07.온오프라인안내,VS_1/shopping7_0010.json
+q467,네 소셜 계정으로 회원가입을 하고싶어요,account,07.온오프라인안내,VS_1/shopping7_0015.json
+q468,저 로그인을 하려는데요,account,07.온오프라인안내,VS_1/shopping7_0016.json
+q469,네 아이디를 잊어버려서요,account,07.온오프라인안내,VS_1/shopping7_0016.json
+q470,제가 아이디를 찾았는데 비밀번호를 못 찾겠어요,account,07.온오프라인안내,VS_1/shopping7_0018.json
+q471,그래 그거였어요 근데 왜 로그인이 안 되지,account,07.온오프라인안내,VS_1/shopping7_0018.json
+q472,네 소셜 계정을 연동하고 싶어요,account,07.온오프라인안내,VS_1/shopping7_0020.json
+q473,안녕하세요 아이디를 변경하고 싶어요,account,07.온오프라인안내,VS_1/shopping7_0022.json
+q474,아이디 비밀번호를 분실했어요,account,07.온오프라인안내,VS_1/shopping7_0031.json
+q475,얼마전에 회원 가입 한번 했는데 광고가 뭐 이리 많이 오나요,account,07.온오프라인안내,VS_1/shopping7_0035.json
+q476,네 재가입이 가능한가요,account,07.온오프라인안내,VS_1/shopping7_0036.json
+q477,저 비밀번호를 잊어버렸어요,account,07.온오프라인안내,VS_1/shopping7_0039.json
+q478,네 탈퇴 방법을 알려주세요,account,07.온오프라인안내,VS_1/shopping7_0041.json
+q479,탈퇴하면 전화가 온다고 들었거든요,account,07.온오프라인안내,VS_1/shopping7_0041.json
+q480,안녕하세요 회원탈퇴를 하려고 하는데요,account,07.온오프라인안내,VS_1/shopping7_0043.json
+q481,네 탈퇴 시 불이익이 있나요,account,07.온오프라인안내,VS_1/shopping7_0043.json
+q482,이벤트 혜택 지급 전 탈퇴를 하면 어떻게 되나요,account,07.온오프라인안내,VS_1/shopping7_0043.json
+q483,아이디랑 비밀번호가 생각이 안 나서 전화했어요,account,07.온오프라인안내,VS_1/shopping7_0049.json
+q484,비회원 주문내역을 회원 주문내역으로 이전 시킬 수는 없나요,account,07.온오프라인안내,VS_1/shopping7_0052.json
+q485,탈퇴는 어떻게 하나요,account,07.온오프라인안내,VS_1/shopping7_0055.json
+q486,네 회원가입에 대해 여쭤보려고요,account,07.온오프라인안내,VS_1/shopping7_0056.json
+q487,네 외국인은 회원가입이 가능한가요,account,07.온오프라인안내,VS_1/shopping7_0056.json
+q488,이 경우에도 휴대폰 본인인증이 가능한가요,account,07.온오프라인안내,VS_1/shopping7_0057.json
+q489,그러면 제가 언제 회원 가입했는지 확인해주실 수 있나요,account,07.온오프라인안내,VS_1/shopping7_0057.json
+q490,근데 왜 본인인증이 안 될까요,account,07.온오프라인안내,VS_1/shopping7_0057.json
+q491,회원 정보를 변경하고 싶어요,account,07.온오프라인안내,VS_1/shopping7_0059.json
+q492,네 회원가입에 대해 궁금합니다,account,07.온오프라인안내,VS_1/shopping7_0062.json
+q493,비밀번호 재확인을 하라고 나와요,account,07.온오프라인안내,VS_1/shopping7_0071.json
+q494,네 아이디를 계속 쓸 수 있나요,account,07.온오프라인안내,VS_1/shopping7_0079.json
+q495,모두 탈퇴했으면 다른 아이디를 써야 되는 거네요,account,07.온오프라인안내,VS_1/shopping7_0079.json
+q496,죄송한데 사이트 로그인을 할 수가 없어서 일단 연락 드렸어요,account,07.온오프라인안내,VS_1/shopping7_0080.json
+q497,네 그래서 비밀번호 찾기 들어갔는데 휴대폰 번호가 바뀌었거든요,account,07.온오프라인안내,VS_1/shopping7_0080.json
+q498,정말요 휴대폰 번호 변경되었는데 회원정보를 수정 안했어요,account,07.온오프라인안내,VS_1/shopping7_0080.json
+q499,오래돼서 아이디를 까먹었어요,account,07.온오프라인안내,VS_1/shopping7_0081.json
+q500,비회원도 주문이 가능한가요,account,07.온오프라인안내,VS_1/shopping7_0082.json
+q501,제가 쇼핑몰에서 구매 하려는데 회원가입 문의하려고요,account,07.온오프라인안내,VS_1/shopping7_0083.json
+q502,그러면 기존 계정에 있던 마일리지 같은 것도 승계가 되는 거죠,account,07.온오프라인안내,VS_1/shopping7_0084.json
+q503,저 혹시 아이디랑 비밀번호를 찾을 수 있는 방법이 있어요,account,07.온오프라인안내,VS_1/shopping7_0093.json
+q504,제가 해킹을 당한 거 같아서 탈퇴하려 하는거라서요,account,07.온오프라인안내,VS_1/shopping7_0118.json
+q505,비밀번호 오회 입력 오류로 고객센터로 문의 하라고 해서요,account,07.온오프라인안내,VS_1/shopping7_0121.json
+q506,사이트 비밀번호 좀 조회해 주실래요,account,07.온오프라인안내,VS_1/shopping7_0125.json
+q507,기존 비밀번호를 조회할 수는 없는거에요,account,07.온오프라인안내,VS_1/shopping7_0125.json
+q508,네 다른게 아니라 제가 거기 쇼핑몰을 탈퇴했는데도 메일이 와가지고요,account,07.온오프라인안내,VS_1/shopping7_0129.json
+q509,안녕하세요 제가 휴면 회원 전환 예정 메일을 받았어요,account,07.온오프라인안내,VS_1/shopping7_0132.json
+q510,근데 휴면 회원 하기 싫은데 어떻게 해야 하나요,account,07.온오프라인안내,VS_1/shopping7_0132.json
+q511,로그인을 할라고 그러면은 이메일이 중복됐다 이렇게 나오더라고요,account,07.온오프라인안내,VS_1/shopping7_0133.json
+q512,근데 왜 그런데 잠깐만 계정이 겹쳤다고 이렇게 나오죠,account,07.온오프라인안내,VS_1/shopping7_0133.json
+q513,네 저 여기 회원 탈퇴할 건데요,account,07.온오프라인안내,VS_1/shopping7_0137.json
+q514,아 근데 나중에 재 가입하면 제 정보 다시 뜨나요,account,07.온오프라인안내,VS_1/shopping7_0140.json
+q515,통합회원 가입하기 약관동의가 안 돼요,account,07.온오프라인안내,VS_1/shopping7_0141.json
+q516,제가 여기 홈페이지 회원 탈퇴할까 생각 중인데요,account,07.온오프라인안내,VS_1/shopping7_0144.json
+q517,그러면 다시 가입하면 복구돼요,account,07.온오프라인안내,VS_1/shopping7_0144.json
+q518,개인정보 이용내역 안내라고 하는데요,account,07.온오프라인안내,VS_1/shopping7_0148.json
+q519,네 안녕하세요 탈퇴 후에 재가입할 수 있나요,account,07.온오프라인안내,VS_1/shopping7_0150.json
+q520,인증 이메일이 오지를 않네요,account,07.온오프라인안내,VS_1/shopping7_0157.json
+q521,인증 이메일 다시 받고 싶습니다,account,07.온오프라인안내,VS_1/shopping7_0157.json
+q522,제가 이제 회원 탈퇴를 하려고 하는데요,account,07.온오프라인안내,VS_1/shopping7_0164.json
+q523,네 법인 명의 휴대전화는 어떻게 인증해야 되죠,account,07.온오프라인안내,VS_1/shopping7_0165.json
+q524,자꾸 본인인증을 하라는데 방법을 모르겠네요,account,07.온오프라인안내,VS_1/shopping7_0165.json
+q525,네 가입한 적이 없는데 메일이 와요,account,07.온오프라인안내,VS_1/shopping7_0168.json
+q526,제 계정에 오류가 확인된다고 아이디랑 비밀번호를 적어 달래요,account,07.온오프라인안내,VS_1/shopping7_0172.json
+q527,여기 홈페이지 회원 탈퇴하면 받았던 쿠폰도 다 없어지는 거예요,account,07.온오프라인안내,VS_1/shopping7_0176.json
+q528,제가 실수로 회원 탈퇴를 했는데요,account,07.온오프라인안내,VS_1/shopping7_0193.json
+q529,이거 재가입하면 적립금이랑 쿠폰 다 살아나나요,account,07.온오프라인안내,VS_1/shopping7_0193.json
+q530,다른게 아니라 저희 아버지 계정이 휴면이 되어서요,account,07.온오프라인안내,VS_1/shopping7_0195.json
+q531,로그인이 안되네요 지금,account,07.온오프라인안내,VS_1/shopping7_0197.json
+q532,장바구니랑 찜은 꼭 로그인을 해야 하나요,account,07.온오프라인안내,TS_1/shopping7_0403.json
+q533,혹시 회원 탈퇴하면 개인정보는 모두 삭제되나요,account,07.온오프라인안내,TS_1/shopping7_0412.json
+q534,홈페이지에서 구매하려면 꼭 회원가입을 해야 하나요,account,07.온오프라인안내,TS_1/shopping7_0425.json
+q535,제가 저번 주에 회원 탈퇴를 했는데 오늘 다시 재가입 하려고 하거든요,account,07.온오프라인안내,TS_1/shopping7_0441.json
+q536,쇼핑몰 회원정보 수정은 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_0460.json
+q537,제가 회원 탈퇴했다가 다시 가입을 했는데요,account,07.온오프라인안내,TS_1/shopping7_0463.json
+q538,저 회원정보를 변경하면 두 개 사이트에서 동시에 변경되나요,account,07.온오프라인안내,TS_1/shopping7_0476.json
+q539,회원 탈퇴 좀 해주세요,account,07.온오프라인안내,TS_1/shopping7_0485.json
+q540,혹시 회원을 한번 탈퇴하면 재가입이 안 되나요,account,07.온오프라인안내,TS_1/shopping7_0496.json
+q541,홈페이지에서 회원 가입을 하려고 하는데요,account,07.온오프라인안내,TS_1/shopping7_0498.json
+q542,그래서 회원 탈퇴를 하고 싶어요,account,07.온오프라인안내,TS_1/shopping7_0520.json
+q543,안녕하세요 계정을 해킹당한 것 같은데 문의 접수가 가능할까요,account,07.온오프라인안내,TS_1/shopping7_0547.json
+q544,제 아이디의 로그기록을 조회하고 싶은데요,account,07.온오프라인안내,TS_1/shopping7_0554.json
+q545,비회원으로도 쇼핑몰에서 구입이 가능한가요,account,07.온오프라인안내,TS_1/shopping7_0586.json
+q546,제가 회원 탈퇴를 했는데 적립금이랑 쿠폰은 어떻게 되나요,account,07.온오프라인안내,TS_1/shopping7_0589.json
+q547,로그인 하려고 하는데 비밀번호를 잊어버렸거든요,account,07.온오프라인안내,TS_1/shopping7_0600.json
+q548,안녕하세요 비밀번호를 까먹었는데 어떻게 해야 하죠,account,07.온오프라인안내,TS_1/shopping7_0606.json
+q549,회원정보를 수정하고 싶은데 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_0615.json
+q550,안녕하세요 기존에 연동했던 계정을 확인하고 싶어서요,account,07.온오프라인안내,TS_1/shopping7_0616.json
+q551,저 홈페이지 아이디가 기억 안 나요,account,07.온오프라인안내,TS_1/shopping7_0618.json
+q552,저대신 회원 탈퇴 좀 해주세요,account,07.온오프라인안내,TS_1/shopping7_0633.json
+q553,안녕하세요 혹시 계정 수정도 가능 한가요,account,07.온오프라인안내,TS_1/shopping7_0634.json
+q554,주소를 바꾸려고 하는데 회원 정보 수정은 어디서 하나요,account,07.온오프라인안내,TS_1/shopping7_0650.json
+q555,아이디를 여러 개 사용할 수 있나요,account,07.온오프라인안내,TS_1/shopping7_0657.json
+q556,회원이 아닌데 구매 가능한가요,account,07.온오프라인안내,TS_1/shopping7_0658.json
+q557,제가 회원가입을 하고 싶은데요,account,07.온오프라인안내,TS_1/shopping7_0664.json
+q558,탈퇴를 취소하고 싶어요,account,07.온오프라인안내,TS_1/shopping7_0679.json
+q559,여기도 탈퇴하면 적립금이고 뭐고 다 없어지나요,account,07.온오프라인안내,TS_1/shopping7_0693.json
+q560,네 안녕하세요 회원가입이 안 돼서요,account,07.온오프라인안내,TS_1/shopping7_0696.json
+q561,회원 탈퇴를 취소할 수도 있나요,account,07.온오프라인안내,TS_1/shopping7_0708.json
+q562,회원 가입을 하니까 이메일이 중복된다고 하는데요,account,07.온오프라인안내,TS_1/shopping7_0724.json
+q563,여기 사이트 구매하려면 회원가입이 필수인가요,account,07.온오프라인안내,TS_1/shopping7_0733.json
+q564,아이디와 비밀번호를 잊어버렸는데요,account,07.온오프라인안내,TS_1/shopping7_0740.json
+q565,사이트에서 회원정보를 변경하고 싶은데요,account,07.온오프라인안내,TS_1/shopping7_0762.json
+q566,회원가입이 진행이 안되요,account,07.온오프라인안내,TS_1/shopping7_0767.json
+q567,회원가입은 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_0830.json
+q568,이거 탈퇴하면 포인트가 다 사라지나요,account,07.온오프라인안내,TS_1/shopping7_0834.json
+q569,안녕하세요 회원 개명 신청을 하려고 하는데요,account,07.온오프라인안내,TS_1/shopping7_0844.json
+q570,제가 실수로 방금 탈퇴를 했는데요,account,07.온오프라인안내,TS_1/shopping7_0872.json
+q571,여기 회원 탈퇴 후 재가입이 가능한가요,account,07.온오프라인안내,TS_1/shopping7_0879.json
+q572,네 혹시 아이디를 바꿀 수 있나요,account,07.온오프라인안내,TS_1/shopping7_0884.json
+q573,네 안녕하세요 회원 탈퇴를 하고 싶어요,account,07.온오프라인안내,TS_1/shopping7_0889.json
+q574,에스엔에스로 회원가입을 했었는데요,account,07.온오프라인안내,TS_1/shopping7_0905.json
+q575,제가 아이디를 잊어버려서 찾으려고 하는데요,account,07.온오프라인안내,TS_1/shopping7_0935.json
+q576,네 안녕하세요 이메일로 임시 비밀번호를 발급했는데요,account,07.온오프라인안내,TS_1/shopping7_1027.json
+q577,제가 로그인하려고 하는데 아이디를 잊어버렸거든요,account,07.온오프라인안내,TS_1/shopping7_1051.json
+q578,안녕하세요 회원 탈퇴는 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_1060.json
+q579,아이디나 비밀번호가 기억이 안 날 때는 어떻게 해야 하나요,account,07.온오프라인안내,TS_1/shopping7_1081.json
+q580,회원정보 변경을 하고 싶은데요,account,07.온오프라인안내,TS_1/shopping7_1085.json
+q581,재가입하면 기존에 사용하는 아이디는 사용 할 수없나요,account,07.온오프라인안내,TS_1/shopping7_1094.json
+q582,안녕하세요 회원 가입은 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_1101.json
+q583,저 비밀번호를 바꾸고 싶은데요,account,07.온오프라인안내,TS_1/shopping7_1105.json
+q584,그러면 멤버십도 탈퇴하려면 어떻게 해야하나요,account,07.온오프라인안내,TS_1/shopping7_1113.json
+q585,휴면 회원이 무엇인가요,account,07.온오프라인안내,TS_1/shopping7_1119.json
+q586,탈퇴했는데요 재가입이 안 돼서요,account,07.온오프라인안내,TS_1/shopping7_1175.json
+q587,제가 방금 회원 가입을 했는데 혹시 가입이 제대로 됐나요,account,07.온오프라인안내,TS_1/shopping7_1191.json
+q588,회원정보가 변경 되었는데 정보 변경은 어디서 하나요,account,07.온오프라인안내,TS_1/shopping7_1193.json
+q589,저희 아들이 회원가입이 안된다고 해서요,account,07.온오프라인안내,TS_1/shopping7_1217.json
+q590,안녕하세요 제가 아이디를 까먹었거든요,account,07.온오프라인안내,TS_1/shopping7_1236.json
+q591,회원 정보와 관련된 피해를 입었을 경우에는 어떻게 해야 하나요,account,07.온오프라인안내,TS_1/shopping7_1237.json
+q592,회원가입 시 사업자 인증이 안돼요,account,07.온오프라인안내,TS_1/shopping7_1240.json
+q593,회원 탈퇴하고 싶은데 어떻게 하면 되나요,account,07.온오프라인안내,TS_1/shopping7_1243.json
+q594,이거 탈퇴하면 포인트랑 그런 거 다 사라지나요,account,07.온오프라인안내,TS_1/shopping7_1244.json
+q595,안녕하세요 회원 탈퇴를 하고 싶어서요,account,07.온오프라인안내,TS_1/shopping7_1246.json
+q596,안녕하세요 제가 홈페이지를 이용하다가 탈퇴한 적이 있는데요,account,07.온오프라인안내,TS_1/shopping7_1285.json
+q597,아뇨 회원 탈퇴를 눌러도 회원 탈퇴가 안 돼서요,account,07.온오프라인안내,TS_1/shopping7_1297.json
+q598,회원 아이디를 변경하고 싶어요,account,07.온오프라인안내,TS_1/shopping7_1315.json
+q599,회원가입을 했는데요 아이디를 변경하고 싶어서요,account,07.온오프라인안내,TS_1/shopping7_1344.json
+q600,네 안녕하세요 혹시 회원 가입은 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_1383.json
+q601,간편가입 관련해서 질문드리려고요,account,07.온오프라인안내,TS_1/shopping7_1384.json
+q602,회원 정보를 변경하고 싶습니다,account,07.온오프라인안내,TS_1/shopping7_1409.json
+q603,안녕하세요 계정을 도용당한 거 같아요 도와주세요,account,07.온오프라인안내,TS_1/shopping7_1414.json
+q604,이번에 회원정보를 변경하고 싶어서요,account,07.온오프라인안내,TS_1/shopping7_1423.json
+q605,네 가입하는데 인증 방법이 뭐가 있나요,account,07.온오프라인안내,TS_1/shopping7_1426.json
+q606,네 비밀번호를 찾을 수 있을까요,account,07.온오프라인안내,TS_1/shopping7_1431.json
+q607,제가 전에 쓰던 아이디인데 다시 사용 못 하나요,account,07.온오프라인안내,TS_1/shopping7_1474.json
+q608,제가 이메일이 바껴서 비밀번호 찾기를 할 수가 없는데요,account,07.온오프라인안내,TS_1/shopping7_1482.json
+q609,예 제가 사이트 회원 탈퇴 좀 하려고요,account,07.온오프라인안내,TS_1/shopping7_1488.json
+q610,제가 중학생인데 온라인 가입이 안돼서요,account,07.온오프라인안내,TS_1/shopping7_1489.json
+q611,전화로 탈퇴할 수 있나요,account,07.온오프라인안내,TS_1/shopping7_1532.json
+q612,회원 탈퇴 후 예치금은 어떻게 되나요,account,07.온오프라인안내,TS_1/shopping7_1544.json
+q613,그래서 이거 회원정보 전체를 없애 주고 내가 다시 만들면 안 되나요,account,07.온오프라인안내,TS_1/shopping7_1558.json
+q614,제휴사에도 회원가입을 해야하나요,account,07.온오프라인안내,TS_1/shopping7_1565.json
+q615,회원탈퇴 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_1573.json
+q616,비밀번호 변경은 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_1613.json
+q617,회원탈퇴를 하고 싶은데요 어떻게 해야 되나요,account,07.온오프라인안내,TS_1/shopping7_1626.json
+q618,회원정보 수정은 어떻게 하나요,account,07.온오프라인안내,TS_1/shopping7_1685.json
+q619,꼭 회원가입을 해야 하나요 안 하면 불이익이 있나요,account,07.온오프라인안내,TS_1/shopping7_1695.json
+q620,저 로그인을 하려는데 비밀번호를 까먹어서요,account,07.온오프라인안내,TS_1/shopping7_1706.json
+q621,온라인몰의 비밀번호를 변경하고 싶거든요,account,07.온오프라인안내,TS_1/shopping7_1721.json
+q622,계정이 자동으로 삭제되기도 하나요,account,07.온오프라인안내,TS_1/shopping7_1743.json
+q623,근데 광고할 때는 효과가 없으면은 이렇게 환불해주겠다 했잖아요,refund,01.AS문의,VS_1/shopping1_0012.json
+q624,오천 원요 반품하는데 왜 왕복이죠,refund,01.AS문의,VS_1/shopping1_0019.json
+q625,그거를 제가 못 입을 거 같아서 반품 하려고 하는데,refund,01.AS문의,VS_1/shopping1_0020.json
+q626,그게 취소를 좀 할 수 있을까 해서요,refund,01.AS문의,VS_1/shopping1_0026.json
+q627,예 다른 게 아니라 충전선이 불량이라 교환하려고요,refund,01.AS문의,VS_1/shopping1_0042.json
+q628,네 수고하십니다 반품 입금하라고 해서 입금 했거든요,refund,01.AS문의,VS_1/shopping1_0110.json
+q629,반품 접수 된건지 확인 좀 부탁 드리려고요,refund,01.AS문의,VS_1/shopping1_0110.json
+q630,혹시 지금 배송접수가 안됐으면 취소를 좀 하고 싶어서요,refund,01.AS문의,VS_1/shopping1_0121.json
+q631,이미 접수가 돼서 취소는 안 되는 건가요,refund,01.AS문의,VS_1/shopping1_0121.json
+q632,네 그럼 그걸로 교환을 해 줄 수 있나요,refund,01.AS문의,VS_1/shopping1_0184.json
+q633,네 반품을 하라 해서 경비실에 맡겼는데 물건이 없어졌어요,refund,01.AS문의,VS_1/shopping1_0201.json
+q634,전체를 반품해야 되나요,refund,01.AS문의,VS_1/shopping1_0209.json
+q635,저거 잭을 더 못 쓴다면은 그냥 반품으로 할게요,refund,01.AS문의,VS_1/shopping1_0209.json
+q636,근데 이거 엠 사이즈로 다시 받을 수는 없는 건가요,refund,01.AS문의,VS_1/shopping1_0218.json
+q637,예 수거를 부산에 있거든요 부산에서 수거해주시면 좋겠어요,refund,02.제품사용문의,VS_1/shopping2_0076.json
+q638,일단 취소를 해주세요 제가 다시 전화를 드릴게요,refund,02.제품사용문의,VS_1/shopping2_0186.json
+q639,출장 서비스는 필요없고 환불 가능한가요,refund,02.제품사용문의,VS_1/shopping2_0295.json
+q640,네 상품취소를 취소할려고요,refund,04.배송,VS_1/shopping4_0021.json
+q641,결제가 잘못된 거 같아서 주문취소 하려는데요,refund,04.배송,VS_1/shopping4_0023.json
+q642,정상결제가 된 거면 상품 취소한 것을 취소해달라고요,refund,04.배송,VS_1/shopping4_0025.json
+q643,이거 안 오면 취소 어떻게 해야 돼요,refund,04.배송,VS_1/shopping4_0032.json
+q644,제품 취소해주셨으면 해서요 아직 배송은 받지 못했거든요,refund,04.배송,VS_1/shopping4_0050.json
+q645,아니 왜 이렇게 늦냐고요 짜증나서 진짜 환불하고 싶어요,refund,04.배송,VS_1/shopping4_0056.json
+q646,네 혹시 부분 취소도 가능한가요,refund,04.배송,VS_1/shopping4_0068.json
+q647,바로 취소처리 해주시고 문자 하나 보내주세요,refund,04.배송,VS_1/shopping4_0068.json
+q648,취소를 해야 되는 건지 어떤 건지 알아보려고 전화 드렸는데요,refund,04.배송,VS_1/shopping4_0084.json
+q649,그럼 환불 신청 할 수 있나요,refund,04.배송,VS_1/shopping4_0100.json
+q650,만약에 내일까지 안 오면 이거 그냥 반품해도 되는 거죠,refund,04.배송,VS_1/shopping4_0101.json
+q651,받기 전에 그냥 취소해도 되는 거죠,refund,04.배송,VS_1/shopping4_0101.json
+q652,근데 아직도 환불이 안 돼서 이건 어떻게 진행되고 있는 건가요,refund,04.배송,VS_1/shopping4_0107.json
+q653,예 이거 상품 취소할려고요,refund,04.배송,VS_1/shopping4_0145.json
+q654,회수가 많이 늦어지나요,refund,04.배송,VS_1/shopping4_0154.json
+q655,예 수고 많으십니다 저 반품할려는데요,refund,04.배송,VS_1/shopping4_0186.json
+q656,반품 접수를 하고 나서 절차 어떻게 되는지를 알고싶어서요,refund,04.배송,VS_1/shopping4_0186.json
+q657,반품이 제대로 됐나 확인차 전화드렸거든요,refund,04.배송,VS_1/shopping4_0191.json
+q658,저 반품을 좀 했으면 하는데 교환하고요,refund,04.배송,VS_1/shopping4_0193.json
+q659,예 반품 좀 물어보려고요,refund,04.배송,VS_1/shopping4_0195.json
+q660,반품하려면 어떻게 해야 되나요,refund,04.배송,VS_1/shopping4_0196.json
+q661,예 반품 건 때문에 전화드렸는데요,refund,04.배송,VS_1/shopping4_0197.json
+q662,네 교환해 주세요,refund,05.환불반품교환,VS_1/shopping5_0001.json
+q663,이틀전에 수거 처리 된 것이 반송 들어왔을 수도 있나요,refund,05.환불반품교환,VS_1/shopping5_0002.json
+q664,저번에 물건교환 신청했는데 언제쯤 오는지 알고 싶어서요,refund,05.환불반품교환,VS_1/shopping5_0003.json
+q665,반송 완료 되었고 새 제품 주신다고 하던데요,refund,05.환불반품교환,VS_1/shopping5_0006.json
+q666,택배로 반송 보냈는데 아직도 말이 없는데요,refund,05.환불반품교환,VS_1/shopping5_0006.json
+q667,네 그냥 반송 여부 확인하려 전화한거거든요,refund,05.환불반품교환,VS_1/shopping5_0006.json
+q668,후라이팬 미들에서 라지로 교환하려구요,refund,05.환불반품교환,VS_1/shopping5_0009.json
+q669,그래요 그럼 반품은 어떻게 해야 되나요,refund,05.환불반품교환,VS_1/shopping5_0009.json
+q670,네 반품 접수해 주세요,refund,05.환불반품교환,VS_1/shopping5_0009.json
+q671,반품하면 돈이 나가요,refund,05.환불반품교환,VS_1/shopping5_0009.json
+q672,예 주문 취소할라고요,refund,05.환불반품교환,VS_1/shopping5_0010.json
+q673,충전도 잘 안 되고 연결이 안 되거든요 그거 교환해야 될 것 같애요,refund,05.환불반품교환,VS_1/shopping5_0011.json
+q674,아까 주문 취소를 했는데요 취소가 된 건지 해서요,refund,05.환불반품교환,VS_1/shopping5_0012.json
+q675,지금 제가 주문해 놓은 거 있거든요 그것도 취소해 줄래요,refund,05.환불반품교환,VS_1/shopping5_0012.json
+q676,네 하여튼 반품 요청이 거절되었다는 그런 거 하지 마시고요,refund,05.환불반품교환,VS_1/shopping5_0013.json
+q677,이거 꼭 반품처리 해주세요,refund,05.환불반품교환,VS_1/shopping5_0013.json
+q678,품절 때문에요 송장번호 입력됐는데 출고 전 취소하려고요,refund,05.환불반품교환,VS_1/shopping5_0014.json
+q679,네 취소 안내 부탁드립니다,refund,05.환불반품교환,VS_1/shopping5_0014.json
+q680,다 반품 처리하고 다시 구매하고 싶거든요,refund,05.환불반품교환,VS_1/shopping5_0015.json
+q681,제일 큰 거 외에 두 개는 반품을 하고 싶은데요,refund,05.환불반품교환,VS_1/shopping5_0016.json
+q682,취소하는 버튼이 없어요 취소해 주세요,refund,05.환불반품교환,VS_1/shopping5_0017.json
+q683,네 차량용 거치대를 샀는데 오작동이 돼서 교환 요청 하려구요,refund,05.환불반품교환,VS_1/shopping5_0018.json
+q684,반품으로 처리 부탁드려요,refund,05.환불반품교환,VS_1/shopping5_0020.json
+q685,네 반품 절차는 어떻게 하면 되는 거죠,refund,05.환불반품교환,VS_1/shopping5_0020.json
+q686,네 저번 주에 반품 문의를 했거든요,refund,05.환불반품교환,VS_1/shopping5_0021.json
+q687,저번에 반품 신청을 했는데요,refund,05.환불반품교환,VS_1/shopping5_0022.json
+q688,네 상품 주문하고 취소를 했는데요,refund,05.환불반품교환,VS_1/shopping5_0023.json
+q689,아직 환불이 안 된 것 같아 갖고 제가 전화드렸거든요,refund,05.환불반품교환,VS_1/shopping5_0023.json
+q690,추석 전에 반품 신청을 해놓은 게 있는데요,refund,05.환불반품교환,VS_1/shopping5_0024.json
+q691,반품을 해야할 거 같아요,refund,05.환불반품교환,VS_1/shopping5_0026.json
+q692,제가 매트리스를 반품을 했는데요,refund,05.환불반품교환,VS_1/shopping5_0028.json
+q693,반품이 현재 진행중인데 상황이 궁금해서요,refund,05.환불반품교환,VS_1/shopping5_0029.json
+q694,제가 일요일 주문을 하고 월요일 오전에 취소 요청을 했어요,refund,05.환불반품교환,VS_1/shopping5_0031.json
+q695,그런데 취소가 안되고 배달이 돼버렸더라구요,refund,05.환불반품교환,VS_1/shopping5_0031.json
+q696,네 일단 반품 요청 할라고 했더니 잘 안되더라고요,refund,05.환불반품교환,VS_1/shopping5_0031.json
+q697,임의로 반품하면 안된다고 해서요,refund,05.환불반품교환,VS_1/shopping5_0031.json
+q698,네 상품 반품 하려고 하거든요,refund,05.환불반품교환,VS_1/shopping5_0032.json
+q699,그럼 반품비용은 얼마인가요,refund,05.환불반품교환,VS_1/shopping5_0033.json
+q700,네 반품 부탁드려요,refund,05.환불반품교환,VS_1/shopping5_0033.json
+q701,어제 받은 물건을 반품하고 싶어요,refund,05.환불반품교환,VS_1/shopping5_0034.json
+q702,맞교환되는지 확인 부탁드려요,refund,05.환불반품교환,VS_1/shopping5_0035.json
+q703,그럼 반품을 해야 하는 거죠,refund,05.환불반품교환,VS_1/shopping5_0036.json
+q704,혹시 맞교환이 되나요,refund,05.환불반품교환,VS_1/shopping5_0036.json
+q705,그럼 교환 반품으로 안 하고 취소하면 되나요,refund,05.환불반품교환,VS_1/shopping5_0037.json
+q706,어떻게 취소해야 하나요,refund,05.환불반품교환,VS_1/shopping5_0041.json
+q707,네 상품을 교환하고 싶어요,refund,05.환불반품교환,VS_1/shopping5_0042.json
+q708,이거 반품을 하고요 제가 다시 주문을 했거든요,refund,05.환불반품교환,VS_1/shopping5_0046.json
+q709,이게 교환을 할 동안 며칠 걸리잖아요,refund,05.환불반품교환,VS_1/shopping5_0046.json
+q710,그 제품을 반품 좀 하려고 하거든요,refund,05.환불반품교환,VS_1/shopping5_0049.json
+q711,그래서 하나는 반품을 하고 싶어서요,refund,05.환불반품교환,VS_1/shopping5_0050.json
+q712,이게 안전하게 물고 있을 수가 없을 것 같아서 반품할려고 하는데요,refund,05.환불반품교환,VS_1/shopping5_0051.json
+q713,예 저 물품을 교환하려고 하는데요,refund,05.환불반품교환,VS_1/shopping5_0052.json
+q714,그래요 그러면 반품을 하는 걸로 해주세요,refund,05.환불반품교환,VS_1/shopping5_0052.json
+q715,교환을 해야 될 것 같은데요,refund,05.환불반품교환,VS_1/shopping5_0053.json
+q716,이거 저는 별도로 취소 안 해도 되는 거죠,refund,05.환불반품교환,VS_1/shopping5_0053.json
+q717,네 제품을 반품한 게 있는데 연락이 없어서요,refund,05.환불반품교환,VS_1/shopping5_0056.json
+q718,그러고 반품을 했는데 그 이후에 연락이 없네요,refund,05.환불반품교환,VS_1/shopping5_0057.json
+q719,예 안녕하세요 불량 때문에 반품 좀 하려고요,refund,05.환불반품교환,VS_1/shopping5_0060.json
+q720,아무래도 환불을 하는 게 좋을 것 같아요,refund,05.환불반품교환,VS_1/shopping5_0062.json
+q721,네 제가 환불을 요청했다가요 아직 처리가 안 된 거 같아서요,refund,05.환불반품교환,VS_1/shopping5_0063.json
+q722,그럼 반품은 안 되는 건가요 환불로 처리되는 거죠,refund,05.환불반품교환,VS_1/shopping5_0063.json
+q723,네 상품을 반품했는데요 환불이 잘 안 된 거 같아서요,refund,05.환불반품교환,VS_1/shopping5_0064.json
+q724,아니요 환불도 확인이 안 됐는데 금액은 나갔어요,refund,05.환불반품교환,VS_1/shopping5_0064.json
+q725,반품 요청을 했거든요 근데 회수가 아직도 안 돼요,refund,05.환불반품교환,VS_1/shopping5_0065.json
+q726,환불 요청이요 받은 기억이 없는데요,refund,05.환불반품교환,VS_1/shopping5_0065.json
+q727,네 반품 요청한 게 있는데 상품이 회수가 아직 안 돼서요,refund,05.환불반품교환,VS_1/shopping5_0066.json
+q728,네 페이지에서는 반품 완료라고 떴는데요,refund,05.환불반품교환,VS_1/shopping5_0066.json
+q729,여보세요 제가 저번에 반품 신청한 게 있는데요,refund,05.환불반품교환,VS_1/shopping5_0067.json
+q730,반품 물건을 안 가져갔는데요 근데 반품 완료가 됐대요,refund,05.환불반품교환,VS_1/shopping5_0067.json
+q731,네 반품 좀 하려는데 거기 주소를 몰라서요,refund,05.환불반품교환,VS_1/shopping5_0068.json
+q732,네 물품 반품 하는데 주소를 몰라가지고요,refund,05.환불반품교환,VS_1/shopping5_0069.json
+q733,그냥 반품 안 하고 쓰려는데 어떻게 해야 해요,refund,05.환불반품교환,VS_1/shopping5_0071.json
+q734,안녕하세요 제가 반품 신청했는데요,refund,05.환불반품교환,VS_1/shopping5_0072.json
+q735,네 반품하려고 하려고 문의했는데 그냥 쓸라고요,refund,05.환불반품교환,VS_1/shopping5_0072.json
+q736,네 맞아요 반품 철회하고 싶어요,refund,05.환불반품교환,VS_1/shopping5_0072.json
+q737,제가 부분 반품을 신청하고 물건을 보냈어요,refund,05.환불반품교환,VS_1/shopping5_0073.json
+q738,카드 취소가 안 된 것 같아서 확인차 연락드렸거든요,refund,05.환불반품교환,VS_1/shopping5_0073.json
+q739,네 두 세트 주문했는데 한 세트 냅두고 한 세트는 반품 보냈거든요,refund,05.환불반품교환,VS_1/shopping5_0073.json
+q740,반품 접수가 잘 되었는지 확인 하려고요,refund,05.환불반품교환,VS_1/shopping5_0074.json
+q741,반품 수거가 되질 않아서 연락드렸어요,refund,05.환불반품교환,VS_1/shopping5_0075.json
+q742,제품 반품 접수해 주세요,refund,05.환불반품교환,VS_1/shopping5_0078.json
+q743,환불은 어떻게 되나요,refund,05.환불반품교환,VS_1/shopping5_0078.json
+q744,주문 취소했는데 물건이 왔어요,refund,05.환불반품교환,VS_1/shopping5_0080.json
+q745,그럼 이건 반품하려면 어떻게 해야 됩니까,refund,05.환불반품교환,VS_1/shopping5_0080.json
+q746,예 그 제품 받았는데요 제가 반품 신청하고 환불 요청했어요,refund,05.환불반품교환,VS_1/shopping5_0081.json
+q747,이거 언제 처리돼요 그때도 그렇게 말씀해 주셨는데 회수도 안 해가고요,refund,05.환불반품교환,VS_1/shopping5_0081.json
+q748,빨리 회수해가세요 제발 빨리요,refund,05.환불반품교환,VS_1/shopping5_0081.json
+q749,제품을 회수를 안해요 오겠다 하고 안 오시고,refund,05.환불반품교환,VS_1/shopping5_0082.json
+q750,예 회수 요청 빨리 넣어주세요 이거 오래됐거든요,refund,05.환불반품교환,VS_1/shopping5_0082.json
+q751,네 저기 반품 좀 하려고 그러는데요,refund,05.환불반품교환,VS_1/shopping5_0083.json
+q752,네 반품 해주세요 환불 해주세요,refund,05.환불반품교환,VS_1/shopping5_0085.json
+q753,네 무슨 한 달이 지났는데 출고도 안되고 반품도 안되고 이게 뭐요,refund,05.환불반품교환,VS_1/shopping5_0086.json
+q754,그냥 환불 할 수 있지요 환불해 주세요,refund,05.환불반품교환,VS_1/shopping5_0086.json
+q755,네 방금 결제를 하나 했는데요 취소할려구요,refund,05.환불반품교환,VS_1/shopping5_0088.json
+q756,반품하고 새로 주문을 해야 될 것 같은데요,refund,05.환불반품교환,VS_1/shopping5_0090.json
+q757,네 반품 신청했었는데 언제 가지러 오려나 싶어서요,refund,05.환불반품교환,VS_1/shopping5_0094.json
+q758,네 그럼 빠르게 반품 부탁드릴게요,refund,05.환불반품교환,VS_1/shopping5_0094.json
+q759,회수 처리를 안 하셔서요,refund,05.환불반품교환,VS_1/shopping5_0095.json
+q760,네 알겠습니다 빨리 좀 회수 좀 해주세요,refund,05.환불반품교환,VS_1/shopping5_0095.json
+q761,어제 저녁에 주문했는데 아직 받진 않았는데 취소하려고요,refund,05.환불반품교환,VS_1/shopping5_0096.json
+q762,안녕하세요 상품 취소 요청 하려고 하는데요,refund,05.환불반품교환,VS_1/shopping5_0097.json
+q763,예 모두 취소해 주세요,refund,05.환불반품교환,VS_1/shopping5_0097.json
+q764,마스크 반품 건으로 연락 드렸었는데요,refund,05.환불반품교환,VS_1/shopping5_0098.json
+q765,네 상품 회수를 제가 신청을 하는게 맞나요,refund,05.환불반품교환,VS_1/shopping5_0098.json
+q766,제가 지금 교환 신청을 한 상태거든요,refund,05.환불반품교환,VS_1/shopping5_0099.json
+q767,구십 개만 블랙에서 화이트로 교환 신청했는데요,refund,05.환불반품교환,VS_1/shopping5_0099.json
+q768,그냥 전체 환불 처리 가능할까요,refund,05.환불반품교환,VS_1/shopping5_0099.json
+q769,네 반품 신청 하려고 그러는데요,refund,05.환불반품교환,VS_1/shopping5_0100.json
+q770,근데 잘못 주문한 것 같아서 그냥 반품 처리를 하려고요,refund,05.환불반품교환,VS_1/shopping5_0101.json
+q771,네 물품 구매한게 작동이 안돼서 반품하려고요,refund,05.환불반품교환,VS_1/shopping5_0102.json
+q772,예 반품 했는데 접수가 안 된다 해가지고요,refund,05.환불반품교환,VS_1/shopping5_0103.json
+q773,어제 보냈고 오늘 반품 문자가 왔거든요,refund,05.환불반품교환,VS_1/shopping5_0103.json
+q774,네 제가 오전에 환불요청 글 남겼는데요,refund,05.환불반품교환,VS_1/shopping5_0105.json
+q775,네 지난 주에 주문한 상품이 왔는데 오배송되어서 반품하려구요,refund,05.환불반품교환,VS_1/shopping5_0106.json
+q776,네 이거 일단 받았는데 사이즈가 안 맞아서 그냥 환불했으면 하거든요,refund,05.환불반품교환,VS_1/shopping5_0107.json
+q777,네 환불 받으려면 어떻게 해야 되나요,refund,05.환불반품교환,VS_1/shopping5_0107.json
+q778,네 안녕하세요 주문 취소하려고 합니다,refund,05.환불반품교환,VS_1/shopping5_0109.json
+q779,취소가 어려운 경우도 있나요,refund,05.환불반품교환,VS_1/shopping5_0109.json
+q780,그러면 바로 취소는 어렵나보네요,refund,05.환불반품교환,VS_1/shopping5_0110.json
+q781,그러면 그냥 반품할게요,refund,05.환불반품교환,VS_1/shopping5_0116.json
+q782,교환해줘야 되는거 아닙니까 불량이 있어서 그러는 게 아니라요,refund,05.환불반품교환,VS_1/shopping5_0152.json
+q783,예 그거 이만 사천 얼마 아니에요 취소 좀 해주세요,refund,05.환불반품교환,VS_1/shopping5_0167.json
+q784,예 그냥 취소해 주세요,refund,05.환불반품교환,VS_1/shopping5_0167.json
+q785,네 주문 취소 좀 하려고요,refund,05.환불반품교환,VS_1/shopping5_0168.json
+q786,예 배송 취소 부탁드려요,refund,05.환불반품교환,VS_1/shopping5_0168.json
+q787,환불 처리가 완료됐다는 게 무슨 말이에요,refund,05.환불반품교환,VS_1/shopping5_0171.json
+q788,삼일 전에 샀고 제품 하자 때문에 환불 신청하는 거예요,refund,05.환불반품교환,VS_1/shopping5_0172.json
+q789,안녕하세요 반품 신청한 물건을 아직 안 가져 가서요,refund,05.환불반품교환,VS_1/shopping5_0175.json
+q790,지난주에 제가 물품 반품하고 싶다고 했는데 아직 안 가져갔거든요,refund,05.환불반품교환,VS_1/shopping5_0176.json
+q791,안녕하세요 반품 건 때문에 연락 드렸습니다,refund,05.환불반품교환,VS_1/shopping5_0177.json
+q792,네 시월에 반품 신청했습니다 아직 가지러 안 와서요,refund,05.환불반품교환,VS_1/shopping5_0177.json
+q793,네 제가 반품 문의를 남겼습니다,refund,05.환불반품교환,VS_1/shopping5_0178.json
+q794,근데 그게 작동 안 돼서 반품요청을 하는 겁니다,refund,05.환불반품교환,VS_1/shopping5_0181.json
+q795,이거 반품했으면 해서요,refund,05.환불반품교환,VS_1/shopping5_0184.json
+q796,네 반품 접수 해주시겠어요,refund,05.환불반품교환,VS_1/shopping5_0185.json
+q797,예 수고하십니다 제가 취소를 잘못해 가지구요,refund,05.환불반품교환,VS_1/shopping5_0189.json
+q798,블랙이 있고 화이트가 있는데 화이트를 취소해야 돼요,refund,05.환불반품교환,VS_1/shopping5_0189.json
+q799,그러면 이거 그냥 반품 취소할게요,refund,05.환불반품교환,VS_1/shopping5_0190.json
+q800,그래서 주문한 거 취소하려구요,refund,05.환불반품교환,VS_1/shopping5_0192.json
+q801,그래요 반품을 하면 어떻게 돼요 반품 택배비는요,refund,05.환불반품교환,VS_1/shopping5_0192.json
+q802,예 물건을 주문했는데 주문을 잘못해서 교환하려고요,refund,05.환불반품교환,VS_1/shopping5_0195.json
+q803,이게 품절인 거 같아서 혹시 교환이 되나요,refund,05.환불반품교환,VS_1/shopping5_0196.json
+q804,제가 물건 받았는데 이거를 환불을 반품을 하고 싶어 그러거든요,refund,05.환불반품교환,VS_1/shopping5_0198.json
+q805,그거 저는 안 안 좋아서 반품할려고 그러는데,refund,05.환불반품교환,VS_1/shopping5_0199.json
+q806,근데 바람 세기가 너무 약해가지고 반품할려고 전화드렸어요,refund,05.환불반품교환,VS_1/shopping5_0200.json
+q807,그 이후에 제품 구매를 취소하면 적립 포인트도 취소되나요,refund,06.이벤트,VS_1/shopping6_0006.json
+q808,반품 시 사용한 쿠폰은 재발급 되나요,refund,06.이벤트,VS_1/shopping6_0075.json
+q809,네 쿠폰적용해서 구매했는데 반품 하려고 하거든요,refund,06.이벤트,VS_1/shopping6_0075.json
+q810,환불신청하면 기간은 얼마나 걸리나요,refund,06.이벤트,VS_1/shopping6_0087.json
+q811,제가 듣기로는 온라인 제품은 온라인으로만 교환 반품이 된다던데요,refund,07.온오프라인안내,VS_1/shopping7_0026.json
+q812,그럼 이거 어떻게 교환신청을 해야 하나요,refund,07.온오프라인안내,VS_1/shopping7_0026.json
+q813,네 안녕하세요 혹시 상품을 교환하고 싶은데요,refund,07.온오프라인안내,VS_1/shopping7_0163.json
+q814,주문취소 어떻게 하나요,refund,07.온오프라인안내,VS_1/shopping7_0196.json
+q815,배송이랑 배송비는 어떻게 해요,shipping,01.AS문의,VS_1/shopping1_0018.json
+q816,예 그럼 배송은 며칠만에 와요,shipping,01.AS문의,VS_1/shopping1_0021.json
+q817,지금 송금시킬게요 언제 정도 택배가 와요,shipping,01.AS문의,VS_1/shopping1_0027.json
+q818,네 최대한 빨리 배송해 주세요,shipping,01.AS문의,VS_1/shopping1_0110.json
+q819,게시판에 글을 남겼는데 제품이 체중계만 오고 핸드바가 안왔어요,shipping,01.AS문의,VS_1/shopping1_0111.json
+q820,지금 아직도 배송 준비 중이어가지고 일주일이 됐는데도요,shipping,01.AS문의,VS_1/shopping1_0115.json
+q821,배송비 포함한 가격인거죠,shipping,01.AS문의,VS_1/shopping1_0123.json
+q822,배송비가 따로 나와요,shipping,01.AS문의,VS_1/shopping1_0217.json
+q823,네 저기 이게 오배송이라서요 잘못 와서요,shipping,01.AS문의,VS_1/shopping1_0220.json
+q824,배송이 이거 지금 너무 너무 길어서,shipping,01.AS문의,VS_1/shopping1_0222.json
+q825,뭐 언제쯤 도착할 것 같나요,shipping,01.AS문의,VS_1/shopping1_0222.json
+q826,제가 시킨 게 한꺼번에 발송이 안 됐나요,shipping,01.AS문의,VS_1/shopping1_0223.json
+q827,세 가지는 받았는데 그중에 하나가 아직 도착이 되지 않아서요,shipping,01.AS문의,VS_1/shopping1_0224.json
+q828,예 시월 삼일날 주문했는데 백 개 밖에 안 왔네요 이게,shipping,02.제품사용문의,VS_1/shopping2_0001.json
+q829,혹시 이거 발송이 언제 돼요,shipping,02.제품사용문의,VS_1/shopping2_0032.json
+q830,다해서 배송료는 얼만가요,shipping,02.제품사용문의,VS_1/shopping2_0050.json
+q831,오늘 주문하고 이따 제가 무통장 입금을 할 건데 언제 도착해요,shipping,02.제품사용문의,VS_1/shopping2_0148.json
+q832,예 내일 주문하면 보통 며칠 안에 도착합니까,shipping,02.제품사용문의,VS_1/shopping2_0156.json
+q833,예 근데 그 사은품이 안 왔는데,shipping,02.제품사용문의,VS_1/shopping2_0194.json
+q834,아니 보낼 때 무슨 택배로 보내죠,shipping,03.주문결제,VS_1/shopping3_0001.json
+q835,무료배송 받으려면 한 오만 원 이상하면 돼요,shipping,03.주문결제,VS_1/shopping3_0048.json
+q836,네 그러면 얼마 이상 구매해야 택배비가 없나요,shipping,03.주문결제,VS_1/shopping3_0075.json
+q837,배송 문의 좀 할려고요,shipping,03.주문결제,VS_1/shopping3_0111.json
+q838,이거 언제까지 받아볼 수 있어요,shipping,03.주문결제,VS_1/shopping3_0114.json
+q839,여기에는 무료배송으로 돼 있는 거 아닌가요,shipping,03.주문결제,VS_1/shopping3_0115.json
+q840,그거 오십 개 사면 택배비가 얼마가 들어가요,shipping,03.주문결제,VS_1/shopping3_0120.json
+q841,만 삼천구백 원이요 그럼 여기 배송료 같은 거 있나요,shipping,03.주문결제,VS_1/shopping3_0141.json
+q842,그럼 물건은 언제 배송되나요,shipping,03.주문결제,VS_1/shopping3_0144.json
+q843,그러면 입금하면 언제 발송되요 오늘 발송되요,shipping,03.주문결제,VS_1/shopping3_0149.json
+q844,배송은 언제쯤 되는 겁니까,shipping,03.주문결제,VS_1/shopping3_0151.json
+q845,여기 써 있기로는 사만원 넘으면 배송비가 없다는데요,shipping,03.주문결제,VS_1/shopping3_0158.json
+q846,이게 같이 배송은 안 됩니까,shipping,03.주문결제,VS_1/shopping3_0171.json
+q847,오늘 주문하면 언제 도착인가요,shipping,03.주문결제,VS_1/shopping3_0174.json
+q848,맞아요 반 만 오고 나머지는 안 왔어요,shipping,03.주문결제,VS_1/shopping3_0179.json
+q849,지금 입금하면 언제 와요,shipping,03.주문결제,VS_1/shopping3_0181.json
+q850,제가 구월 삼일 날 주문했던 제품 중에 못 받은 게 있어서요,shipping,04.배송,VS_1/shopping4_0001.json
+q851,근데 본품만 오고 이만 구천 원짜리는 못 받았거든요,shipping,04.배송,VS_1/shopping4_0001.json
+q852,예 송장 번호가 어떻게 돼요,shipping,04.배송,VS_1/shopping4_0002.json
+q853,제가 배송 문의 하나 알아보려고요 똑같은 물건을 샀거든요,shipping,04.배송,VS_1/shopping4_0010.json
+q854,똑같은 물건을 주문 했는데 하도 안 와서요,shipping,04.배송,VS_1/shopping4_0020.json
+q855,네 알겠습니다 그럼 배송 빨리 해 달라고 부탁 좀 드릴게요,shipping,04.배송,VS_1/shopping4_0028.json
+q856,근데 계속 배송 준비 중으로 오더라고요 지금 오지도 않고요,shipping,04.배송,VS_1/shopping4_0031.json
+q857,네 상품 출고일자 확인하려고요,shipping,04.배송,VS_1/shopping4_0033.json
+q858,네 그런데 배송이 안와서 확인 전화한 겁니다,shipping,04.배송,VS_1/shopping4_0036.json
+q859,택배 물건이 제대로 안 온 거 같은데,shipping,04.배송,VS_1/shopping4_0038.json
+q860,하나 밖에 안 왔어요 확인 해줘요,shipping,04.배송,VS_1/shopping4_0040.json
+q861,내 물건이 발송이 안 됐다잖아요,shipping,04.배송,VS_1/shopping4_0041.json
+q862,아까 전화했었는데 배송 잘못된 거요,shipping,04.배송,VS_1/shopping4_0042.json
+q863,아니 예전에 배송 시작한다 그랬는데 지금까지 안 와서요,shipping,04.배송,VS_1/shopping4_0044.json
+q864,그럼 물건을 직접 수령하면 어디로 가야 되요,shipping,04.배송,VS_1/shopping4_0045.json
+q865,네 배송이 오래 걸리면 직접 찾으려구요,shipping,04.배송,VS_1/shopping4_0045.json
+q866,그래도 지금이 수요일인데 출고가 되야 되지 않나요,shipping,04.배송,VS_1/shopping4_0046.json
+q867,그런데 아직까지 배송 준비 중이라고 떠서 연락 드렸어요,shipping,04.배송,VS_1/shopping4_0048.json
+q868,송장번호를 택배에다 조회를 해봤더니 상품인수만 나오는데요,shipping,04.배송,VS_1/shopping4_0049.json
+q869,그럼 보내는 곳에서도 얼마나 배송되고 있는지 모른다구요,shipping,04.배송,VS_1/shopping4_0049.json
+q870,맞아요 근데 벌써 한달 전에 시켰는데 안 왔어요,shipping,04.배송,VS_1/shopping4_0050.json
+q871,제품 하나 시켰는데 아직 배송이 안 돼가지고요,shipping,04.배송,VS_1/shopping4_0052.json
+q872,그럼 내일 배송이 시작된단 말이에요,shipping,04.배송,VS_1/shopping4_0052.json
+q873,이름이 무슨 택배예요,shipping,04.배송,VS_1/shopping4_0053.json
+q874,송장 번호가 안 나와요,shipping,04.배송,VS_1/shopping4_0054.json
+q875,물품을 요청했는데요 한참 됐는데 아직도 도착 안해가지고요,shipping,04.배송,VS_1/shopping4_0055.json
+q876,이거를 빨리 배송 해주세요 안 그러면 환불할 거예요,shipping,04.배송,VS_1/shopping4_0056.json
+q877,추석 전에 배달해 준다더만 그거는 안 되네요,shipping,04.배송,VS_1/shopping4_0057.json
+q878,그러면 언제쯤 받아볼 수 있을까요,shipping,04.배송,VS_1/shopping4_0059.json
+q879,저희 집 앞에 물건이 안 왔는데 배송 완료가 떠서 전화드려요,shipping,04.배송,VS_1/shopping4_0060.json
+q880,제가 물건을 받은 적이 없는데 배송이 완료됐다고 와가지고요,shipping,04.배송,VS_1/shopping4_0061.json
+q881,그런데 왜 배송비가 칠천 오백 원이 나오는지 이상해서 전화드렸어요,shipping,04.배송,VS_1/shopping4_0063.json
+q882,이게 배달앱에는 배달 중이라고도 안떠서 전화드렸어요,shipping,04.배송,VS_1/shopping4_0064.json
+q883,다른게 아니라요 택배가 너무 안와서요,shipping,04.배송,VS_1/shopping4_0065.json
+q884,근데 왜 아직도 안 와요,shipping,04.배송,VS_1/shopping4_0065.json
+q885,매트리스인가 그거는 안 와서 전화 드렸거든요 토퍼 커버만 왔어요,shipping,04.배송,VS_1/shopping4_0066.json
+q886,그런데 아직도 왜 발송이 배송이 안 됐어요,shipping,04.배송,VS_1/shopping4_0067.json
+q887,제가 주문한 제품의 배송이 궁금해서요,shipping,04.배송,VS_1/shopping4_0075.json
+q888,예 지금 주문한 게 있는데 아직 도착을 안 해가지고요,shipping,04.배송,VS_1/shopping4_0076.json
+q889,언제 오는 거죠,shipping,04.배송,VS_1/shopping4_0077.json
+q890,아직까지 물건이 안 왔어요,shipping,04.배송,VS_1/shopping4_0078.json
+q891,예 시월 오 일날 했는데 육 일날 택배로 인계됐다고 나오더라고요,shipping,04.배송,VS_1/shopping4_0079.json
+q892,배송이 언제 되나요,shipping,04.배송,VS_1/shopping4_0080.json
+q893,네 출고가 오늘인가요,shipping,04.배송,VS_1/shopping4_0080.json
+q894,택배가 집화처리 했다고 나오는데 지금 며칠 째 안 오고 있어 가지고요,shipping,04.배송,VS_1/shopping4_0082.json
+q895,주말에 병원 문을 닫는데 그리 늦게 배송되면 참으로 곤란한데,shipping,04.배송,VS_1/shopping4_0084.json
+q896,만약에 배송된다면 월요일 날 보내달라고 부탁 드리려고요,shipping,04.배송,VS_1/shopping4_0084.json
+q897,근데 어제 한 가지만 오고 한 가지는 안 왔네,shipping,04.배송,VS_1/shopping4_0085.json
+q898,근데 아직 배송이 안 되어서요,shipping,04.배송,VS_1/shopping4_0086.json
+q899,언제 쯤 받아 볼 수 있나요,shipping,04.배송,VS_1/shopping4_0086.json
+q900,그럼 오늘 배송 되는건가요,shipping,04.배송,VS_1/shopping4_0086.json
+q901,근데 상품이 안 와서 어떻게 진행 되고 있는 지 알아 보려고요,shipping,04.배송,VS_1/shopping4_0087.json
+q902,오늘 쯤 도착할지 싶은데 아직 도착이 안 되네요,shipping,04.배송,VS_1/shopping4_0088.json
+q903,그러면 내일 정도 되면은 도착 가능하겠죠,shipping,04.배송,VS_1/shopping4_0088.json
+q904,제가 이거 주문한 지 한참 됐는데 물건이 안 와서요,shipping,04.배송,VS_1/shopping4_0089.json
+q905,내일 출고 되면 내일 모레 오나요,shipping,04.배송,VS_1/shopping4_0089.json
+q906,근데 아직 구매는 안 했고요 혹시 오늘 구매하면 내일 도착하나요,shipping,04.배송,VS_1/shopping4_0090.json
+q907,예 혹시 아이보리로 구매하면 목요일에 받을 수 있나요,shipping,04.배송,VS_1/shopping4_0093.json
+q908,네 배송이 아직 안 돼서 직접 확인하려고요,shipping,04.배송,VS_1/shopping4_0094.json
+q909,물건이 안 와서 전화했어요,shipping,04.배송,VS_1/shopping4_0095.json
+q910,네 제품을 몇 가지 주문했는데 한 가지가 안 와서요,shipping,04.배송,VS_1/shopping4_0096.json
+q911,그렇군요 배송이 따로 오나요 같이 안 오고요,shipping,04.배송,VS_1/shopping4_0096.json
+q912,네 안녕하세요 주문한 상품이 있는데 아직도 안 와요,shipping,04.배송,VS_1/shopping4_0097.json
+q913,그럼 출고는 됐나요 안 됐나요,shipping,04.배송,VS_1/shopping4_0097.json
+q914,예 구매한 상품이 아직 배송될 기미가 안 보여요,shipping,04.배송,VS_1/shopping4_0099.json
+q915,예 제 입장에서는 받지 못했는데 배송 완료 뜨니까 이게 어떻게 됐나 싶어서요,shipping,04.배송,VS_1/shopping4_0100.json
+q916,그러면 언제 쯤 받아볼 수 있나요,shipping,04.배송,VS_1/shopping4_0100.json
+q917,상품 주문 했는데 아직 도착을 안해서요,shipping,04.배송,VS_1/shopping4_0101.json
+q918,그러면 배송 완료는 왜 뜬 거예요,shipping,04.배송,VS_1/shopping4_0102.json
+q919,그런데 이게 주문한지 꽤 됐고 본품은 아예 오지도 않고 배송 완료만 뜨거든요,shipping,04.배송,VS_1/shopping4_0102.json
+q920,네 그럼 지금 배송 중이라는 거죠 언제쯤 받을 수 있어요,shipping,04.배송,VS_1/shopping4_0102.json
+q921,와서 제가 추가 옵션 된 것만 받고 본품은 안 왔거든요,shipping,04.배송,VS_1/shopping4_0104.json
+q922,네 그런데 그게 해외 배송이라고 적혀 있는데 무슨 소린가요,shipping,04.배송,VS_1/shopping4_0105.json
+q923,언제 발송되는지 궁금해서 전화 드렸거든요,shipping,04.배송,VS_1/shopping4_0108.json
+q924,예 수고 많으십니다 저번 주 목요일 마스크 시켰는데 아직 도착 안 하네요,shipping,04.배송,VS_1/shopping4_0110.json
+q925,오늘 출고가 되었나요 연락이 없어서 몰랐네요,shipping,04.배송,VS_1/shopping4_0110.json
+q926,주소가 사무실이거든요 주말에 도착하면 받을 사람이 없어요,shipping,04.배송,VS_1/shopping4_0111.json
+q927,그러면 어제 발송이 됐다는 건가요,shipping,04.배송,VS_1/shopping4_0112.json
+q928,발송을 했다고 문자는 왔는데 아직까지 상품이 안 왔어요,shipping,04.배송,VS_1/shopping4_0114.json
+q929,그게 지금 십이 일이 넘어가는데 아직도 안 와서요,shipping,04.배송,VS_1/shopping4_0116.json
+q930,네 배송 일자 좀 알려주세요,shipping,04.배송,VS_1/shopping4_0118.json
+q931,예 그럼 택배사에 직접 전화해 봐야 되는 거예요,shipping,04.배송,VS_1/shopping4_0119.json
+q932,그러면 언제쯤 받을 수 있나요,shipping,04.배송,VS_1/shopping4_0120.json
+q933,그러면 대체 얼마나 기다리면 받을 수 있나요,shipping,04.배송,VS_1/shopping4_0120.json
+q934,그럼 이번 주 안에도 못 받을 수 있다라는 말씀이세요,shipping,04.배송,VS_1/shopping4_0120.json
+q935,예 근데 아직도 배송도 안 됬고요,shipping,04.배송,VS_1/shopping4_0122.json
+q936,네 아직도 대전인가 어디에 있다고 그렇게 배송 조회 돼요,shipping,04.배송,VS_1/shopping4_0122.json
+q937,네 갑자기 배송 완료가 되어 있어서 연락을 했는데요,shipping,04.배송,VS_1/shopping4_0123.json
+q938,제가 택배를 받지 못했는데 택배 배송 완료가 되어서요,shipping,04.배송,VS_1/shopping4_0124.json
+q939,예 입금 완료했는데 확인 문자가 안 와서요 배송은 됐나요,shipping,04.배송,VS_1/shopping4_0126.json
+q940,네 근데 배송이 아직도 안 오고 어떻게 된 건지 확인 하려고요,shipping,04.배송,VS_1/shopping4_0128.json
+q941,이상한 삼각형으로 된 상품이 안 왔다고요,shipping,04.배송,VS_1/shopping4_0131.json
+q942,다름이 아니고 저번부터 상품이 안 왔다고 상담 보냈는데요,shipping,04.배송,VS_1/shopping4_0134.json
+q943,예 택배로 물품을 주문했는데 아직 도착이 안됬어요,shipping,04.배송,VS_1/shopping4_0135.json
+q944,도착을 안 해서 문의 드렸어요,shipping,04.배송,VS_1/shopping4_0136.json
+q945,예 물품을 주문했는데 아직 도착을 안 해서요,shipping,04.배송,VS_1/shopping4_0137.json
+q946,이게 택배사가 어딥니까,shipping,04.배송,VS_1/shopping4_0137.json
+q947,언제 배송 됐나요,shipping,04.배송,VS_1/shopping4_0137.json
+q948,예 택배로 물품을 주문했는데 아직 도착 안 했어요,shipping,04.배송,VS_1/shopping4_0138.json
+q949,계속 배송 중이라고 뜨던데요,shipping,04.배송,VS_1/shopping4_0140.json
+q950,주일이 넘었는데 배송이 안 되어서요,shipping,04.배송,VS_1/shopping4_0141.json
+q951,그럼 택배사로 전화 하면 되나요,shipping,04.배송,VS_1/shopping4_0141.json
+q952,배송이 안 와도 너무 안 와요,shipping,04.배송,VS_1/shopping4_0142.json
+q953,배송은 언제쯤 되는지만 알려주시면 됩니다,shipping,04.배송,VS_1/shopping4_0142.json
+q954,제가 주문을 했는데 배송이 안 와서요,shipping,04.배송,VS_1/shopping4_0143.json
+q955,예 근데 왜 안와요,shipping,04.배송,VS_1/shopping4_0143.json
+q956,오늘이 오 일째 되는 거 같은데 안 와요,shipping,04.배송,VS_1/shopping4_0144.json
+q957,배송이 자꾸 늦어지는 거 같아서 문의를 드렸어요,shipping,04.배송,VS_1/shopping4_0144.json
+q958,배달은 언제쯤 오나요,shipping,04.배송,VS_1/shopping4_0149.json
+q959,이번 주 안으로 받을 수 있다는 말씀이시죠,shipping,04.배송,VS_1/shopping4_0150.json
+q960,그러면 제가 상품을 받아볼 수 있는 날짜가 목요일이라고요,shipping,04.배송,VS_1/shopping4_0157.json
+q961,네 근데 배송 중 아직 뜨지도 않고 연락도 안 와서요,shipping,04.배송,VS_1/shopping4_0158.json
+q962,그럼 언제쯤 배송될지는 모르나요,shipping,04.배송,VS_1/shopping4_0159.json
+q963,혹시 언제쯤 받을 수 있는지 모르죠,shipping,04.배송,VS_1/shopping4_0167.json
+q964,저기 물건이 안 와서 연락드렸거든요,shipping,04.배송,VS_1/shopping4_0169.json
+q965,근데 배송 조회라고 떠서요 그럼 아직 안 온 거 맞아요,shipping,04.배송,VS_1/shopping4_0170.json
+q966,순차 출고는 당연한 거고요 대략 일자는요,shipping,04.배송,VS_1/shopping4_0174.json
+q967,그러면 언제쯤 배송 가능할 거 같아요,shipping,04.배송,VS_1/shopping4_0175.json
+q968,네 그런데 물건이 안 도착해서 전화드렸거든요,shipping,04.배송,VS_1/shopping4_0176.json
+q969,배송지 정보를 집어 넣잖아요 아파트 명까지 들어 가야 되는데요,shipping,04.배송,VS_1/shopping4_0177.json
+q970,한 가지가 안 왔어요,shipping,04.배송,VS_1/shopping4_0180.json
+q971,네 기사님이 못 찾겠대요,shipping,04.배송,VS_1/shopping4_0181.json
+q972,네 재출고해 주셔야지요 그거 기다리다가 시간 다 가겠네요,shipping,04.배송,VS_1/shopping4_0181.json
+q973,근데 배송이 안 돼 있어요,shipping,04.배송,VS_1/shopping4_0182.json
+q974,그러면은 누락분 다섯 개가 언제 오는 거예요,shipping,04.배송,VS_1/shopping4_0185.json
+q975,다음 주에 너무 늦네요 이동 중이니까 내일 도착해야 맞지 않을까요,shipping,04.배송,VS_1/shopping4_0188.json
+q976,예 언제 받는 지는 모르나요,shipping,04.배송,VS_1/shopping4_0194.json
+q977,배송 조회를 해보니 인수만 되어있고 이동이 없어요,shipping,04.배송,VS_1/shopping4_0200.json
+q978,오늘 중으로요 왜 이렇게 배달이 늦어요,shipping,05.환불반품교환,VS_1/shopping5_0004.json
+q979,예 그렇죠 끈이 안왔어요,shipping,05.환불반품교환,VS_1/shopping5_0044.json
+q980,택배사에서 물건 분실이라 하는데요,shipping,05.환불반품교환,VS_1/shopping5_0085.json
+q981,하나밖에 안 와서요 확인 좀 부탁드릴게요,shipping,05.환불반품교환,VS_1/shopping5_0093.json
+q982,네 제가 일곱 개를 시켰는데 물품이 세 개밖에 안 왔거든요,shipping,05.환불반품교환,VS_1/shopping5_0106.json
+q983,예 그리고 오늘 배송 하시는 분이 연락이 안 와요,shipping,05.환불반품교환,VS_1/shopping5_0173.json
+q984,이게 두 개인데 지금 하나밖에 안 와서 전화드린 건데요,shipping,05.환불반품교환,VS_1/shopping5_0188.json
+q985,그럼 언제 배송되나요,shipping,06.이벤트,VS_1/shopping6_0024.json
+q986,이거 배송을 어떻게 할 수 있는건가요,shipping,06.이벤트,VS_1/shopping6_0038.json
+q987,상하지 않고 도착할까요,shipping,06.이벤트,VS_1/shopping6_0038.json
+q988,네 근데 주문자와 수령자가 다르거든요,shipping,06.이벤트,VS_1/shopping6_0043.json
+q989,주문하지 않은 상품 배송 문자가 왔어요,shipping,07.온오프라인안내,VS_1/shopping7_0046.json
+q990,이미 받은 제품이 아직 배송중이라고 되어있어요,shipping,07.온오프라인안내,VS_1/shopping7_0128.json
+q991,안심택배 서비스는 뭔가요,shipping,07.온오프라인안내,VS_1/shopping7_0166.json
+q992,언제 발송이 되죠,shipping,07.온오프라인안내,VS_1/shopping7_0167.json
+q993,배송중이라고 뜨면 어떻게 하죠,shipping,07.온오프라인안내,VS_1/shopping7_0196.json
+q994,언제 배송되는지 알고 싶어요,shipping,04.배송,TS_1/shopping4_0552.json
+q995,보통 배송은 얼마나 걸리나요,shipping,04.배송,TS_1/shopping4_0651.json
+q996,신용카드로 주문하려는데 오늘 주문하면 언제쯤 도착합니까,shipping,04.배송,TS_1/shopping4_1034.json
+q997,혹시 해외 배송도 가능한가요,shipping,04.배송,TS_1/shopping4_1351.json
+q998,배송하는 택배 회사가 어딘가요,shipping,04.배송,TS_1/shopping4_1468.json
+q999,제가 배송 예정일이 어제였던 것 같은데 어제 배송 기사님께서 전화하신걸 못 받았거든요,shipping,04.배송,TS_1/shopping4_1818.json
+q1000,배송지 변경을 하고싶어요,shipping,04.배송,TS_1/shopping4_1874.json

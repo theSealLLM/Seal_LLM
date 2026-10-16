@@ -1,0 +1,146 @@
+{
+  "name": "bert-base",
+  "kind": "bert",
+  "task": "inquiries",
+  "split": "validation",
+  "num_samples": 120,
+  "model_dir": "runs/classifier/inquiries/bert-base/model",
+  "created_at": "2026-10-13T10:55:56+09:00",
+  "metrics": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "per_class": {
+      "shipping": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      },
+      "refund": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      },
+      "account": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "shipping",
+        "refund",
+        "account"
+      ],
+      "matrix": [
+        [
+          40,
+          0,
+          0
+        ],
+        [
+          0,
+          40,
+          0
+        ],
+        [
+          0,
+          0,
+          40
+        ]
+      ]
+    }
+  },
+  "efficiency": {
+    "device": "mps",
+    "latency_ms_median": 8.852,
+    "latency_ms_p95": 10.502,
+    "latency_samples": 100,
+    "throughput_per_sec": 322.6,
+    "peak_gpu_memory_mb_infer": null,
+    "model_size_mb": 422.96,
+    "num_parameters": 110619651,
+    "base_model": "klue/bert-base",
+    "max_length": 128,
+    "train_time_sec": 36.44,
+    "peak_gpu_memory_mb_train": null
+  },
+  "config": {
+    "model_name": "klue/bert-base",
+    "max_length": 128,
+    "batch_size": 16,
+    "eval_batch_size": 64,
+    "epochs": 10,
+    "lr": 3e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "max_grad_norm": 1.0,
+    "patience": 3,
+    "precision": "auto",
+    "local_files_only": false,
+    "seed": 42
+  },
+  "training": {
+    "best_epoch": 1,
+    "best_val_macro_f1": 1.0,
+    "stopped_early": true,
+    "precision": "fp32",
+    "token_lengths": {
+      "max": 65,
+      "p95": 60,
+      "truncated": 0
+    },
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.8704,
+        "val_loss": 0.3539,
+        "val_accuracy": 1.0,
+        "val_macro_f1": 1.0,
+        "lr": 3e-05,
+        "elapsed_sec": 9.2
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.1158,
+        "val_loss": 0.0385,
+        "val_accuracy": 0.9917,
+        "val_macro_f1": 0.9917,
+        "lr": 2.6666666666666667e-05,
+        "elapsed_sec": 18.3
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.0054,
+        "val_loss": 0.0024,
+        "val_accuracy": 1.0,
+        "val_macro_f1": 1.0,
+        "lr": 2.3333333333333336e-05,
+        "elapsed_sec": 27.4
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.0021,
+        "val_loss": 0.0018,
+        "val_accuracy": 1.0,
+        "val_macro_f1": 1.0,
+        "lr": 1.9999999999999998e-05,
+        "elapsed_sec": 36.4
+      }
+    ]
+  },
+  "environment": {
+    "python": "3.12.13",
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.14.1",
+    "transformers": "4.57.6"
+  },
+  "errors": []
+}

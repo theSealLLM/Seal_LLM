@@ -4,7 +4,9 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
   "torch>=2.7,<3",
-  "transformers>=4.51,<5",
+  # v5가 필요한 이유: alphaedge-ai/mmBERT-base-kor-16384가 v5로 패키징되어 있다
+  # (tokenizer_class="TokenizersBackend"). 4.x에는 그 클래스가 없어 토크나이저를 못 읽는다.
+  "transformers>=5.19,<6",
   "safetensors>=0.5,<1",
   "scikit-learn>=1.6,<2",
   "numpy>=2,<3",
@@ -15,6 +17,17 @@ dependencies = [
   "python-dotenv>=1.0,<2",
   "langchain-core>=0.3.60,<2",
   "openai>=2,<3",
+  # transformers 5가 hub 2.x를 요구하므로 함께 올라간다 (4.x는 huggingface-hub<1.0에 묶여 있었다).
+  # 이 프로젝트가 쓰는 API(model_info, snapshot_download, create_repo, upload_folder)는 그대로다.
+  "huggingface-hub>=2.2,<3",
+  # NeoBERT(chandar-lab/NeoBERT)의 저장소 코드가 xformers.ops.SwiGLU를 import 한다.
+  # transformers가 remote code를 실행하기 전에 import 구문을 검사하므로 없으면 로딩 자체가 막힌다.
+  # 맥(darwin)용 휠이 없어 torch와 같은 방식으로 플랫폼을 나눈다 (맥에서는 NeoBERT를 못 쓴다).
+  "xformers>=0.0.35,<1 ; sys_platform == 'win32' or sys_platform == 'linux'",
+  "langchain-ollama>=1,<2",
+  "langchain-openai>=1,<2",
+  "tavily-python>=0.7,<1",
+  "tzdata>=2025.1",
 ]
 
 [dependency-groups]
@@ -22,6 +35,8 @@ dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
 
 [tool.uv]
 package = false
+# OneDrive 동기화 폴더에서는 하드링크를 못 써서(os error 396) 복사 모드로 고정
+link-mode = "copy"
 # lock 파일을 만들 때 고려할 플랫폼 (Apple Silicon 맥 / 윈도우 / 리눅스)
 # Intel 맥은 torch 2.7+ 빌드가 없어서 제외
 environments = [

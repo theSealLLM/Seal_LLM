@@ -34,6 +34,12 @@ outputs/
 data/raw/
 data/processed/
 
+# ===== 분류 실험 결과 (runs/classifier/<task>/<모델 이름>/<실행 ID>/) =====
+# 가중치(model/)만 제외하고 리포트(json/md)는 커밋한다
+runs/**/model/
+# E2E 이어하기 상태 (PC마다 다름)
+runs/endtoend/resume.json
+
 # ===== 로그 =====
 logs/
 *.log
@@ -43,5 +49,6 @@ mlruns/
 # ===== IDE / OS =====
 .vscode/
 .idea/
+.claude/
 .DS_Store
 Thumbs.db
