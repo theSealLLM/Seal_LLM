@@ -1,7 +1,7 @@
 """검증용 데이터(run_e2e.py 2번): 정답 라벨의 서비스 프롬프트로 OpenAI가 만든 답변 + 그 답변의 채점 결과.
 
 OpenAI 답변은 서비스와 같은 경로로 만든다.
-    프롬프트  theseal.prompt.prompt_for_label(정답 라벨, 문의)   → PromptSpec (system · user)
+    프롬프트  theseal.prompt.Prompt().for_label(정답 라벨, 문의)   → PromptSpec (system · user)
     답변      theseal.answer.answer_generator.generate(spec, "openai")  → system · user 메시지로 OpenAI 호출
 서비스와 다른 점은 라벨(분류기 결과 대신 정답 라벨)과 LLM(로컬 대신 OpenAI) 두 가지다. 그래서 점수 차이는
 분류 · 라우팅 · 로컬 LLM에서 나온다. 프롬프트 자체의 결함은 두 답변에 같이 들어가 차이로 드러나지 않는다.
@@ -17,13 +17,18 @@ from langchain_core.language_models import BaseChatModel
 from theseal.answer.answer_generator import generate
 from theseal.answer.tools import get_tools_for
 from theseal.common.config import LLMConfig
-from theseal.prompt.prompt_generator import prompt_for_label
+from theseal.prompt import Prompt
 
 from .judge import JUDGE_VERSION, score_answer
 from .rate_limit import RateLimiter
 from .service import recording_tools
 
 PROVIDER = "openai"
+
+
+def prompt_for_label(label: str, customer_inquiry: str):
+    """서비스와 같은 프롬프트 (분류 · 후처리 없이 라벨만 주므로 Router를 만들지 않는다)."""
+    return Prompt().for_label(label, customer_inquiry)
 
 
 def gold_label(case: dict) -> str:

@@ -49,7 +49,7 @@ from theseal.e2e.reference import PROVIDER as OPENAI
 from theseal.e2e.reference import reference_version
 from theseal.e2e.rubric import CATEGORIES, MAX_SCORE
 from theseal.e2e.runner import StageAborted, make_references, test_service
-from theseal.prompt.routing_config import get_routing_config
+from theseal.prompt.router import RouterConfig
 
 # ================================================================ 실행 설정 (여기만 고치면 된다)
 # ---- OpenAI 호출 속도 (2번 검증용 데이터: 문의마다 답변 + 채점 2번, 1번 서비스 테스트: 채점 1번)
@@ -218,7 +218,7 @@ def run_reference(args: argparse.Namespace, data: Path, all_cases: list[dict], c
 
 def run_test(args: argparse.Namespace, data: Path, cases: list[dict]) -> None:
     config = get_config()
-    routing = get_routing_config()
+    routing = RouterConfig.from_env()
     if "local" in (config.default_provider, routing.verify_provider):
         require_ollama(config)
     try:
