@@ -19,6 +19,7 @@ import httpx
 from langchain_core.tools import tool
 
 from ...common.config import get_config
+from .tool_date import WEEKDAYS_KO
 
 # 지역 이름 → (위도, 경도). 시 · 도는 대표 도시(도청 또는 주요 시청) 위치
 REGIONS: dict[str, tuple[float, float]] = {
@@ -53,7 +54,6 @@ SUFFIXES = ("특별자치시", "특별자치도", "특별시", "광역시", "도
 SKY = {"1": "맑음", "3": "구름많음", "4": "흐림"}
 PTY = {"0": "없음", "1": "비", "2": "비/눈", "3": "눈", "4": "소나기",
        "5": "빗방울", "6": "빗방울눈날림", "7": "눈날림"}
-WEEKDAYS_KO = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
 FCST_ISSUE_HOURS = (2, 5, 8, 11, 14, 17, 20, 23)  # 단기예보 발표 시각
 NCST_READY_MIN = 40  # 초단기실황은 정시 자료를 이 분 이후에 조회한다 (여유 포함)
 FCST_READY_MIN = 15  # 단기예보는 발표 후 이 분 이후에 조회한다 (여유 포함)

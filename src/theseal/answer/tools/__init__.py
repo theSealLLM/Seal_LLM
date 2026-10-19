@@ -1,4 +1,4 @@
-"""툴 레지스트리. 전체 스위치(TOOL_*)와 라벨별 허용 목록(TOOLS_BY_LABEL) 두 단계로 거른다."""
+"""툴 레지스트리. 라벨별 허용 목록(TOOLS_BY_LABEL)에서, 키가 없는 툴을 빼고 돌려준다."""
 
 from __future__ import annotations
 
@@ -9,16 +9,18 @@ from .api_weather import get_weather
 from .api_web_search import web_search
 from .tool_date import DATE_TOOLS
 
+# 툴 그룹 이름 → 툴. LLMConfig.tools_by_label이 이 이름으로 라벨에 툴을 붙인다
+TOOL_GROUPS: dict[str, list[BaseTool]] = {
+    "date_tools": DATE_TOOLS,
+    "weather": [get_weather],
+    "web_search": [web_search],
+}
+
 
 def enabled_groups(config: LLMConfig) -> dict[str, list[BaseTool]]:
-    groups: dict[str, list[BaseTool]] = {}
-    if config.tool_date_tools:
-        groups["date_tools"] = DATE_TOOLS
-    if config.tool_weather and config.kma_auth_key:  # 키가 없으면 켜져 있어도 등록하지 않는다
-        groups["weather"] = [get_weather]
-    if config.tool_web_search and config.tavily_api_key:  # 키가 없으면 켜져 있어도 등록하지 않는다
-        groups["web_search"] = [web_search]
-    return groups
+    """쓸 수 있는 툴 그룹. 날씨 · 검색은 키가 없으면 등록하지 않는다."""
+    missing_key = {"weather": not config.kma_auth_key, "web_search": not config.tavily_api_key}
+    return {name: tools for name, tools in TOOL_GROUPS.items() if not missing_key.get(name)}
 
 
 def get_tools_for(label: str, config: LLMConfig | None = None) -> list[BaseTool]:

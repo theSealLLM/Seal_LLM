@@ -6,7 +6,7 @@ uv run python scripts/answer/check_llm.py --kma        # + 기상청 날씨 조�
 uv run python scripts/answer/check_llm.py --tavily     # + Tavily 검색 1회 (사용량 차감)
 uv run python scripts/answer/check_llm.py --all        # 전부
 
-- 설정은 코드 기본값 + .env (theseal.common.config · theseal.prompt.routing_config). 키 값은 출력하지 않는다
+- 설정은 코드 기본값 + .env (theseal.common.config · theseal.prompt.router). 키 값은 출력하지 않는다
 - 키는 쓰는 곳이 있을 때만 필수다. OpenAI 키는 기본 provider나 LLM 검증(VERIFY_PROVIDER)이 openai일 때,
   또는 --openai · --all로 호출을 요청했을 때만 없으면 실패. 그 밖에는 선택 사항으로 표시한다
 - 하나라도 실패하면 종료 코드 1
@@ -25,7 +25,7 @@ from theseal.answer.tools.api_weather import get_weather
 from theseal.answer.tools.api_web_search import web_search
 from theseal.common.client import ConfigError, llm_options, make_llm
 from theseal.common.config import LLMConfig
-from theseal.prompt.routing_config import RoutingConfig
+from theseal.prompt.router import RouterConfig
 
 PING = "한 단어로만 답하세요: 안녕하세요"
 
@@ -70,7 +70,7 @@ def check_ollama(config: LLMConfig) -> list[tuple[str, bool | None, str]]:
     return rows
 
 
-def openai_users(config: LLMConfig, routing: RoutingConfig) -> list[str]:
+def openai_users(config: LLMConfig, routing: RouterConfig) -> list[str]:
     """OpenAI를 기본으로 쓰는 곳 (있으면 키가 필수)."""
     users = []
     if config.default_provider == "openai":
@@ -80,9 +80,9 @@ def openai_users(config: LLMConfig, routing: RoutingConfig) -> list[str]:
     return users
 
 
-def check_openai(config: LLMConfig, call: bool, routing: RoutingConfig | None = None) -> list[tuple[str, bool | None, str]]:
+def check_openai(config: LLMConfig, call: bool, routing: RouterConfig | None = None) -> list[tuple[str, bool | None, str]]:
     if not config.openai_api_key:
-        users = openai_users(config, routing or RoutingConfig())
+        users = openai_users(config, routing or RouterConfig())
         if users:
             return [("OpenAI 키", False, f"OPENAI_API_KEY가 비어 있음 (.env) · {', '.join(users)}=openai라 필요")]
         if call:
@@ -132,7 +132,7 @@ def main(argv: list[str] | None = None) -> list[tuple[str, bool | None, str]]:
     args = parse_args(argv)
     config = LLMConfig.from_env()
     rows = (check_ollama(config)
-            + check_openai(config, args.openai or args.all, RoutingConfig.from_env())
+            + check_openai(config, args.openai or args.all, RouterConfig.from_env())
             + check_kma(config, args.kma or args.all)
             + check_tavily(config, args.tavily or args.all))
 

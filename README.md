@@ -80,7 +80,7 @@ Seal_LLM/
 │  ├─ answer/       LLM 호출 · 툴 호출 반복 · 툴(tools/: 날짜 · 기상청 날씨 · Tavily 검색)
 │  └─ common/       공용 설정(config) · LLM 연결(client) · 데이터 형식(schemas)
 ├─ scripts/
-│  ├─ classifier/   분류기 다운로드 · 학습 · 비교 · test 평가 · 보정값 계산
+│  ├─ classifier/   분류기 다운로드 · 학습 · 비교 · test 평가
 │  └─ answer/       로컬 LLM 다운로드 · 연결 확인 · 프롬프트 A/B 실험
 ├─ data/            교육용 한국어 합성 데이터 (inquiries · documents)
 ├─ runs/            실험 결과 (분류기 val_report · comparison.md, 프롬프트 A/B 결과). 가중치(model/)는 git 제외
@@ -180,8 +180,7 @@ TAVILY_API_KEY=<Tavily API 키>
 uv run scripts/answer/check_llm.py --kma --tavily
 ```
 
-범위 밖 질문이 툴 경로(unknown)로 가려면 학습한 분류 모델의 보정값이 필요합니다.
-아래 [분류 후처리 (routing)](#분류-후처리-routing)의 보정값 안내를 참고하세요.
+범위 밖 질문이 툴 경로(unknown)로 가는 기준은 아래 [분류 후처리 (routing)](#분류-후처리-routing)를 참고하세요.
 
 ## 개발 환경 세팅
 
@@ -218,21 +217,20 @@ ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신�
 
 ### 분류 후처리 (routing)
 
-`src/theseal/prompt/`의 `router.py`는 분류기 결과를 받아 최종 라벨을 정합니다. 경로 규칙이 보정한 확률로
-확신 · 확신 부족 · 접전 · 모름(unknown)을 판정하고, 확신이 아닌 문의는 LLM 검증이 라벨이 맞는지 한 번 더 확인합니다.
-입력은 `Classifier.predict()` 결과(`ClassificationResult`) 하나입니다. 원문은 결과의 `text`, 라벨 이름은 task의 `labels.json` 순서,
-보정값은 `FINAL_MODEL`의 것을 씁니다.
+`src/theseal/prompt/router.py`의 `Router`가 분류기 결과를 받아 최종 라벨을 정합니다. 분류기 확률에서 p1 · margin을 구해
+`route_rule.py`의 `RouteRule`(기준선과 비교 규칙만 있음)로 확신(confident) · 확신 아님(ambiguous) · 모름(unknown)을 판정하고,
+확신이 아닌 문의는 LLM 검증이 라벨이 맞는지 한 번 더 확인합니다.
+입력은 `Classifier.predict()` 결과(`ClassificationResult`) 하나입니다. 원문은 결과의 `text`, 라벨 이름은 task의 `labels.json` 순서입니다.
 
 ```python
 clf = Classifier.from_final()
+router = Router.from_final()                  # labels.json · .env · 고정 기준선 RULE
 result = await router.run(clf.predict(text))  # 원문은 result.text
 result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프롬프트 생성
 ```
 
-보정값(T · tau · tau_low · delta)은 학습한 가중치마다 다르므로 `src/theseal/prompt/routing_config.py`의
-`ROUTE_CALIBRATIONS`에 모델별로 적어 둡니다. 키는 모델 폴더 이름(`<모델>/<실행 ID>`, 예전 구조는 `<모델>`)이고,
-서비스는 쓰는 분류 모델의 키를 자동으로 찾습니다. 키가 없으면 예시 값을 씁니다 (`/api/answer` 응답 `classification`의
-`route.calibration_key`가 찾아본 키, `route.source`가 값의 출처).
+기준선은 분류 모델과 상관없이 `router.py`의 `RULE` 하나로 고정합니다 (tau 0.60 · tau_low 0.45 · delta 0.15).
+모델별로 다른 기준선이 필요해지면 그때 확장합니다.
 
 켜고 끄기는 `.env`에서 합니다.
 
@@ -241,10 +239,7 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 | 경로 규칙 | `ROUTE_RULE_ENABLED` | `true` (기본) · `false` |
 | LLM 검증 | `VERIFY_MODE` | `uncertain` (기본, 확신이 아닌 것만) · `all` (전부) · `off` |
 
-둘 다 끄면 분류기 라벨을 그대로 씁니다. 새로 학습한 모델의 보정값은
-`uv run scripts/classifier/calibrate_route_rule.py --model <모델> --run <실행 ID>`(최종 모델은 `--final`)로 만들고,
-마지막에 출력되는 줄을 `ROUTE_CALIBRATIONS`에 붙여 넣습니다. 모델 폴더 옆 `route_rule.json`은 평가 수치를 담은
-기록이고 서비스는 읽지 않습니다. `.env`의 `ROUTE_TAU` 등 개별 값을 적으면 모든 모델에 그 값이 먼저 적용됩니다.
+둘 다 끄면 분류기 라벨을 그대로 씁니다.
 
 ### API 서버 (FastAPI)
 
@@ -280,7 +275,7 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
     "label": "refund",
     "classifier_label": "refund",
     "scores": {"shipping": 0.1025, "refund": 0.7776, "account": 0.1199},
-    "route": {"route": "confident", "p1": 0.5684, "margin": 0.3442, "calibration": "baseline/20261013-1057", "…": "…"},
+    "route": {"route": "confident", "p1": 0.7776, "margin": 0.6577, "tau": 0.6, "…": "…"},
     "verification": null
   }
 }

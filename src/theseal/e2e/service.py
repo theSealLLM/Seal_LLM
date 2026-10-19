@@ -12,6 +12,7 @@ AnswerResult.tools_used(ToolRecord)에는 툴 이름 · 인자 · 성공 여부�
 from __future__ import annotations
 
 import time
+from dataclasses import asdict
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import Runnable
@@ -67,7 +68,7 @@ async def call_service(case: dict, *, chain: Runnable, provider: str, config: LL
             "classifier_label": routing.classifier_label if routing else None,
             "final_label": spec.label,
             "classifier_scores": routing.scores if routing else None,
-            "route": routing.route if routing else None,
+            "route": asdict(routing.route) if routing and routing.route else None,
             "verification": routing.verification if routing else None,
             "prompt_version": spec.prompt_version,
             # 범위 밖 경로의 안내 문구 (unknown 프롬프트의 답변 방식 5, 툴 횟수 초과)를 그대로 썼는지
