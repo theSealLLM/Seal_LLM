@@ -10,9 +10,10 @@ from fastapi.concurrency import run_in_threadpool
 from langchain_core.runnables import Runnable, RunnableLambda, RunnablePassthrough
 
 from theseal.answer.answer_generator import generate, generate_stream
+from theseal.answer.config import AnswerConfig
 from theseal.classifier.classifier import Classifier
 from theseal.classifier.config import DEFAULT_TASK, PROJECT_ROOT, FinalModelNotSetError, task_paths
-from theseal.common.config import ENV_FILE, LLMConfig, config_from_env, get_config
+from theseal.common.config import ENV_FILE, LLMConfig, config_from_env
 from theseal.common.schemas import PromptSpec
 from theseal.prompt import Prompt, RoutedPrompt
 
@@ -62,15 +63,18 @@ class Pipeline:
     """
 
     def __init__(self, classifier: Classifier | None = None, prompt: Prompt | None = None, *,
-                 classifier_error: str | None = None, llm_config: LLMConfig | None = None) -> None:
+                 classifier_error: str | None = None, llm_config: LLMConfig | None = None,
+                 answer_config: AnswerConfig | None = None) -> None:
         """classifier: 분류 모델. None이면 label을 직접 준 요청만 처리한다
         classifier_error: 분류 모델을 불러오지 못한 이유 (/health · 오류 응답에 쓴다)
-        prompt: 분류 후처리 + 프롬프트. 없으면 Prompt() (Router는 처음 쓸 때 만든다)
-        llm_config: 답변 생성 설정. 없으면 .env + 코드 기본값"""
+        prompt: 분류 후처리 + 프롬프트. 없으면 Prompt(llm_config) (Router는 처음 쓸 때 만든다)
+        llm_config: LLM 연결 · 공용 설정 (프롬프트 · 검증 · 답변이 같이 쓴다). 없으면 .env + 코드 기본값
+        answer_config: 답변 생성 설정 (툴 · 시간 제한). 없으면 .env + 코드 기본값"""
         self.classifier = classifier
         self.classifier_error = classifier_error
-        self.prompt = prompt or Prompt()
-        self.llm_config = llm_config
+        self.llm_config = llm_config or LLMConfig.from_env()
+        self.answer_config = answer_config or AnswerConfig.from_env()
+        self.prompt = prompt or Prompt(llm_config=self.llm_config)
 
     @classmethod
     def from_env(cls, config: ApiConfig | None = None) -> Pipeline:
@@ -98,11 +102,11 @@ class Pipeline:
 
     async def answer_stream(self, prompt: PromptSpec, provider: str | None) -> AsyncIterator[dict]:
         """delta 이벤트 … → done 이벤트. unknown(툴 경로)은 스트리밍하지 않고 done만 보낸다"""
-        config = self.llm_config or get_config()
+        configs = {"config": self.llm_config, "answer_config": self.answer_config}
         if prompt.label == "unknown":
-            yield {"type": "done", "result": await generate(prompt, provider, config=config)}
+            yield {"type": "done", "result": await generate(prompt, provider, **configs)}
             return
-        async for event in generate_stream(prompt, provider, config=config):
+        async for event in generate_stream(prompt, provider, **configs):
             yield event
 
     async def _predict(self, x: dict):
@@ -118,7 +122,8 @@ class Pipeline:
         return await self.prompt.build_with_routing(x["prediction"])
 
     async def _answer(self, x: dict) -> AnswerResponse:
-        result = await generate(x["prompt"], x.get("provider"), config=self.llm_config or get_config())
+        result = await generate(x["prompt"], x.get("provider"), config=self.llm_config,
+                                answer_config=self.answer_config)
         return AnswerResponse(**result.model_dump(), classification=x["classification"])
 
 

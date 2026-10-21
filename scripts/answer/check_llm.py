@@ -21,11 +21,12 @@ import time
 import _common
 from langchain_core.messages import HumanMessage
 
-from theseal.answer.tools.api_weather import get_weather
-from theseal.answer.tools.api_web_search import web_search
+from theseal.answer.config import AnswerConfig
+from theseal.answer.tools.api_weather import WeatherClient
+from theseal.answer.tools.api_web_search import WebSearchClient
 from theseal.common.client import ConfigError, llm_options, make_llm
 from theseal.common.config import LLMConfig
-from theseal.prompt.router import RouterConfig
+from theseal.prompt.config import RouterConfig
 
 PING = "한 단어로만 답하세요: 안녕하세요"
 
@@ -95,7 +96,7 @@ def check_openai(config: LLMConfig, call: bool, routing: RouterConfig | None = N
     return rows + [("OpenAI 호출", ok, message)]
 
 
-def check_kma(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, str]]:
+def check_kma(config: AnswerConfig, call: bool) -> list[tuple[str, bool | None, str]]:
     if not config.kma_auth_key:
         return [("기상청 키", None, "비어 있음 → 날씨 툴이 자동으로 빠지고 검색 툴이 날씨에 답함 (선택 사항)")]
     rows = [("기상청 키", True, "설정됨")]
@@ -103,7 +104,7 @@ def check_kma(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, str
         return rows + [("기상청 조회", None, "건너뜀 (--kma로 확인)")]
     start = time.perf_counter()
     try:
-        w = get_weather.invoke({"location": "서울"})
+        w = WeatherClient.from_config(config).tool().invoke({"location": "서울"})
     except Exception as e:  # noqa: BLE001
         return rows + [("기상청 조회", False, f"{type(e).__name__}: {e}"[:200])]
     ms = round((time.perf_counter() - start) * 1000)
@@ -113,7 +114,7 @@ def check_kma(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, str
     return rows + [("기상청 조회", True, message)]
 
 
-def check_tavily(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, str]]:
+def check_tavily(config: AnswerConfig, call: bool) -> list[tuple[str, bool | None, str]]:
     if not config.tavily_api_key:
         return [("Tavily 키", None, "비어 있음 → web_search 툴이 자동으로 빠짐 (선택 사항)")]
     rows = [("Tavily 키", True, "설정됨")]
@@ -121,7 +122,7 @@ def check_tavily(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, 
         return rows + [("Tavily 검색", None, "건너뜀 (--tavily로 확인)")]
     start = time.perf_counter()
     try:
-        results = web_search.invoke({"query": "대한민국 수도"})
+        results = WebSearchClient.from_config(config).tool().invoke({"query": "대한민국 수도"})
     except Exception as e:  # noqa: BLE001
         return rows + [("Tavily 검색", False, f"{type(e).__name__}: {e}"[:200])]
     ms = round((time.perf_counter() - start) * 1000)
@@ -131,10 +132,11 @@ def check_tavily(config: LLMConfig, call: bool) -> list[tuple[str, bool | None, 
 def main(argv: list[str] | None = None) -> list[tuple[str, bool | None, str]]:
     args = parse_args(argv)
     config = LLMConfig.from_env()
+    answer_config = AnswerConfig.from_env()
     rows = (check_ollama(config)
             + check_openai(config, args.openai or args.all, RouterConfig.from_env())
-            + check_kma(config, args.kma or args.all)
-            + check_tavily(config, args.tavily or args.all))
+            + check_kma(answer_config, args.kma or args.all)
+            + check_tavily(answer_config, args.tavily or args.all))
 
     print(f"\n=== LLM 연결 확인 (기본 provider: {config.default_provider}) ===")
     marks = {True: "OK  ", False: "실패", None: "-   "}

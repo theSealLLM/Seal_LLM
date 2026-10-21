@@ -27,7 +27,6 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, Request
 from fastapi.concurrency import run_in_threadpool
@@ -36,7 +35,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from theseal.common.client import model_name
-from theseal.common.config import PROVIDERS, get_config
+from theseal.common.config import PROVIDERS, TIMEZONE
 from theseal.prompt.router import RoutingResult
 
 from . import pipeline
@@ -77,12 +76,12 @@ if _cors_origins:
 
 
 def _now() -> str:
-    return datetime.now(ZoneInfo(get_config().timezone)).isoformat(timespec="seconds")
+    return datetime.now(TIMEZONE).isoformat(timespec="seconds")
 
 
 def _error_response(code: str, message: str, provider: str | None, label: str = "unknown",
                     classification: RoutingResult | None = None) -> AnswerResponse:
-    config = get_config()
+    config = app.state.pipeline.llm_config
     provider = provider if provider in PROVIDERS else config.default_provider
     return AnswerResponse(
         request_id=str(uuid.uuid4()), status="error", label=label, answer=None, provider=provider,
@@ -121,7 +120,7 @@ async def health() -> dict:
         "classifier_error": p.classifier_error,
         "route_rule_enabled": p.prompt.router.config.route_rule_enabled,
         "verify_mode": p.prompt.router.config.verify_mode,
-        "default_provider": get_config().default_provider,
+        "default_provider": p.llm_config.default_provider,
     }
 
 

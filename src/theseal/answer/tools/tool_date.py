@@ -1,6 +1,6 @@
 """날짜 · 요일 계산 툴. 로컬 LLM은 오늘 날짜를 모르므로 파이썬이 계산한다.
 
-- 날짜 형식은 YYYY-MM-DD, 시간대는 설정의 TIMEZONE (기본 Asia/Seoul)
+- 날짜 형식은 YYYY-MM-DD, 시간대는 common.config의 TIMEZONE (Asia/Seoul)
 - 잘못된 날짜는 ValueError를 던지고 tool_caller가 잡아서 기록한다
 - 테스트에서 기준일을 고정할 수 있게 "오늘"은 today() 하나로만 얻는다
 """
@@ -8,17 +8,17 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from zoneinfo import ZoneInfo
 
 from langchain_core.tools import tool
 
-from ...common.config import get_config
+from theseal.common.config import TIMEZONE
 
 WEEKDAYS_KO = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
 
 
 def today() -> date:
-    return datetime.now(ZoneInfo(get_config().timezone)).date()
+    """서비스 시간대(TIMEZONE) 기준 오늘 날짜를 돌려준다. 테스트는 이 함수를 바꿔 기준일을 고정한다."""
+    return datetime.now(TIMEZONE).date()
 
 
 def _parse(value: str) -> date:

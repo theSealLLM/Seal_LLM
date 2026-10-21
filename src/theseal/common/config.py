@@ -1,11 +1,16 @@
-"""LLM 설정. 팀이 함께 쓰는 값(모델 이름 · 툴 on/off · 타임아웃 등)은 아래 LLMConfig 기본값이 기준이다.
+"""공용 설정: 여러 모듈(answer · prompt · api · e2e)이 함께 쓰는 값과 .env를 읽는 config_from_env.
+
+한 모듈에서만 쓰는 설정은 그 모듈의 config.py에 둔다.
+    answer/config.py   AnswerConfig (툴 키 · 라벨별 툴 · 툴 반복 횟수 · 답변 시간 제한)
+    prompt/config.py   RouterConfig (경로 규칙 · LLM 검증)
 
 .env에는 비밀 키와 PC마다 다른 값만 둔다 (.env.example 참고)
     비밀 키    OPENAI_API_KEY · KMA_AUTH_KEY · TAVILY_API_KEY
     PC 설정    OLLAMA_BASE_URL · OLLAMA_KEEP_ALIVE
-그 밖의 필드도 이름을 대문자로 적으면 바꿀 수 있다 (예: max_tool_rounds → MAX_TOOL_ROUNDS=3).
-우선순위: 이미 설정된 환경변수 > 프로젝트 루트 .env > 아래 기본값. 값이 빈 항목은 기본값을 쓴다.
-같은 값을 .env에 그대로 두면 이 파일의 기본값을 바꿔도 .env 값이 이기므로, 바꿀 항목만 적는다.
+그 밖의 필드도 이름을 대문자로 적으면 바꿀 수 있다 (예: llm_timeout_sec → LLM_TIMEOUT_SEC=30).
+우선순위: 이미 설정된 환경변수 > 프로젝트 루트 .env > 코드 기본값. 값이 빈 항목은 기본값을 쓴다.
+같은 값을 .env에 그대로 두면 코드 기본값을 바꿔도 .env 값이 이기므로, 바꿀 항목만 적는다.
+설정 객체는 쓰는 쪽(Pipeline 등)이 from_env()로 한 번 만들어 들고 있다.
 """
 
 from __future__ import annotations
@@ -13,8 +18,9 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field, fields
-from functools import lru_cache
 from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 
@@ -22,6 +28,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ENV_FILE = PROJECT_ROOT / ".env"
 
 PROVIDERS = ("local", "openai")
+
+# 서비스 기준 시간대. 서버 OS 시간대(UTC 등)와 상관없이 "오늘" · 응답 시각(created_at)을 한국 시간으로 정한다
+TIMEZONE = ZoneInfo("Asia/Seoul")
 
 # 팀이 확인한 로컬 모델 ID (`ollama list`의 ID 열 = digest 앞 12자리).
 # 다르면 Hugging Face 저장소 파일이 갱신된 것이므로 팀에 알린다 (scripts/answer/fetch_models.py가 확인)
@@ -31,8 +40,10 @@ OLLAMA_MODEL_IDS = {
 LABELS = ("shipping", "refund", "account", "unknown")
 
 
-@dataclass
+@dataclass(frozen=True)
 class LLMConfig:
+    """LLM 연결 설정과 여러 모듈이 같이 쓰는 값. 답변 생성 · LLM 검증 · API · E2E가 함께 쓴다."""
+
     # 로컬 LLM (Ollama)
     ollama_base_url: str = "http://localhost:11434"  # .env (PC 설정): Ollama를 다른 주소 · 포트에서 띄울 때
     ollama_model: str = "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M"
@@ -44,35 +55,19 @@ class LLMConfig:
     ollama_keep_alive: str | None = None
 
     # 상용 LLM (OpenAI)
-    openai_api_key: str = ""  # .env (비밀 키). 비우면 openai provider는 config_error
+    openai_api_key: str = field(default="", repr=False)  # .env (비밀 키). 비우면 openai provider는 config_error
     openai_model: str = "gpt-5.6-luna"
     openai_reasoning_effort: str | None = None  # None이면 API 기본값(medium)
 
     default_provider: str = "local"
 
-    # 툴
-    tavily_api_key: str = ""  # .env (비밀 키). 비우면 검색 툴을 등록하지 않는다
-    kma_auth_key: str = ""  # .env (비밀 키): 기상청 API허브 인증키. 비우면 날씨 툴을 등록하지 않는다
-    kma_api_base: str = "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0"
-    # 라벨별로 붙일 툴 그룹 (answer/tools의 TOOL_GROUPS). 키가 없는 툴은 여기 적혀 있어도 빠진다
-    tools_by_label: dict[str, list[str]] = field(
-        default_factory=lambda: {"unknown": ["date_tools", "weather", "web_search"]}
-    )
-    max_tool_rounds: int = 2  # 툴 실행 라운드 수. 툴 결과로 답을 쓸 LLM 호출 1회는 항상 더 허용
-
-    # 툴 호출 횟수를 넘겼을 때 답변으로 쓰는 안내 문구
+    # 범위 밖 안내 문구. 툴 호출 횟수를 넘겼을 때의 답변(answer)과 unknown 프롬프트(prompt)가 같은 문장을 쓴다
     fallback_answer: str = (
         "죄송합니다. 이 질문은 지금 확인해 드리기 어렵습니다. "
         "이 창구에서는 배송, 환불·반품·주문 취소, 계정 관련 문의를 도와드릴 수 있습니다."
     )
 
-    # 제한
-    llm_timeout_sec: float = 60  # LLM 호출 한 번
-    tool_timeout_sec: float = 10  # 툴 실행 한 번
-    # 답변 생성 한 번 전체 (툴 경로는 LLM 최대 max_tool_rounds+1회 + 툴). 넘으면 llm_timeout. 실측 툴 경로 5~10초
-    answer_timeout_sec: float = 90
-
-    timezone: str = "Asia/Seoul"
+    llm_timeout_sec: float = 60  # LLM 호출 한 번 (답변 생성 · OpenAI 클라이언트)
 
     def __post_init__(self) -> None:
         if self.default_provider not in PROVIDERS:
@@ -80,12 +75,15 @@ class LLMConfig:
 
     @classmethod
     def from_env(cls, env_file: Path | None = ENV_FILE) -> LLMConfig:
+        """환경변수 > .env > 코드 기본값 순서로 채운다."""
         return config_from_env(cls, env_file)
 
 
-def config_from_env(cls, env_file: Path | None = ENV_FILE):
-    """설정 dataclass를 환경변수로 채운다. 필드 이름을 대문자로 바꾼 이름을 읽는다
-    (예: ollama_model → OLLAMA_MODEL). theseal.prompt.router.RouterConfig도 같은 방식을 쓴다."""
+def config_from_env[ConfigT](cls: type[ConfigT], env_file: Path | None = ENV_FILE) -> ConfigT:
+    """설정 dataclass를 환경변수로 채운다. 필드 이름을 대문자로 바꾼 이름을 읽는다 (예: ollama_model → OLLAMA_MODEL).
+
+    LLMConfig · AnswerConfig · RouterConfig · ApiConfig가 모두 이 함수를 쓴다.
+    """
     if env_file is not None:
         load_dotenv(env_file, override=False)
     values = {}
@@ -96,7 +94,7 @@ def config_from_env(cls, env_file: Path | None = ENV_FILE):
     return cls(**values)
 
 
-def _parse(raw: str, type_hint: str):
+def _parse(raw: str, type_hint: str) -> Any:
     """dataclass 필드 타입(문자열, 예: "float | None")에 맞춰 환경변수 값을 바꾼다.
     None을 받을 수 있는 필드는 default라고 적으면 None (빈 값은 코드 기본값이라 None과 다를 수 있다)."""
     base = type_hint.split("|")[0].strip()
@@ -108,11 +106,6 @@ def _parse(raw: str, type_hint: str):
         return int(raw)
     if base == "float":
         return float(raw)
-    if base.startswith("dict"):
+    if base.startswith(("dict", "Mapping")):
         return json.loads(raw)
     return raw
-
-
-@lru_cache
-def get_config() -> LLMConfig:
-    return LLMConfig.from_env()

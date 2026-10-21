@@ -6,7 +6,7 @@ import hashlib
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ..common.config import LLMConfig, get_config
+from ..common.config import LLMConfig
 from ..common.schemas import Label, PromptSpec
 from .route_rule import UNKNOWN
 from .router import Router, RoutingResult
@@ -127,14 +127,14 @@ class RoutedPrompt:
 class Prompt:
     def __init__(self, router: Router | None = None, llm_config: LLMConfig | None = None) -> None:
         """router: 분류 후처리. 없으면 처음 쓸 때 Router.from_final()로 만든다 (.env · labels.json을 그때 한 번 읽는다)
-        llm_config: unknown 프롬프트의 안내 문구(fallback_answer)를 읽는 설정. 없으면 .env + 코드 기본값"""
+        llm_config: unknown 프롬프트의 안내 문구(fallback_answer)와 Router의 검증 LLM 설정. 없으면 .env + 코드 기본값"""
         self._router = router
-        self.llm_config = llm_config
+        self.llm_config = llm_config or LLMConfig.from_env()
 
     @property
     def router(self) -> Router:
         if self._router is None:
-            self._router = Router.from_final()
+            self._router = Router.from_final(llm_config=self.llm_config)
         return self._router
 
     async def build_prompt(self, prediction: ClassificationResult) -> PromptSpec:
@@ -180,8 +180,7 @@ class Prompt:
                           prompt_version=unknown_prompt_version(system))
 
     def unknown_system(self) -> str:
-        config = self.llm_config or get_config()
-        return UNKNOWN_TEMPLATE.format(fallback=config.fallback_answer, scope=SCOPE_SENTENCE)
+        return UNKNOWN_TEMPLATE.format(fallback=self.llm_config.fallback_answer, scope=SCOPE_SENTENCE)
 
 
 def check_inquiry(customer_inquiry: str) -> None:

@@ -3,7 +3,9 @@
 - API: https://apihub.kma.go.kr  /api/typ02/openApi/VilageFcstInfoService_2.0
     getUltraSrtNcst  초단기실황 (지금 날씨: 기온 · 습도 · 1시간 강수량 · 강수 형태 · 풍속)
     getVilageFcst    단기예보 (오늘~모레: 최저 · 최고 기온, 하늘 상태, 강수 형태, 강수 확률)
-- 인증키: .env의 KMA_AUTH_KEY (없으면 레지스트리가 이 툴을 등록하지 않는다)
+- 인증키 · 주소: AnswerConfig의 kma_auth_key(.env의 KMA_AUTH_KEY) · kma_api_base.
+  키가 없으면 레지스트리가 이 툴을 등록하지 않는다
+- 툴은 WeatherClient.from_config(config).tool()로 만든다. 키를 들고 있는 클라이언트가 툴을 실행한다
 - 지역: 아래 REGIONS 표(17개 시 · 도 + 주요 도시)만 지원한다. 위경도를 기상청 격자(nx, ny)로 바꿔 조회한다.
   표에 없는 지역은 ValueError → tool_caller가 실패로 기록하고, 프롬프트 지시에 따라 검색 툴로 넘어간다
 """
@@ -12,14 +14,17 @@ from __future__ import annotations
 
 import math
 from collections import Counter
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
+from typing import Any
 
 import httpx
-from langchain_core.tools import tool
+from langchain_core.tools import BaseTool, StructuredTool
 
-from ...common.config import get_config
-from .tool_date import WEEKDAYS_KO
+from theseal.answer.config import KMA_API_BASE, AnswerConfig
+from theseal.answer.tools.tool_date import WEEKDAYS_KO
+from theseal.common.config import TIMEZONE
 
 # 지역 이름 → (위도, 경도). 시 · 도는 대표 도시(도청 또는 주요 시청) 위치
 REGIONS: dict[str, tuple[float, float]] = {
@@ -59,6 +64,14 @@ NCST_READY_MIN = 40  # 초단기실황은 정시 자료를 이 분 이후에 조
 FCST_READY_MIN = 15  # 단기예보는 발표 후 이 분 이후에 조회한다 (여유 포함)
 HTTP_TIMEOUT_SEC = 8
 
+WEATHER_TOOL_NAME = "get_weather"
+# LLM에 보내는 툴 설명. 예전 @tool 함수의 docstring 그대로다 (줄 앞 공백 4칸까지 같아야 LLM 입력이 바뀌지 않는다)
+WEATHER_TOOL_DESCRIPTION = (
+    "기상청 자료로 지금 날씨와 오늘 · 내일 · 모레 예보를 알려 준다. 날씨 · 기온 · 비 · 눈 질문에 먼저 쓴다.\n"
+    "    location은 시 · 도 또는 주요 도시 이름 (예: 서울, 부산, 제주, 수원). 지역을 말하지 않았으면 '서울'.\n"
+    "    am은 06~12시, pm은 12~18시. pop_max_pct는 강수 확률 최댓값(%)."
+)
+
 
 # ---------------------------------------------------------------- 지역 · 격자
 
@@ -67,12 +80,12 @@ def resolve_region(location: str) -> str:
     text = (location or "").strip()
     candidates = [text.replace(" ", "")] + text.split()
     for cand in candidates:
-        cand = ALIASES.get(cand, cand)
-        if cand in REGIONS:
-            return cand
+        name = ALIASES.get(cand, cand)
+        if name in REGIONS:
+            return name
         for suffix in SUFFIXES:
-            if cand.endswith(suffix) and cand[: -len(suffix)] in REGIONS:
-                return cand[: -len(suffix)]
+            if name.endswith(suffix) and name[: -len(suffix)] in REGIONS:
+                return name[: -len(suffix)]
     raise ValueError(f"지원하지 않는 지역입니다: {location!r} (시 · 도 또는 주요 도시만 지원)")
 
 
@@ -99,7 +112,8 @@ def latlon_to_grid(lat: float, lon: float) -> tuple[int, int]:
 # ---------------------------------------------------------------- 발표 시각
 
 def now_kst() -> datetime:
-    return datetime.now(ZoneInfo(get_config().timezone))
+    """서비스 시간대(TIMEZONE) 기준 지금 시각을 돌려준다. WeatherClient의 기본 시계다."""
+    return datetime.now(TIMEZONE)
 
 
 def ncst_base(now: datetime) -> tuple[str, str]:
@@ -118,29 +132,10 @@ def fcst_base(now: datetime) -> tuple[str, str]:
     return prev.strftime("%Y%m%d"), "2300"
 
 
-# ---------------------------------------------------------------- 호출 · 해석
+# ---------------------------------------------------------------- 해석
 
-def _call(operation: str, base_date: str, base_time: str, nx: int, ny: int) -> list[dict]:
-    config = get_config()
-    params = {"pageNo": 1, "numOfRows": 1500, "dataType": "JSON", "base_date": base_date,
-              "base_time": base_time, "nx": nx, "ny": ny, "authKey": config.kma_auth_key}
-    resp = httpx.get(f"{config.kma_api_base}/{operation}", params=params, timeout=HTTP_TIMEOUT_SEC)
-    # 오류 메시지에 URL을 넣지 않는다 (쿼리에 authKey가 있고, 툴 오류는 응답 tools_used로 나간다)
-    try:
-        data = resp.json()
-    except ValueError:  # 5xx HTML 페이지 등
-        raise RuntimeError(f"기상청 API 응답이 JSON이 아닙니다 (HTTP {resp.status_code})") from None
-    if "result" in data:  # API허브 자체 오류 (인증키 등). HTTP 오류여도 이 메시지가 더 구체적이다
-        raise RuntimeError(f"기상청 API 오류 {data['result'].get('status')}: {data['result'].get('message')}")
-    if resp.is_error:
-        raise RuntimeError(f"기상청 API HTTP 오류 {resp.status_code}")
-    header = data["response"]["header"]
-    if header.get("resultCode") != "00":
-        raise RuntimeError(f"기상청 API 오류 {header.get('resultCode')}: {header.get('resultMsg')}")
-    return data["response"]["body"]["items"]["item"]
-
-
-def summarize_now(items: list[dict]) -> dict:
+def summarize_now(items: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """초단기실황 item 목록을 지금 날씨 요약(기온 · 습도 · 1시간 강수량 · 강수 형태 · 풍속)으로 돌려준다."""
     v = {it["category"]: it["obsrValue"] for it in items}
     first = items[0] if items else {}
     return {
@@ -153,8 +148,16 @@ def summarize_now(items: list[dict]) -> dict:
     }
 
 
-def summarize_forecast(items: list[dict], today: datetime) -> list[dict]:
-    """날짜별(오늘 · 내일 · 모레) 최저 · 최고 기온과 오전 · 오후의 하늘 · 강수 · 강수 확률."""
+def summarize_forecast(items: Sequence[Mapping[str, Any]], today: datetime) -> list[dict[str, Any]]:
+    """날짜별(오늘 · 내일 · 모레) 최저 · 최고 기온과 오전 · 오후의 하늘 · 강수 · 강수 확률을 돌려준다.
+
+    Args:
+      items: 단기예보 item 목록.
+      today: 기준 시각. 이 날짜부터 사흘을 본다.
+
+    Returns:
+      자료가 있는 날만 오늘 · 내일 · 모레 순서로 담는다.
+    """
     days = []
     for offset, name in enumerate(("오늘", "내일", "모레")):
         d = today + timedelta(days=offset)
@@ -183,7 +186,8 @@ def summarize_forecast(items: list[dict], today: datetime) -> list[dict]:
     return days
 
 
-def _num(value):
+def _num(value: str | None) -> int | float | str | None:
+    """기상청 값 문자열 → 숫자. 정수로 떨어지면 int."""
     try:
         f = float(value)
     except (TypeError, ValueError):
@@ -191,17 +195,68 @@ def _num(value):
     return int(f) if f.is_integer() else f
 
 
-@tool
-def get_weather(location: str) -> dict:
-    """기상청 자료로 지금 날씨와 오늘 · 내일 · 모레 예보를 알려 준다. 날씨 · 기온 · 비 · 눈 질문에 먼저 쓴다.
-    location은 시 · 도 또는 주요 도시 이름 (예: 서울, 부산, 제주, 수원). 지역을 말하지 않았으면 '서울'.
-    am은 06~12시, pm은 12~18시. pop_max_pct는 강수 확률 최댓값(%)."""
-    region = resolve_region(location)
-    nx, ny = latlon_to_grid(*REGIONS[region])
-    now = now_kst()
-    result = {"location": region, "grid": {"nx": nx, "ny": ny}, "source": "기상청 단기예보"}
-    result["now"] = summarize_now(_call("getUltraSrtNcst", *ncst_base(now), nx, ny))
-    base_date, base_time = fcst_base(now)
-    result["forecast_issued"] = f"{base_date} {base_time}"
-    result["forecast"] = summarize_forecast(_call("getVilageFcst", base_date, base_time, nx, ny), now)
-    return result
+# ---------------------------------------------------------------- 호출
+
+@dataclass(frozen=True)
+class WeatherClient:
+    """기상청 단기예보 API로 날씨를 조회하는 클라이언트. tool()이 LLM에 붙일 get_weather 툴을 만든다.
+
+        tool = WeatherClient.from_config(answer_config).tool()
+        tool.invoke({"location": "서울"})  →  {"location": "서울", "now": {…}, "forecast": [{…}, …]}
+    """
+
+    auth_key: str = field(repr=False)
+    """기상청 API허브 인증키. 요청 쿼리(authKey)에 들어가므로 repr · 오류 메시지에 남기지 않는다"""
+
+    api_base: str = KMA_API_BASE
+    _: KW_ONLY
+
+    http_get: Callable[..., httpx.Response] = httpx.get
+    """HTTP GET 함수. 테스트에서 가짜 응답을 끼울 때 바꾼다"""
+
+    now: Callable[[], datetime] = now_kst
+    """지금 시각. 테스트에서 고정할 때 바꾼다"""
+
+    @classmethod
+    def from_config(cls, config: AnswerConfig) -> WeatherClient:
+        """인증키 · 주소를 AnswerConfig(KMA_AUTH_KEY · KMA_API_BASE)에서 읽는다."""
+        return cls(auth_key=config.kma_auth_key, api_base=config.kma_api_base)
+
+    def tool(self) -> BaseTool:
+        """LLM에 붙일 get_weather 툴. 실행하면 이 클라이언트의 get_weather를 부른다."""
+        return StructuredTool.from_function(self.get_weather, name=WEATHER_TOOL_NAME,
+                                            description=WEATHER_TOOL_DESCRIPTION)
+
+    def get_weather(self, location: str) -> dict[str, Any]:
+        """지역의 지금 날씨와 오늘 · 내일 · 모레 예보를 돌려준다. 지원하지 않는 지역은 ValueError."""
+        region = resolve_region(location)
+        nx, ny = latlon_to_grid(*REGIONS[region])
+        now = self.now()
+        result = {"location": region, "grid": {"nx": nx, "ny": ny}, "source": "기상청 단기예보"}
+        result["now"] = summarize_now(self.fetch_items("getUltraSrtNcst", *ncst_base(now), nx, ny))
+        base_date, base_time = fcst_base(now)
+        result["forecast_issued"] = f"{base_date} {base_time}"
+        items = self.fetch_items("getVilageFcst", base_date, base_time, nx, ny)
+        result["forecast"] = summarize_forecast(items, now)
+        return result
+
+    def fetch_items(self, operation: str, base_date: str, base_time: str, nx: int,
+                    ny: int) -> list[dict[str, Any]]:
+        """기상청 API 하나를 불러 item 목록을 돌려준다. API허브 · HTTP · 결과 코드 오류는 RuntimeError."""
+        params = {"pageNo": 1, "numOfRows": 1500, "dataType": "JSON", "base_date": base_date,
+                  "base_time": base_time, "nx": nx, "ny": ny, "authKey": self.auth_key}
+        resp = self.http_get(f"{self.api_base}/{operation}", params=params, timeout=HTTP_TIMEOUT_SEC)
+        # 오류 메시지에 URL을 넣지 않는다 (쿼리에 authKey가 있고, 툴 오류는 응답 tools_used로 나간다)
+        try:
+            data = resp.json()
+        except ValueError:  # 5xx HTML 페이지 등
+            raise RuntimeError(f"기상청 API 응답이 JSON이 아닙니다 (HTTP {resp.status_code})") from None
+        if "result" in data:  # API허브 자체 오류 (인증키 등). HTTP 오류여도 이 메시지가 더 구체적이다
+            result = data["result"]
+            raise RuntimeError(f"기상청 API 오류 {result.get('status')}: {result.get('message')}")
+        if resp.is_error:
+            raise RuntimeError(f"기상청 API HTTP 오류 {resp.status_code}")
+        header = data["response"]["header"]
+        if header.get("resultCode") != "00":
+            raise RuntimeError(f"기상청 API 오류 {header.get('resultCode')}: {header.get('resultMsg')}")
+        return data["response"]["body"]["items"]["item"]
