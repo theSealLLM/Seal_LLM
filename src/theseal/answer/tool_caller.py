@@ -112,8 +112,10 @@ class ToolCaller:
                 return out
             if round_no == self.max_rounds:  # 마지막 기회에도 툴을 요청하면 횟수 초과
                 break
-            for call in ai.tool_calls:
-                content, record = await self._run_tool(call)
+            # 한 라운드의 툴은 서로 독립이라 동시에 돌린다 (날씨 + 검색 등). 결과는 요청 순서대로 붙인다.
+            # _run_tool은 예외를 결과로 바꿔 돌려주므로 툴 하나가 실패해도 나머지는 그대로 끝난다
+            results = await asyncio.gather(*(self._run_tool(call) for call in ai.tool_calls))
+            for call, (content, record) in zip(ai.tool_calls, results, strict=True):
                 msgs.append(ToolMessage(content=content, tool_call_id=call["id"], name=call["name"]))
                 out.records.append(record)
         out.exhausted = True

@@ -7,6 +7,7 @@ import logging
 import time
 import uuid
 from collections.abc import AsyncIterator, Sequence
+from contextlib import aclosing
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -94,8 +95,9 @@ class AnswerGenerator:
         try:
             llm = self.llm or make_llm(run.provider, self.config, with_tools=False)
             merged: AIMessageChunk | None = None
-            async with asyncio.timeout(self.config.llm_timeout_sec):
-                async for chunk in llm.astream(_to_messages(spec)):
+            # 시간 제한은 LLM 조각을 기다린 시간에만 건다. yield에서 멈춘 동안(받는 쪽이 전송하는 시간)은 넣지 않는다
+            async with aclosing(llm.astream(_to_messages(spec))) as stream:
+                async for chunk in _within_budget(stream, self.config.llm_timeout_sec):
                     merged = chunk if merged is None else merged + chunk
                     text = _content_text(chunk.content)
                     if text:
@@ -163,6 +165,24 @@ class AnswerGenerator:
             error=error,
             created_at=datetime.now(TIMEZONE).isoformat(timespec="seconds"),
         )
+
+
+async def _within_budget(stream: AsyncIterator[AIMessageChunk],
+                         budget_sec: float) -> AsyncIterator[AIMessageChunk]:
+    """LLM 스트림의 조각을 차례로 꺼낸다. 조각을 기다린 시간의 합이 budget_sec를 넘으면 TimeoutError.
+
+    받는 쪽이 조각을 처리하는 시간은 셈에 넣지 않는다 (asyncio.timeout 블록 안에서 yield하면 그 시간까지 들어간다).
+    """
+    loop = asyncio.get_running_loop()
+    remaining = budget_sec
+    while True:
+        start = loop.time()
+        try:
+            chunk = await asyncio.wait_for(anext(stream), max(remaining, 0))
+        except StopAsyncIteration:
+            return
+        remaining -= loop.time() - start
+        yield chunk
 
 
 def _to_messages(spec: PromptSpec) -> list[BaseMessage]:

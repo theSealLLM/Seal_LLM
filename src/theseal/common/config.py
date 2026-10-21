@@ -17,12 +17,15 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass, field, fields
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args, get_origin, get_type_hints
 from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
+
+from theseal.common.schemas import Label
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ENV_FILE = PROJECT_ROOT / ".env"
@@ -37,7 +40,8 @@ TIMEZONE = ZoneInfo("Asia/Seoul")
 OLLAMA_MODEL_IDS = {
     "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M": "487eacf5e94b",
 }
-LABELS = ("shipping", "refund", "account", "unknown")
+# 라벨 목록. 정의는 common/schemas.py의 Label 한 곳이고, 여기서는 튜플로 꺼내 쓴다 (E2E가 import)
+LABELS: tuple[str, ...] = get_args(Label)
 
 
 @dataclass(frozen=True)
@@ -83,29 +87,32 @@ def config_from_env[ConfigT](cls: type[ConfigT], env_file: Path | None = ENV_FIL
     """설정 dataclass를 환경변수로 채운다. 필드 이름을 대문자로 바꾼 이름을 읽는다 (예: ollama_model → OLLAMA_MODEL).
 
     LLMConfig · AnswerConfig · RouterConfig · ApiConfig가 모두 이 함수를 쓴다.
+    필드 타입은 get_type_hints로 읽는다. 설정 파일에 `from __future__ import annotations`가 있든 없든 같은 타입이 온다.
     """
     if env_file is not None:
         load_dotenv(env_file, override=False)
+    hints = get_type_hints(cls)
     values = {}
     for f in fields(cls):
         raw = os.environ.get(f.name.upper(), "").strip()
         if raw:
-            values[f.name] = _parse(raw, f.type)
+            values[f.name] = _parse(raw, hints[f.name])
     return cls(**values)
 
 
-def _parse(raw: str, type_hint: str) -> Any:
-    """dataclass 필드 타입(문자열, 예: "float | None")에 맞춰 환경변수 값을 바꾼다.
+def _parse(raw: str, tp: Any) -> Any:
+    """필드 타입(예: float | None)에 맞춰 환경변수 값을 바꾼다.
     None을 받을 수 있는 필드는 default라고 적으면 None (빈 값은 코드 기본값이라 None과 다를 수 있다)."""
-    base = type_hint.split("|")[0].strip()
-    if "None" in type_hint and raw.lower() == "default":
-        return None
-    if base == "bool":
+    args = get_args(tp)
+    nullable = type(None) in args
+    if nullable:
+        if raw.lower() == "default":
+            return None
+        tp = next(a for a in args if a is not type(None))
+    if tp is bool:
         return raw.lower() in ("1", "true", "yes", "on")
-    if base == "int":
-        return int(raw)
-    if base == "float":
-        return float(raw)
-    if base.startswith(("dict", "Mapping")):
+    if tp in (int, float):
+        return tp(raw)
+    if (get_origin(tp) or tp) in (dict, Mapping):
         return json.loads(raw)
     return raw

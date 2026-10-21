@@ -13,7 +13,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, get_args
 
 from theseal.common.config import LLMConfig
 from theseal.common.schemas import Label, PromptSpec
@@ -43,10 +43,12 @@ class CommonPolicyTemplate:
 
     @classmethod
     def from_file(cls, path: Path = TEMPLATE_DIR / COMMON_POLICY_FILE) -> CommonPolicyTemplate:
-        """문서를 읽는다. 항목이 빠졌으면 KeyError."""
+        """문서를 읽는다. 항목이 빠졌으면 KeyError, [policies]에 Label 정의에 없는 라벨이 있으면 ValueError."""
         data = _read_toml(path)
-        return cls(version=data["version"], template=data["template"],
-                   policies=MappingProxyType(dict(data["policies"])))
+        policies = dict(data["policies"])
+        if extra := set(policies) - (set(get_args(Label)) - {UNKNOWN}):
+            raise ValueError(f"{path.name}의 [policies]에 Label 정의에 없는 라벨이 있습니다: {sorted(extra)}")
+        return cls(version=data["version"], template=data["template"], policies=MappingProxyType(policies))
 
 
 @dataclass(frozen=True)
@@ -133,9 +135,15 @@ class Prompt:
 
     @classmethod
     def from_env(cls, *, llm_config: LLMConfig | None = None) -> Prompt:
-        """서비스 기본 구성: Router.from_env()(labels.json · .env)를 붙인다. llm_config는 Router 검증 LLM도 같이 쓴다."""
+        """서비스 기본 구성: Router.from_env()(labels.json · .env)를 붙인다. llm_config는 Router 검증 LLM도 같이 쓴다.
+
+        분류 모델이 낼 수 있는 라벨마다 정책 문구(common_policy.toml)가 있는지 여기서 확인한다. 없으면 ValueError.
+        """
         llm_config = llm_config or LLMConfig.from_env()
-        return cls(Router.from_env(llm_config=llm_config), llm_config)
+        prompt = cls(Router.from_env(llm_config=llm_config), llm_config)
+        if missing := set(prompt.router.labels) - set(prompt.templates.common_policy.policies):
+            raise ValueError(f"{COMMON_POLICY_FILE}에 정책 문구가 없는 라벨이 있습니다: {sorted(missing)}")
+        return prompt
 
     async def build_prompt(self, prediction: ClassificationResult) -> PromptSpec:
         """분류 결과 → PromptSpec (분류 후처리 근거가 필요 없을 때)."""
