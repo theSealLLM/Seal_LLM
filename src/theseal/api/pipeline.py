@@ -27,14 +27,14 @@ class ClassifierNotReadyError(RuntimeError):
 
 class Pipeline:
     """분류기 → Prompt → 답변을 LCEL 체인으로 잇는다. 단계마다 RunnablePassthrough.assign으로 결과를 쌓아서,
-    최종 응답에 분류 근거(classification)가 남는다. 분류 후처리(LLM 검증 포함)는 Prompt 안에서 한 번만 돈다.
+    분류 근거(classification)를 스트리밍 · E2E가 꺼내 쓸 수 있다. 분류 후처리(LLM 검증 포함)는 Prompt 안에서 한 번만 돈다.
 
         {"text", "label"?, "provider"?}
           ① prediction      분류기 classifier.predict → ClassificationResult (label을 주면 건너뜀)
           ② routed          Prompt.build_with_routing → RoutedPrompt(routing, prompt)
                             (label을 주면 Prompt.build_for_label)
              classification · label · prompt   routed를 풀어 둔다 (스트리밍 · 응답에서 쓰기 쉽게)
-          ③ AnswerResponse  generate → AnswerResult + classification
+          ③ AnswerResponse  generate → AnswerResult에서 응답 필드만 (AnswerResponse.from_result)
 
     예) pipeline = Pipeline.from_env()          # 서버 시작 때 한 번 (분류 모델이 없어도 만든다)
         response = await pipeline.answer_chain().ainvoke({"text": "환불은 언제 되나요?"})
@@ -79,13 +79,13 @@ class Pipeline:
         )
 
     def answer_chain(self) -> Runnable:
-        """{"text", "label"?, "provider"?} → AnswerResponse (AnswerResult + classification)"""
+        """{"text", "label"?, "provider"?} → AnswerResponse (AnswerResult에서 응답 필드만)"""
         return self.prepare_chain() | RunnableLambda(self._answer)
 
     async def answer(self, text: str, label: str | None, provider: str | None) -> AnswerResponse:
         """질문 하나 → AnswerResponse (/api/answer). 분류 모델 없이 분류가 필요하면 config_error 응답."""
         if label is None and self.classifier is None:
-            return errors.classifier_missing(self.llm_config, self.classifier_error, provider)
+            return errors.classifier_missing(self.classifier_error)
         chain_input = {"text": text, "label": label, "provider": provider}
         return await self.answer_chain().ainvoke(chain_input)
 
@@ -127,7 +127,7 @@ class Pipeline:
     async def _answer(self, x: dict[str, Any]) -> AnswerResponse:
         result = await generate(x["prompt"], x.get("provider"), config=self.llm_config,
                                 answer_config=self.answer_config)
-        return AnswerResponse(**result.model_dump(), classification=x["classification"])
+        return AnswerResponse.from_result(result)
 
 
 def classifier_dir(name: str = "final", task: str = DEFAULT_TASK) -> Path:

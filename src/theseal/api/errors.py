@@ -13,10 +13,9 @@ from fastapi import Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from theseal.api.schemas import AnswerResponse
-from theseal.common.client import model_name
-from theseal.common.config import PROVIDERS, TIMEZONE, LLMConfig
-from theseal.prompt.router import RoutingResult
+from theseal.api.schemas import AnswerError, AnswerResponse
+from theseal.common.config import TIMEZONE
+from theseal.common.schemas import ErrorCode
 
 STATUS_BY_ERROR = {
     "invalid_input": status.HTTP_400_BAD_REQUEST,
@@ -31,24 +30,15 @@ def now_iso() -> str:
     return datetime.now(TIMEZONE).isoformat(timespec="seconds")
 
 
-def error_response(config: LLMConfig, code: str, message: str, provider: str | None,
-                   label: str = "unknown",
-                   classification: RoutingResult | None = None) -> AnswerResponse:
-    """답변 없이 오류만 담은 AnswerResponse. provider가 잘못됐으면 DEFAULT_PROVIDER로 적는다."""
-    provider = provider if provider in PROVIDERS else config.default_provider
-    return AnswerResponse(
-        request_id=str(uuid.uuid4()), status="error", label=label, answer=None, provider=provider,
-        model=model_name(provider, config), prompt_version="-", latency_ms=0,
-        error={"code": code, "message": message}, created_at=now_iso(),
-        classification=classification,
-    )
+def error_response(code: ErrorCode, message: str) -> AnswerResponse:
+    """답변 없이 오류만 담은 AnswerResponse."""
+    return AnswerResponse(request_id=str(uuid.uuid4()), status="error", answer=None,
+                          error=AnswerError(code=code, message=message), created_at=now_iso())
 
 
-def classifier_missing(config: LLMConfig, classifier_error: str | None,
-                       provider: str | None) -> AnswerResponse:
+def classifier_missing(classifier_error: str | None) -> AnswerResponse:
     """분류 모델 없이 분류가 필요한 요청을 받았을 때의 config_error 응답."""
-    message = f"분류 모델을 불러오지 못했습니다: {classifier_error}"
-    return error_response(config, "config_error", message, provider)
+    return error_response("config_error", f"분류 모델을 불러오지 못했습니다: {classifier_error}")
 
 
 def to_json_response(response: AnswerResponse) -> JSONResponse:
@@ -59,8 +49,7 @@ def to_json_response(response: AnswerResponse) -> JSONResponse:
 
 async def invalid_input(request: Request, exc: RequestValidationError) -> JSONResponse:
     """빈 입력 · 길이 초과 · 잘못된 라벨 · 잘못된 JSON → 400. main.py가 RequestValidationError 핸들러로 등록한다."""
+    del request  # FastAPI 예외 핸들러 시그니처 맞춤. 요청 내용은 쓰지 않는다
     message = "; ".join(
         f"{'.'.join(str(p) for p in e['loc'][1:]) or 'body'}: {e['msg']}" for e in exc.errors())
-    body = exc.body if isinstance(exc.body, dict) else {}
-    config = request.app.state.pipeline.llm_config
-    return to_json_response(error_response(config, "invalid_input", message, body.get("provider")))
+    return to_json_response(error_response("invalid_input", message))

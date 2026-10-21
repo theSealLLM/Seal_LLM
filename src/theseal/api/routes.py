@@ -2,7 +2,7 @@
 
 | 메서드 | 경로               | 응답                                        |
 | GET    | /health            | 상태 · 분류 모델 · 설정                     |
-| POST   | /api/answer        | AnswerResult + classification (분류 근거)   |
+| POST   | /api/answer        | 답변 · 상태 · 오류 · 토큰 수 (AnswerResponse) |
 | POST   | /api/answer/stream | SSE: status · classification · delta · done |
 
 처리는 pipeline.py(분류 → 프롬프트 → 답변), 오류 응답은 errors.py, SSE 이벤트는 streaming.py에 있다.

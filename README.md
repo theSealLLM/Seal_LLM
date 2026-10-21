@@ -250,7 +250,7 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 | 메서드 | 경로 | 내용 |
 | --- | --- | --- |
 | GET | `/health` | 서버 상태 · 분류 모델 · 설정 |
-| POST | `/api/answer` | `{"text", "provider"?, "label"?}` → 답변 + 분류 결과 (JSON) |
+| POST | `/api/answer` | `{"text", "provider"?, "label"?}` → 답변 (JSON) |
 | POST | `/api/answer/stream` | 같은 요청 → SSE (`status` · `classification` · `delta` · `done`). 범위 밖(unknown)은 툴을 쓴 뒤 `done`만 보냄 |
 
 `provider`는 `local` · `openai`(비우면 `DEFAULT_PROVIDER`, 기본 `local`), `label`을 넣으면 분류를 건너뜁니다.
@@ -261,31 +261,21 @@ result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프
 
 ```json
 {
+  "request_id": "5b0f2c1e-…",
   "status": "ok",
-  "label": "refund",
   "answer": "반품을 원하시는군요. 먼저 반품 접수를 하셨는지 확인해 주시겠어요? … 상품을 수령하신 날로부터 7일 이내에 반품을 접수하셔야 한다는 가상 기준이 있습니다. …",
-  "provider": "local",
-  "model": "hf.co/unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
-  "prompt_version": "common-policy-v1",
-  "tools_used": [],
-  "latency_ms": 5167,
-  "usage": {"input_tokens": 297, "output_tokens": 202},
   "error": null,
-  "classification": {
-    "label": "refund",
-    "classifier_label": "refund",
-    "scores": {"shipping": 0.1025, "refund": 0.7776, "account": 0.1199},
-    "route": {"route": "confident", "p1": 0.7776, "margin": 0.6577, "tau": 0.6, "…": "…"},
-    "verification": null
-  }
+  "usage": {"input_tokens": 297, "output_tokens": 202},
+  "created_at": "2026-10-21T14:05:31+09:00"
 }
 ```
 
 | 필드 | 내용 |
 | --- | --- |
+| `request_id` | 요청마다 새로 만드는 ID |
 | `answer` | 답변. 오류면 `null` |
-| `label` | 최종 라벨 (shipping · refund · account · unknown) |
-| `prompt_version` | 사용한 프롬프트 (`common-policy-v1`, `unknown-v1-…`) |
-| `tools_used` | unknown 질문에서 호출한 툴과 결과 성공 여부 |
-| `classification` | 분류 근거: 분류기 확률(`scores`), 판정 경로(`route`), LLM 검증(`verification`, 확신일 때는 생략돼 `null`) |
-| `status` · `error` | 오류가 나도 같은 형식으로 `status: "error"`와 `error.code` (`invalid_input` · `config_error` · `llm_error` · `llm_timeout`) |
+| `status` · `error` | 오류가 나도 같은 형식으로 `status: "error"`와 `error.code` (`invalid_input` · `config_error` · `llm_error` · `llm_timeout`) · `error.message` |
+| `usage` | 답변 하나에 쓴 토큰 수 (모르면 `null`) |
+| `created_at` | 응답 시각 (ISO 8601, 한국 시간) |
+
+라벨 · 분류 근거 · 툴 기록 · 모델 같은 내부 정보는 응답에 넣지 않습니다. 분류 근거는 `/api/answer/stream`의 `classification` 이벤트로 받을 수 있고, E2E 결과 파일(`results.jsonl`)에는 전부 남습니다.

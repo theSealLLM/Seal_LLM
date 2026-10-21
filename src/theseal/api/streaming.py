@@ -11,13 +11,12 @@ pydantic이 실행 중에 타입 힌트를 읽는 경계 모듈이라 `from __fu
 import json
 import logging
 from collections.abc import AsyncIterator
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from typing import Any
 
 from theseal.api import errors
 from theseal.api.pipeline import Pipeline
 from theseal.api.schemas import AnswerRequest, AnswerResponse
-from theseal.prompt.router import RoutingResult
 
 STAGE_MESSAGES = {
     "classifying": "문의를 분류하는 중...",
@@ -31,25 +30,14 @@ SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
 logger = logging.getLogger("uvicorn.error")
 
 
-@dataclass
-class _StreamState:
-    """스트리밍 도중 정해진 값. 오류가 나도 done 이벤트에 담도록 정해지는 대로 채운다 (frozen 아님)."""
-
-    label: str = "unknown"
-    classification: RoutingResult | None = None
-
-
 async def answer_events(p: Pipeline, req: AnswerRequest) -> AsyncIterator[str]:
     """요청 하나의 SSE 이벤트 문자열. 스트림이 열린 뒤의 오류는 done 이벤트(status=error)로 보낸다."""
-    state = _StreamState()
     try:
-        async for chunk in _events(p, req, state):
+        async for chunk in _events(p, req):
             yield chunk
     except Exception as e:  # 스트림이 열린 뒤에는 상태 코드를 바꿀 수 없어 done으로 알린다
         logger.exception("스트리밍 중 오류")
-        err = errors.error_response(p.llm_config, "llm_error", f"{type(e).__name__}: {e}",
-                                    req.provider, state.label, state.classification)
-        yield sse("done", err.model_dump())
+        yield sse("done", errors.error_response("llm_error", f"{type(e).__name__}: {e}").model_dump())
 
 
 def sse(event: str, data: dict[str, Any]) -> str:
@@ -57,17 +45,15 @@ def sse(event: str, data: dict[str, Any]) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
-async def _events(p: Pipeline, req: AnswerRequest, state: _StreamState) -> AsyncIterator[str]:
+async def _events(p: Pipeline, req: AnswerRequest) -> AsyncIterator[str]:
     if req.label is None:
         if p.classifier is None:
-            err = errors.classifier_missing(p.llm_config, p.classifier_error, req.provider)
-            yield sse("done", err.model_dump())
+            yield sse("done", errors.classifier_missing(p.classifier_error).model_dump())
             return
         yield _status_event("classifying")
 
     prepared = await p.prepare_chain().ainvoke({"text": req.text, "label": req.label})
     classification, label = prepared["classification"], prepared["label"]
-    state.classification, state.label = classification, label
     if classification is not None:
         yield sse("classification", asdict(classification))
 
@@ -76,8 +62,7 @@ async def _events(p: Pipeline, req: AnswerRequest, state: _StreamState) -> Async
         if event["type"] == "delta":
             yield sse("delta", {"text": event["text"]})
         else:
-            response = AnswerResponse(**event["result"].model_dump(), classification=classification)
-            yield sse("done", response.model_dump())
+            yield sse("done", AnswerResponse.from_result(event["result"]).model_dump())
 
 
 def _status_event(stage: str) -> str:

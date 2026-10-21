@@ -22,7 +22,7 @@ from langchain_core.messages import (
 from langchain_core.tools import BaseTool
 
 from theseal.answer.config import AnswerConfig
-from theseal.answer.tool_caller import TokenUsage, ToolCaller, ToolCallOutcome, ToolCallRecord
+from theseal.answer.tool_caller import TokenUsage, ToolCaller, ToolCallOutcome
 from theseal.answer.tools import get_tools_for
 from theseal.common.client import ConfigError, llm_options, make_llm, model_name
 from theseal.common.config import TIMEZONE, LLMConfig
@@ -47,7 +47,7 @@ class AnswerRun:
     """지연(latency_ms)을 재는 시작 시각"""
 
     usage: TokenUsage = field(default_factory=TokenUsage)
-    records: list[ToolCallRecord] = field(default_factory=list)
+    records: list[ToolRecord] = field(default_factory=list)
 
 
 class AnswerGenerator:
@@ -146,10 +146,7 @@ class AnswerGenerator:
             return self._result(run, error=_error_info(e, config))
 
     def _result(self, run: AnswerRun, answer: str | None = None, error: ErrorInfo | None = None) -> AnswerResult:
-        """쌓인 값을 응답 형식(pydantic)으로 옮겨 담는다.
-
-        내부 기록(TokenUsage · ToolCallRecord)이 pydantic으로 바뀌는 곳은 여기 한 곳이다.
-        """
+        """쌓인 값을 결과(frozen AnswerResult)로 한 번에 담는다. 누적 토큰(TokenUsage)은 여기서 Usage로 옮긴다."""
         config = self.config
         return AnswerResult(
             request_id=str(uuid.uuid4()),
@@ -159,18 +156,13 @@ class AnswerGenerator:
             provider=run.provider,
             model=model_name(run.provider, config),
             prompt_version=run.spec.prompt_version,
-            tools_used=[_tool_record(r) for r in run.records],
+            tools_used=tuple(run.records),
             latency_ms=round((time.perf_counter() - run.start) * 1000),
             usage=Usage(input_tokens=run.usage.input_tokens, output_tokens=run.usage.output_tokens),
             llm_options=llm_options(run.provider, config, with_tools=bool(run.tools)),
             error=error,
             created_at=datetime.now(TIMEZONE).isoformat(timespec="seconds"),
         )
-
-
-def _tool_record(record: ToolCallRecord) -> ToolRecord:
-    return ToolRecord(name=record.name, args=dict(record.args), ok=record.ok,
-                      latency_ms=record.latency_ms, error=record.error)
 
 
 def _to_messages(spec: PromptSpec) -> list[BaseMessage]:

@@ -65,7 +65,7 @@ async def call_service(case: dict, *, chain: Runnable, provider: str, config: LL
         "category": case.get("category"),
         "status": result.status,
         "answer": answer,
-        "error": result.error.model_dump() if result.error else None,
+        "error": asdict(result.error) if result.error else None,
         "trace": {
             "expected_label": case["expected_label"],
             "classifier_label": routing.classifier_label if routing else None,
@@ -76,13 +76,13 @@ async def call_service(case: dict, *, chain: Runnable, provider: str, config: LL
             "prompt_version": spec.prompt_version,
             # 범위 밖 경로의 안내 문구 (unknown 프롬프트의 답변 방식 5, 툴 횟수 초과)를 그대로 썼는지
             "fallback": answer is not None and answer.strip() == config.fallback_answer.strip(),
-            "tools_used": [t.model_dump() for t in result.tools_used],
+            "tools_used": [asdict(t) for t in result.tools_used],
             "tool_outputs": tool_outputs,
         },
         "provider": result.provider,
         "model": result.model,
         "classifier": classifier,
-        "usage": result.usage.model_dump(),
+        "usage": asdict(result.usage),
         "answer_latency_ms": result.latency_ms,
         "e2e_latency_ms": round((time.perf_counter() - start) * 1000),
     }

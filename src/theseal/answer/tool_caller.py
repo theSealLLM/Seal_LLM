@@ -6,10 +6,8 @@ import asyncio
 import json
 import logging
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from types import MappingProxyType
-from typing import Any
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ToolCall, ToolMessage
@@ -17,6 +15,7 @@ from langchain_core.tools import BaseTool
 
 from theseal.answer.config import AnswerConfig
 from theseal.common.config import LLMConfig
+from theseal.common.schemas import ToolRecord
 
 logger = logging.getLogger(__name__)
 
@@ -42,23 +41,6 @@ class TokenUsage:
         self.output_tokens = (self.output_tokens or 0) + meta.get("output_tokens", 0)
 
 
-@dataclass(frozen=True)
-class ToolCallRecord:
-    """실행한 툴 하나의 기록. AnswerResult에는 ToolRecord로 옮겨 담는다."""
-
-    name: str
-    """LLM이 부른 툴 이름 (get_today, web_search …). 허용되지 않은 이름도 그대로 남는다"""
-
-    args: Mapping[str, Any]
-    """LLM이 넘긴 인자"""
-
-    ok: bool
-    latency_ms: int
-
-    error: str | None = None
-    """실패 이유. 성공이면 None"""
-
-
 @dataclass
 class ToolCallOutcome:
     """툴 호출 반복의 결과. 도중에 예외가 나도 그때까지의 툴 기록 · 토큰이 남도록 반복하면서 채운다 (frozen 아님)."""
@@ -66,7 +48,7 @@ class ToolCallOutcome:
     final: AIMessage | None = None
     """툴을 더 부르지 않은 마지막 LLM 응답. 횟수 초과면 None"""
 
-    records: list[ToolCallRecord] = field(default_factory=list)
+    records: list[ToolRecord] = field(default_factory=list)
     """실행한 툴 기록 (실패도 ok=False로 남는다)"""
 
     usage: TokenUsage = field(default_factory=TokenUsage)
@@ -83,7 +65,7 @@ class ToolCaller:
     (예: max_rounds=2 → get_today → add_days → 최종 답변까지 가능).
 
         outcome = await ToolCaller.from_config(llm, tools, config, answer_config).run(messages)
-        outcome.final, outcome.records  →  AIMessage, [ToolCallRecord, …]
+        outcome.final, outcome.records  →  AIMessage, [ToolRecord, …]
 
     Args:
       llm: AnswerGenerator가 만든 LLM. 여기서 직접 만들지 않는다.
@@ -137,7 +119,7 @@ class ToolCaller:
         out.exhausted = True
         return out
 
-    async def _run_tool(self, call: ToolCall) -> tuple[str, ToolCallRecord]:
+    async def _run_tool(self, call: ToolCall) -> tuple[str, ToolRecord]:
         """툴 하나 실행 → (LLM에 돌려줄 내용, 기록). 허용되지 않은 툴 · 인자 오류 · 시간 초과도 기록하고 계속한다."""
         name, args = call["name"], call.get("args") or {}
         tool = self.allowed.get(name)
@@ -157,6 +139,5 @@ class ToolCaller:
             ok, error = False, f"{type(e).__name__}: {e}"
             content = f"오류: {error}"
         latency_ms = round((time.perf_counter() - start) * 1000)
-        record = ToolCallRecord(name=name, args=MappingProxyType(dict(args)), ok=ok,
-                                latency_ms=latency_ms, error=error)
+        record = ToolRecord(name=name, args=dict(args), ok=ok, latency_ms=latency_ms, error=error)
         return content, record

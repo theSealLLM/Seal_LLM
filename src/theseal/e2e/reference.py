@@ -12,6 +12,8 @@ OpenAI 답변의 점수는 서비스를 다시 테스트해도 바뀌지 않으�
 
 from __future__ import annotations
 
+from dataclasses import asdict
+
 from langchain_core.language_models import BaseChatModel
 
 from theseal.answer.answer_generator import generate
@@ -66,8 +68,8 @@ async def make_reference(case: dict, *, config: LLMConfig, answer_config: Answer
         "provider": result.provider,
         "model": result.model,
         "answer": result.answer,
-        "tools_used": [t.model_dump() for t in result.tools_used],
+        "tools_used": [asdict(t) for t in result.tools_used],
         "tool_outputs": tool_outputs,
-        "usage": result.usage.model_dump(),
+        "usage": asdict(result.usage),
         "score": score,
     }
