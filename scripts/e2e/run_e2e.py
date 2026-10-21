@@ -32,9 +32,9 @@ import _common  # noqa: F401 — src 경로 등록
 import httpx
 
 from theseal.answer.config import AnswerConfig
+from theseal.api.config import ApiConfig
 from theseal.api.pipeline import (
-    ApiConfig,
-    ClassifierNotReady,
+    ClassifierNotReadyError,
     classifier_name,
     load_classifier,
     prepare_chain,
@@ -224,7 +224,7 @@ def run_test(args: argparse.Namespace, data: Path, cases: list[dict]) -> None:
         require_ollama(config)
     try:
         clf = load_classifier(ApiConfig.from_env())
-    except ClassifierNotReady as e:
+    except ClassifierNotReadyError as e:
         raise SystemExit(f"[중단] {e}") from None
 
     # 검증용 데이터: 지금 모델 · 프롬프트 · 채점표 · 문의 문장으로 만든 것만 비교에 쓴다

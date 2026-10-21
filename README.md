@@ -224,7 +224,7 @@ ID가 다르다는 경고가 나오면 Hugging Face 저장소 파일이 갱신�
 
 ```python
 clf = Classifier.from_final()
-router = Router.from_final()                  # labels.json · .env · 고정 기준선 RULE
+router = Router.from_env()                    # labels.json · .env · 고정 기준선 RULE
 result = await router.run(clf.predict(text))  # 원문은 result.text
 result.label  # 최종 라벨 (shipping · refund · account · unknown) → 프롬프트 생성
 ```

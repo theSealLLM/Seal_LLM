@@ -6,7 +6,7 @@ uv run python scripts/answer/check_llm.py --kma        # + 기상청 날씨 조�
 uv run python scripts/answer/check_llm.py --tavily     # + Tavily 검색 1회 (사용량 차감)
 uv run python scripts/answer/check_llm.py --all        # 전부
 
-- 설정은 코드 기본값 + .env (theseal.common.config · theseal.prompt.router). 키 값은 출력하지 않는다
+- 설정은 코드 기본값 + .env (theseal.common.config · theseal.answer.config · theseal.prompt.config). 키 값은 출력하지 않는다
 - 키는 쓰는 곳이 있을 때만 필수다. OpenAI 키는 기본 provider나 LLM 검증(VERIFY_PROVIDER)이 openai일 때,
   또는 --openai · --all로 호출을 요청했을 때만 없으면 실패. 그 밖에는 선택 사항으로 표시한다
 - 하나라도 실패하면 종료 코드 1

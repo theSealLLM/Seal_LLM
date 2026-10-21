@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Sequence
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from dataclasses import asdict, dataclass
+from typing import TYPE_CHECKING, Any
 
 from langchain_core.language_models import BaseChatModel
 
@@ -13,13 +14,14 @@ from theseal.classifier.config import DEFAULT_TASK, task_paths
 from theseal.classifier.data_loader import load_labels
 from theseal.common.client import make_llm
 from theseal.common.config import LLMConfig
-
-from . import llm_verifier
-from .config import RouterConfig
-from .route_rule import CONFIDENT, REASONS, UNKNOWN, RouteRule
+from theseal.prompt import llm_verifier
+from theseal.prompt.config import RouterConfig
+from theseal.prompt.route_rule import CONFIDENT, REASONS, UNKNOWN, RouteRule
 
 if TYPE_CHECKING:
     from theseal.classifier.classifier import ClassificationResult
+
+logger = logging.getLogger(__name__)
 
 # 경로 규칙 기준선. 지금은 분류 모델과 상관없이 이 값 하나로 고정해 쓴다.
 # 모델별로 다른 값(확률 보정 포함)이 필요해지면 그때 Router가 모델에 맞는 RouteRule을 고르도록 확장한다.
@@ -86,11 +88,25 @@ class RoutingResult:
     route: RouteDecision | None = None
     """② 결과. 경로 규칙을 끄면 None"""
 
-    verification: dict | None = None
-    """③ 결과 (VerifyResult + provider · mode). 검증하지 않았으면 None"""
+    verification: dict[str, Any] | None = None
+    """③ 결과 (VerifyResult 필드 + provider · mode). 검증하지 않았으면 None"""
 
 
 class Router:
+    """분류기 결과 하나를 ② 경로 규칙 → ③ LLM 검증 순서로 거쳐 최종 라벨을 정한다.
+
+        router = Router.from_env()
+        result = await router.run(clf.predict("환불은 언제 되나요?"))
+        result.label  →  'refund'
+
+    Args:
+      labels: 분류기 확률 순서 (labels.json).
+      config: 경로 규칙 · 검증 설정. 없으면 코드 기본값.
+      rule: 경로 규칙 기준선 (기본: 고정값 RULE).
+      llm: 검증 LLM. 없으면 처음 검증할 때 VERIFY_PROVIDER로 만든다 (테스트에서 가짜 LLM을 끼울 때 넘긴다).
+      llm_config: 검증 LLM을 만들 때 쓰는 설정. 없으면 .env + 코드 기본값.
+    """
+
     def __init__(
         self,
         labels: Sequence[str],
@@ -100,10 +116,6 @@ class Router:
         llm: BaseChatModel | None = None,
         llm_config: LLMConfig | None = None,
     ) -> None:
-        """labels: 분류기 확률 순서 (labels.json). config: 없으면 코드 기본값
-        rule: 경로 규칙 기준선 (기본: 고정값 RULE)
-        llm: 검증 LLM. 없으면 처음 검증할 때 VERIFY_PROVIDER로 만든다 (테스트에서 가짜 LLM을 끼울 때 넘긴다)
-        llm_config: 검증 LLM을 만들 때 쓰는 설정. 없으면 .env + 코드 기본값"""
         self.labels = tuple(labels)
         self.config = config or RouterConfig()
         self.rule = rule
@@ -111,8 +123,8 @@ class Router:
         self.llm_config = llm_config or LLMConfig.from_env()
 
     @classmethod
-    def from_final(cls, task: str = DEFAULT_TASK, *, llm_config: LLMConfig | None = None) -> Router:
-        """서비스가 쓰는 Router: 라벨은 data/<task>/labels.json, 설정은 .env, 기준선은 고정값 RULE.
+    def from_env(cls, task: str = DEFAULT_TASK, *, llm_config: LLMConfig | None = None) -> Router:
+        """서비스 기본 구성: 라벨은 data/<task>/labels.json, 설정은 .env(RouterConfig), 기준선은 고정값 RULE.
         llm_config: 검증 LLM 설정 (Prompt가 들고 있는 것을 넘긴다). 없으면 .env + 코드 기본값"""
         return cls(load_labels(task_paths(task).data_dir).labels, RouterConfig.from_env(),
                    llm_config=llm_config)
@@ -131,7 +143,7 @@ class Router:
         verification = None
         if self.needs_verification(label, route):
             v = await self.verify(customer_inquiry, label)
-            verification = {**v.model_dump(), "provider": self.config.verify_provider,
+            verification = {**asdict(v), "provider": self.config.verify_provider,
                             "mode": self.config.verify_mode}
             label = v.final_label
 
@@ -185,7 +197,9 @@ class Router:
             self.llm = self.llm or make_llm(self.config.verify_provider, self.llm_config)
             return await asyncio.wait_for(llm_verifier.verify(self.llm, customer_inquiry, label),
                                           self.config.verify_timeout_sec)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:  # 설정 오류 · 시간 초과도 분류 라벨을 유지한다
+            logger.exception("LLM 검증을 건너뜀 (label=%s, provider=%s)", label,
+                             self.config.verify_provider)
             err = "시간 초과" if isinstance(e, TimeoutError) else f"{type(e).__name__}: {e}"
             return llm_verifier.VerifyResult(match=True, reason="", label=label, final_label=label,
                                              latency_ms=0, error=err)
