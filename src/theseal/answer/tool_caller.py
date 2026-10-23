@@ -4,15 +4,41 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import time
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
+from langchain_core.messages import AIMessage, BaseMessage, ToolCall, ToolMessage
 from langchain_core.tools import BaseTool
 
-from ..common.config import LLMConfig
-from ..common.schemas import ToolRecord, Usage
+from theseal.answer.config import AnswerConfig
+from theseal.common.config import LLMConfig
+from theseal.common.schemas import ToolRecord
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class TokenUsage:
+    """LLM 호출 토큰 합. 호출할 때마다 add()로 더한다 (frozen 아님).
+
+    AnswerResult에는 Usage로 옮겨 담는다.
+    """
+
+    input_tokens: int | None = None
+    """한 번도 사용량이 오지 않았으면 None"""
+
+    output_tokens: int | None = None
+
+    def add(self, ai: AIMessage) -> None:
+        """LLM 응답 하나의 토큰 수를 더한다. 응답에 사용량이 없으면 그대로 둔다."""
+        meta = ai.usage_metadata
+        if not meta:
+            return
+        self.input_tokens = (self.input_tokens or 0) + meta.get("input_tokens", 0)
+        self.output_tokens = (self.output_tokens or 0) + meta.get("output_tokens", 0)
 
 
 @dataclass
@@ -23,9 +49,9 @@ class ToolCallOutcome:
     """툴을 더 부르지 않은 마지막 LLM 응답. 횟수 초과면 None"""
 
     records: list[ToolRecord] = field(default_factory=list)
-    """실행한 툴 기록 (실패도 ok=false로 남는다)"""
+    """실행한 툴 기록 (실패도 ok=False로 남는다)"""
 
-    usage: Usage = field(default_factory=Usage)
+    usage: TokenUsage = field(default_factory=TokenUsage)
     """반복 안의 모든 LLM 호출 토큰 합"""
 
     exhausted: bool = False
@@ -33,16 +59,24 @@ class ToolCallOutcome:
 
 
 class ToolCaller:
-    """max_rounds는 툴 실행 라운드 수. 툴 결과로 답을 쓸 LLM 호출 1회가 항상 더 허용된다
-    (예: max_rounds=2 → get_today → add_days → 최종 답변까지 가능). 툴 하나가 실패해도 답변은 계속 만든다.
+    """LLM과 툴을 오가며 답을 만드는 반복. 툴 하나가 실패해도 답변은 계속 만든다.
 
-        outcome = await ToolCaller.from_config(llm, tools, config).run(messages)
+    max_rounds는 툴 실행 라운드 수다. 툴 결과로 답을 쓸 LLM 호출 1회가 항상 더 허용된다
+    (예: max_rounds=2 → get_today → add_days → 최종 답변까지 가능).
+
+        outcome = await ToolCaller.from_config(llm, tools, config, answer_config).run(messages)
         outcome.final, outcome.records  →  AIMessage, [ToolRecord, …]
+
+    Args:
+      llm: AnswerGenerator가 만든 LLM. 여기서 직접 만들지 않는다.
+      tools: LLM에 붙일 툴. 목록에 없는 이름을 부르면 실패로 기록한다.
+      max_rounds: 툴 실행 라운드 수.
+      tool_timeout: 툴 실행 한 번의 시간 제한(초).
+      llm_timeout: LLM 호출 한 번의 시간 제한(초).
     """
 
-    def __init__(self, llm: BaseChatModel, tools: list[BaseTool], *, max_rounds: int, tool_timeout: float,
-                 llm_timeout: float) -> None:
-        """llm: AnswerGenerator가 만든 LLM (여기서 직접 만들지 않는다)"""
+    def __init__(self, llm: BaseChatModel, tools: Sequence[BaseTool], *, max_rounds: int,
+                 tool_timeout: float, llm_timeout: float) -> None:
         self.llm = llm.bind_tools(tools)
         self.allowed = {t.name: t for t in tools}
         self.max_rounds = max_rounds
@@ -50,33 +84,44 @@ class ToolCaller:
         self.llm_timeout = llm_timeout
 
     @classmethod
-    def from_config(cls, llm: BaseChatModel, tools: list[BaseTool], config: LLMConfig) -> ToolCaller:
-        """횟수 · 시간 제한을 설정(MAX_TOOL_ROUNDS · TOOL_TIMEOUT_SEC · LLM_TIMEOUT_SEC)에서 읽는다."""
-        return cls(llm, tools, max_rounds=config.max_tool_rounds, tool_timeout=config.tool_timeout_sec,
-                   llm_timeout=config.llm_timeout_sec)
+    def from_config(cls, llm: BaseChatModel, tools: Sequence[BaseTool], config: LLMConfig,
+                    answer_config: AnswerConfig) -> ToolCaller:
+        """횟수 · 툴 시간 제한은 AnswerConfig(MAX_TOOL_ROUNDS · TOOL_TIMEOUT_SEC)에서,
+        LLM 호출 시간 제한은 LLMConfig(LLM_TIMEOUT_SEC)에서 읽는다."""
+        return cls(llm, tools, max_rounds=answer_config.max_tool_rounds,
+                   tool_timeout=answer_config.tool_timeout_sec, llm_timeout=config.llm_timeout_sec)
 
-    async def run(self, messages: list[BaseMessage], out: ToolCallOutcome | None = None) -> ToolCallOutcome:
-        """LLM 시간 초과(TimeoutError)와 LLM 오류는 호출한 쪽(AnswerGenerator)이 처리한다.
-        out: 기록을 쌓을 객체. 넘기면 예외가 나도 호출한 쪽에 그때까지의 툴 기록 · 토큰이 남는다."""
+    async def run(self, messages: Sequence[BaseMessage],
+                  out: ToolCallOutcome | None = None) -> ToolCallOutcome:
+        """툴을 더 부르지 않는 응답이 나오거나 횟수를 넘길 때까지 반복한 결과를 돌려준다.
+
+        LLM 시간 초과(TimeoutError)와 LLM 오류는 호출한 쪽(AnswerGenerator)이 처리한다.
+
+        Args:
+          messages: 첫 LLM 호출에 보낼 메시지. 고치지 않고 복사해서 쓴다.
+          out: 기록을 쌓을 객체. 넘기면 예외가 나도 호출한 쪽에 그때까지의 툴 기록 · 토큰이 남는다.
+        """
         out = out or ToolCallOutcome()
         msgs = list(messages)
         for round_no in range(self.max_rounds + 1):
             ai = await asyncio.wait_for(self.llm.ainvoke(msgs), self.llm_timeout)
-            add_usage(out.usage, ai)
+            out.usage.add(ai)
             msgs.append(ai)
             if not ai.tool_calls:
                 out.final = ai
                 return out
             if round_no == self.max_rounds:  # 마지막 기회에도 툴을 요청하면 횟수 초과
                 break
-            for call in ai.tool_calls:
-                content, record = await self.run_tool(call)
+            # 한 라운드의 툴은 서로 독립이라 동시에 돌린다 (날씨 + 검색 등). 결과는 요청 순서대로 붙인다.
+            # _run_tool은 예외를 결과로 바꿔 돌려주므로 툴 하나가 실패해도 나머지는 그대로 끝난다
+            results = await asyncio.gather(*(self._run_tool(call) for call in ai.tool_calls))
+            for call, (content, record) in zip(ai.tool_calls, results, strict=True):
                 msgs.append(ToolMessage(content=content, tool_call_id=call["id"], name=call["name"]))
                 out.records.append(record)
         out.exhausted = True
         return out
 
-    async def run_tool(self, call: dict) -> tuple[str, ToolRecord]:
+    async def _run_tool(self, call: ToolCall) -> tuple[str, ToolRecord]:
         """툴 하나 실행 → (LLM에 돌려줄 내용, 기록). 허용되지 않은 툴 · 인자 오류 · 시간 초과도 기록하고 계속한다."""
         name, args = call["name"], call.get("args") or {}
         tool = self.allowed.get(name)
@@ -88,19 +133,13 @@ class ToolCaller:
             content = json.dumps(result, ensure_ascii=False)
             ok, error = True, None
         except TimeoutError:
+            logger.warning("툴 실행 시간 초과: %s (%s초)", name, self.tool_timeout)
             ok, error = False, f"도구 실행 시간 초과 ({self.tool_timeout}초)"
             content = f"오류: {error}"
-        except Exception as e:  # noqa: BLE001 — 인자 검증 실패, 잘못된 날짜, 외부 API 오류 등
+        except Exception as e:  # 인자 검증 실패, 잘못된 날짜, 외부 API 오류 등. 기록하고 계속한다
+            logger.exception("툴 실행 실패: %s", name)
             ok, error = False, f"{type(e).__name__}: {e}"
             content = f"오류: {error}"
         latency_ms = round((time.perf_counter() - start) * 1000)
-        return content, ToolRecord(name=name, args=args, ok=ok, latency_ms=latency_ms, error=error)
-
-
-def add_usage(total: Usage, ai: AIMessage) -> None:
-    """LLM 응답의 토큰 수를 total에 더한다."""
-    meta = getattr(ai, "usage_metadata", None)
-    if not meta:
-        return
-    total.input_tokens = (total.input_tokens or 0) + meta.get("input_tokens", 0)
-    total.output_tokens = (total.output_tokens or 0) + meta.get("output_tokens", 0)
+        record = ToolRecord(name=name, args=dict(args), ok=ok, latency_ms=latency_ms, error=error)
+        return content, record

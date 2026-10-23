@@ -4,10 +4,10 @@
 """
 
 # A/B 프롬프트 비교 실험 재현을 위해 라벨별 독립 프롬프트 유지
-from .prompt_ab_experiment import build_label_specific_prompt
+from theseal.prompt.prompt_ab_experiment import build_label_specific_prompt
 
 # 서비스에서 사용하는 Prompt 객체와 A/B 비교 스크립트용 프롬프트 생성 함수 공개
-from .prompt_generator import (
+from theseal.prompt.prompt_generator import (
     Prompt,
     RoutedPrompt,
     build_common_policy_prompt,

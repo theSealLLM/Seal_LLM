@@ -3,47 +3,47 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Sequence
-from dataclasses import dataclass
-from pathlib import Path
-from typing import TYPE_CHECKING
+from dataclasses import asdict, dataclass
+from typing import TYPE_CHECKING, Any, get_args
 
 from langchain_core.language_models import BaseChatModel
 
 from theseal.classifier.config import DEFAULT_TASK, task_paths
 from theseal.classifier.data_loader import load_labels
-from theseal.common.client import make_llm
-from theseal.common.config import ENV_FILE, LLMConfig, config_from_env, get_config
-
-from . import llm_verifier
-from .route_rule import CONFIDENT, REASONS, UNKNOWN, RouteRule
+from theseal.common.client import ConfigError, make_llm
+from theseal.common.config import LLMConfig
+from theseal.common.schemas import Label
+from theseal.prompt import llm_verifier
+from theseal.prompt.config import RouterConfig
+from theseal.prompt.route_rule import CONFIDENT, REASONS, UNKNOWN, RouteRule
 
 if TYPE_CHECKING:
     from theseal.classifier.classifier import ClassificationResult
+
+logger = logging.getLogger(__name__)
 
 # 경로 규칙 기준선. 지금은 분류 모델과 상관없이 이 값 하나로 고정해 쓴다.
 # 모델별로 다른 값(확률 보정 포함)이 필요해지면 그때 Router가 모델에 맞는 RouteRule을 고르도록 확장한다.
 RULE = RouteRule(tau=0.60, tau_low=0.45, delta=0.15)
 
-VERIFY_MODES = ("off", "uncertain", "all")
+NO_VERIFY_LLM = "검증 LLM이 없습니다 (Router.from_env()로 만들거나 llm을 넘긴다)"
 
 
-@dataclass
-class RouterConfig:
-    """켜고 끄기 · LLM 검증 설정. .env에서 필드 이름을 대문자로 적어 바꾼다 (예: VERIFY_MODE=off)."""
+def check_labels(labels: Sequence[str]) -> None:
+    """분류 모델 라벨(labels.json)이 Label 정의 · 검증 라벨 설명(LABEL_DESCRIPTIONS)과 맞는지 확인한다.
 
-    route_rule_enabled: bool = True  # ② 경로 규칙. 끄면 분류기 라벨을 그대로 쓴다
-    verify_mode: str = "uncertain"  # ③ off | uncertain(확신이 아닌 것만) | all
-    verify_provider: str = "local"
-    verify_timeout_sec: float = 10  # 넘으면 검증 없이 분류 라벨을 그대로 쓴다
-
-    def __post_init__(self) -> None:
-        if self.verify_mode not in VERIFY_MODES:
-            raise ValueError(f"VERIFY_MODE는 {VERIFY_MODES} 중 하나여야 합니다: {self.verify_mode!r}")
-
-    @classmethod
-    def from_env(cls, env_file: Path | None = ENV_FILE) -> RouterConfig:
-        return config_from_env(cls, env_file)
+    서버 시작 때(Router.from_env) 한 번 부른다. 첫 요청에서야 KeyError가 나지 않게, 어긋나면 바로 ValueError.
+    """
+    defined = set(get_args(Label)) - {UNKNOWN}
+    if extra := set(labels) - defined:
+        raise ValueError(f"분류 모델 라벨이 Label 정의에 없습니다: {sorted(extra)} (common/schemas.py의 Label)")
+    descriptions = set(llm_verifier.LABEL_DESCRIPTIONS)
+    if missing := set(labels) - descriptions:
+        raise ValueError(f"검증 라벨 설명이 없습니다: {sorted(missing)} (llm_verifier.LABEL_DESCRIPTIONS)")
+    if extra := descriptions - defined:
+        raise ValueError(f"검증 라벨 설명에 Label 정의에 없는 라벨이 있습니다: {sorted(extra)}")
 
 
 @dataclass(frozen=True)
@@ -106,11 +106,26 @@ class RoutingResult:
     route: RouteDecision | None = None
     """② 결과. 경로 규칙을 끄면 None"""
 
-    verification: dict | None = None
-    """③ 결과 (VerifyResult + provider · mode). 검증하지 않았으면 None"""
+    verification: dict[str, Any] | None = None
+    """③ 결과 (VerifyResult 필드 + provider · mode). 검증하지 않았으면 None"""
 
 
 class Router:
+    """분류기 결과 하나를 ② 경로 규칙 → ③ LLM 검증 순서로 거쳐 최종 라벨을 정한다.
+
+        router = Router.from_env()
+        result = await router.run(clf.predict("환불은 언제 되나요?"))
+        result.label  →  'refund'
+
+    Args:
+      labels: 분류기 확률 순서 (labels.json).
+      config: 경로 규칙 · 검증 설정. 없으면 코드 기본값.
+      rule: 경로 규칙 기준선 (기본: 고정값 RULE).
+      llm: 검증 LLM. 없으면 검증할 라벨을 그대로 둔다 (fail-open). 서비스는 from_env()가 만들어 넘기고,
+        테스트는 가짜 LLM을 넘긴다.
+      llm_error: llm이 없는 이유 (예: 키 없음). 검증 결과의 error에 남긴다.
+    """
+
     def __init__(
         self,
         labels: Sequence[str],
@@ -118,21 +133,33 @@ class Router:
         *,
         rule: RouteRule = RULE,
         llm: BaseChatModel | None = None,
-        llm_config: LLMConfig | None = None,
+        llm_error: str | None = None,
     ) -> None:
-        """labels: 분류기 확률 순서 (labels.json). config: 없으면 코드 기본값
-        rule: 경로 규칙 기준선 (기본: 고정값 RULE)
-        llm · llm_config: 검증 LLM. 없으면 처음 검증할 때 VERIFY_PROVIDER로 만든다 (테스트에서 가짜 LLM을 끼울 때 넘긴다)"""
         self.labels = tuple(labels)
         self.config = config or RouterConfig()
         self.rule = rule
         self.llm = llm
-        self.llm_config = llm_config
+        self.llm_error = llm_error
 
     @classmethod
-    def from_final(cls, task: str = DEFAULT_TASK) -> Router:
-        """서비스가 쓰는 Router: 라벨은 data/<task>/labels.json, 설정은 .env, 기준선은 고정값 RULE."""
-        return cls(load_labels(task_paths(task).data_dir).labels, RouterConfig.from_env())
+    def from_env(cls, task: str = DEFAULT_TASK, *, llm_config: LLMConfig | None = None) -> Router:
+        """서비스 기본 구성: 라벨은 data/<task>/labels.json, 설정은 .env(RouterConfig), 기준선은 고정값 RULE.
+
+        라벨이 Label 정의 · 검증 라벨 설명과 맞는지 여기서 확인하고(check_labels), 검증 LLM도 여기서 만든다.
+        검증을 끄면(VERIFY_MODE=off) LLM을 만들지 않는다. 키가 없어 만들 수 없으면 검증만 건너뛴다 (fail-open).
+        llm_config: 검증 LLM 설정 (Prompt가 들고 있는 것을 넘긴다). 없으면 .env + 코드 기본값
+        """
+        labels = load_labels(task_paths(task).data_dir).labels
+        check_labels(labels)
+        config = RouterConfig.from_env()
+        llm, llm_error = None, None
+        if config.verify_mode != "off":
+            try:
+                llm = make_llm(config.verify_provider, llm_config or LLMConfig.from_env())
+            except ConfigError as e:
+                llm_error = f"{type(e).__name__}: {e}"
+                logger.warning("검증 LLM을 만들지 못해 LLM 검증을 건너뜀: %s", llm_error)
+        return cls(labels, config, llm=llm, llm_error=llm_error)
 
     async def run(self, prediction: ClassificationResult) -> RoutingResult:
         """분류 결과 하나 → RoutingResult (② 경로 규칙 → ③ LLM 검증).
@@ -148,7 +175,7 @@ class Router:
         verification = None
         if self.needs_verification(label, route):
             v = await self.verify(customer_inquiry, label)
-            verification = {**v.model_dump(), "provider": self.config.verify_provider,
+            verification = {**asdict(v), "provider": self.config.verify_provider,
                             "mode": self.config.verify_mode}
             label = v.final_label
 
@@ -197,12 +224,16 @@ class Router:
         return route is None or route.route != CONFIDENT
 
     async def verify(self, customer_inquiry: str, label: str) -> llm_verifier.VerifyResult:
-        """③ LLM 검증. 설정 오류(키 없음) · 시간 초과도 분류 라벨을 유지한다 (fail-open)."""
+        """③ LLM 검증. 검증 LLM이 없거나(키 없음) 시간 초과여도 분류 라벨을 유지한다 (fail-open)."""
+        if self.llm is None:
+            return llm_verifier.VerifyResult(match=True, reason="", label=label, final_label=label,
+                                             latency_ms=0, error=self.llm_error or NO_VERIFY_LLM)
         try:
-            self.llm = self.llm or make_llm(self.config.verify_provider, self.llm_config or get_config())
             return await asyncio.wait_for(llm_verifier.verify(self.llm, customer_inquiry, label),
                                           self.config.verify_timeout_sec)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:  # 시간 초과 등도 분류 라벨을 유지한다
+            logger.exception("LLM 검증을 건너뜀 (label=%s, provider=%s)", label,
+                             self.config.verify_provider)
             err = "시간 초과" if isinstance(e, TimeoutError) else f"{type(e).__name__}: {e}"
             return llm_verifier.VerifyResult(match=True, reason="", label=label, final_label=label,
                                              latency_ms=0, error=err)

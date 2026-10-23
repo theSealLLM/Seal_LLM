@@ -27,21 +27,21 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import _common  # noqa: F401 — src 경로 등록
 import httpx
 
+from theseal.answer.config import AnswerConfig
+from theseal.api.config import ApiConfig
 from theseal.api.pipeline import (
-    ApiConfig,
-    ClassifierNotReady,
+    ClassifierNotReadyError,
     classifier_name,
     load_classifier,
     prepare_chain,
 )
 from theseal.classifier.config import PROJECT_ROOT, display_path, new_run_id
 from theseal.common.client import ConfigError, make_llm, model_name
-from theseal.common.config import LLMConfig, get_config
+from theseal.common.config import TIMEZONE, LLMConfig
 from theseal.e2e.dataset import latest_rows, load_cases, select_cases, write_json
 from theseal.e2e.judge import JUDGE_VERSION
 from theseal.e2e.rate_limit import RateLimiter
@@ -49,7 +49,7 @@ from theseal.e2e.reference import PROVIDER as OPENAI
 from theseal.e2e.reference import reference_version
 from theseal.e2e.rubric import CATEGORIES, MAX_SCORE
 from theseal.e2e.runner import StageAborted, make_references, test_service
-from theseal.prompt.router import RouterConfig
+from theseal.prompt.config import RouterConfig
 
 # ================================================================ 실행 설정 (여기만 고치면 된다)
 # ---- OpenAI 호출 속도 (2번 검증용 데이터: 문의마다 답변 + 채점 2번, 1번 서비스 테스트: 채점 1번)
@@ -172,7 +172,7 @@ def stopped(mode: str, args: argparse.Namespace, data: Path, cases: list[dict], 
     save_resume(mode, {
         "data": display_path(data), "per_label": args.per_label, "limit": args.limit, "run_id": run_id,
         "stopped_at": stopped_at, "done": done, "total": len(cases), "reason": reason,
-        "stopped_time": datetime.now(ZoneInfo(get_config().timezone)).strftime("%Y-%m-%d %H:%M:%S"),
+        "stopped_time": datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S"),
     })
     return SystemExit(f"\n[중단] {reason}\n{done}/{len(cases)}건 끝남 · {stopped_at}에서 멈춤. "
                       f"같은 명령(uv run python scripts/e2e/run_e2e.py {mode})으로 다시 실행하면 이어서 합니다.")
@@ -181,7 +181,7 @@ def stopped(mode: str, args: argparse.Namespace, data: Path, cases: list[dict], 
 # ---------------------------------------------------------------- 2) 검증용 데이터 만들기
 
 def run_reference(args: argparse.Namespace, data: Path, all_cases: list[dict], cases: list[dict]) -> None:
-    config = get_config()
+    config = LLMConfig.from_env()
     path = reference_path(data)
     print(f"검증용 데이터: {display_path(path)} · OpenAI {model_name(OPENAI, config)} · "
           f"{len(cases)}건 (호출 약 {len(cases) * 2}번, 분당 {args.rpm:g}번 이하)")
@@ -193,7 +193,8 @@ def run_reference(args: argparse.Namespace, data: Path, all_cases: list[dict], c
 
     try:
         refs = asyncio.run(make_references(
-            cases, path, config=config, llm=openai_llm(config), limiter=openai_limiter(args),
+            cases, path, config=config, answer_config=AnswerConfig.from_env(), llm=openai_llm(config),
+            limiter=openai_limiter(args),
             concurrency=args.concurrency, order=[c["id"] for c in all_cases], stop_after=args.stop_after))
     except StageAborted as e:
         raise stopped("2", args, data, cases, done_ids(), str(e)) from None
@@ -217,13 +218,13 @@ def run_reference(args: argparse.Namespace, data: Path, all_cases: list[dict], c
 # ---------------------------------------------------------------- 1) 우리 서비스 테스트
 
 def run_test(args: argparse.Namespace, data: Path, cases: list[dict]) -> None:
-    config = get_config()
+    config = LLMConfig.from_env()
     routing = RouterConfig.from_env()
     if "local" in (config.default_provider, routing.verify_provider):
         require_ollama(config)
     try:
         clf = load_classifier(ApiConfig.from_env())
-    except ClassifierNotReady as e:
+    except ClassifierNotReadyError as e:
         raise SystemExit(f"[중단] {e}") from None
 
     # 검증용 데이터: 지금 모델 · 프롬프트 · 채점표 · 문의 문장으로 만든 것만 비교에 쓴다
@@ -263,7 +264,8 @@ def run_test(args: argparse.Namespace, data: Path, cases: list[dict]) -> None:
 
     try:
         report = asyncio.run(test_service(
-            cases, run_dir, refs=refs, chain=prepare_chain(clf), config=config, classifier=classifier_name(clf),
+            cases, run_dir, refs=refs, chain=prepare_chain(clf), config=config,
+            answer_config=AnswerConfig.from_env(), classifier=classifier_name(clf),
             judge_llm=openai_llm(config) if refs else None, limiter=openai_limiter(args),
             concurrency=args.concurrency, service_concurrency=SERVICE_CONCURRENCY, meta=meta,
             stop_after=args.stop_after))

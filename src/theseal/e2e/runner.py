@@ -18,6 +18,7 @@ from pathlib import Path
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import Runnable
 
+from theseal.answer.config import AnswerConfig
 from theseal.common.client import model_name
 from theseal.common.config import LLMConfig
 
@@ -107,7 +108,8 @@ async def run_stage(
     return {c["id"]: rows[c["id"]] for c in cases if c["id"] in rows}
 
 
-async def make_references(cases: list[dict], path: Path, *, config: LLMConfig, llm: BaseChatModel,
+async def make_references(cases: list[dict], path: Path, *, config: LLMConfig, answer_config: AnswerConfig,
+                          llm: BaseChatModel,
                           limiter: RateLimiter, concurrency: int, order: list[str],
                           stop_after: int = STOP_AFTER) -> dict[str, dict]:
     """2번: 검증용 데이터. llm은 make_llm("openai", config). order: 입력 파일 전체의 id 순서."""
@@ -124,7 +126,7 @@ async def make_references(cases: list[dict], path: Path, *, config: LLMConfig, l
     try:
         return await run_stage(
             "검증용 답변", cases, path,
-            lambda c: make_reference(c, config=config, llm=llm, limiter=limiter),
+            lambda c: make_reference(c, config=config, answer_config=answer_config, llm=llm, limiter=limiter),
             concurrency=concurrency, is_done=is_done, describe=describe, stop_after=stop_after)
     finally:  # 중단돼도 파일은 입력 순서 · id마다 한 줄로 정리해 둔다 (팀이 커밋해서 같이 쓰는 파일)
         compact_jsonl(path, order)
@@ -139,7 +141,7 @@ async def score_service(case: dict, row: dict, *, llm: BaseChatModel, limiter: R
 
 
 async def test_service(cases: list[dict], run_dir: Path, *, refs: dict[str, dict], chain: Runnable,
-                       config: LLMConfig, classifier: str, judge_llm: BaseChatModel | None, limiter: RateLimiter,
+                       config: LLMConfig, answer_config: AnswerConfig, classifier: str, judge_llm: BaseChatModel | None, limiter: RateLimiter,
                        concurrency: int, meta: dict, service_concurrency: int = 1, stop_after: int = STOP_AFTER,
                        service_llm: BaseChatModel | None = None) -> dict:
     """1번: 서비스 답변 → 채점 → OpenAI 점수와 비교 → 리포트. 결과 파일은 두 개다.
@@ -153,6 +155,7 @@ async def test_service(cases: list[dict], run_dir: Path, *, refs: dict[str, dict
         answered = await run_stage(
             "서비스 답변", cases, path,
             lambda c: call_service(c, chain=chain, provider=config.default_provider, config=config,
+                                   answer_config=answer_config,
                                    classifier=classifier, llm=service_llm),
             concurrency=service_concurrency,
             # 같은 모델 · 분류 모델로 정상 답한 건은 다시 돌리지 않는다 (조건이 바뀌면 다시 돌려 섞이지 않게)

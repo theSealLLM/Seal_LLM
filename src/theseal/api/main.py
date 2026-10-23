@@ -1,62 +1,43 @@
-"""FastAPI 앱: 분류 · 답변 생성 기능을 HTTP로 연결한다.
+"""서버 시작 · 앱 조립: FastAPI 앱을 만들고 lifespan · CORS · 라우터 · 오류 핸들러를 붙인다.
 
 uv run uvicorn --app-dir src theseal.api.main:app --reload --port 8000
 
-| 메서드 | 경로            | 응답                                       |
-| GET    | /health         | 상태 · 분류 모델 · 설정                    |
-| POST   | /api/answer     | AnswerResult + classification (분류 근거)  |
-| POST   | /api/answer/stream | SSE: status · classification · delta · done |
+나눠 둔 곳
+    main.py       서버 시작: lifespan에서 Pipeline을 한 번 만들어 app.state.pipeline에 둔다
+    routes.py     외부 호출부: /health · /api/answer · /api/answer/stream
+    pipeline.py   내부 처리: 분류 → 프롬프트 → 답변
+    errors.py     내부 처리: 오류 응답 · HTTP 상태 · 입력 오류(400) 핸들러
+    streaming.py  내부 처리: /api/answer/stream의 SSE 이벤트
 
-HTTP 상태: 입력 오류 400 · 설정 오류 500 · LLM 오류 502 · 시간 초과 504
-/api/answer는 오류여도 본문이 AnswerResponse 형식이다 (status=error, error.code).
-
-/api/answer/stream (text/event-stream, 요청 본문은 /api/answer와 같다)
-    event: status          {"stage": "classifying" | "answering" | "adventure", "message": "..."}
-    event: classification  RoutingResult (분류를 거쳤을 때만)
-    event: delta           {"text": "..."} 답변 글자 조각. unknown(adventure)은 보내지 않는다
-    event: done            AnswerResponse (마지막 한 번, 오류도 여기로: status=error)
-입력 오류만 스트림을 열기 전에 400 JSON(AnswerResponse)으로 돌려준다.
+FastAPI가 실행 중에 타입 힌트를 읽는 경계 모듈이라 `from __future__ import annotations`를 넣지 않는다.
 """
 
-from __future__ import annotations
-
-import json
 import logging
-import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from dataclasses import asdict
-from datetime import datetime
-from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
 
-from theseal.common.client import model_name
-from theseal.common.config import PROVIDERS, get_config
-from theseal.prompt.router import RoutingResult
+from theseal.api import errors, routes
+from theseal.api.config import ApiConfig
+from theseal.api.pipeline import Pipeline, classifier_name
 
-from . import pipeline
-from .schemas import AnswerRequest, AnswerResponse
-
-STATUS_BY_ERROR = {"invalid_input": 400, "config_error": 500, "llm_error": 502, "llm_timeout": 504}
-STAGE_MESSAGES = {
-    "classifying": "문의를 분류하는 중...",
-    "answering": "답변을 작성하는 중...",
-    "adventure": "챗봇이 알 수 없는 것을 찾아 모험을 떠나는 중...",
-}
+# __name__ 대신 uvicorn 로거를 쓴다. 루트 로거에는 핸들러가 없어 __name__ 로거의 info가 서버 로그에 나오지 않는다
 logger = logging.getLogger("uvicorn.error")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    # 분류 모델은 서버 시작 때 한 번 불러온다. 없어도 서버는 뜬다 (label을 직접 넣은 /api/answer는 동작)
-    p = await run_in_threadpool(pipeline.Pipeline.from_env)
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """서버 시작 때 Pipeline을 한 번 만든다 (분류 모델 · 설정 · 프롬프트 문서를 읽는다).
+
+    분류 모델이 없어도 서버는 뜬다 (label을 직접 넣은 요청은 동작).
+    """
+    p = await run_in_threadpool(Pipeline.from_env)
     if p.classifier is not None:
-        logger.info("분류 모델 로드: %s (%s)", pipeline.classifier_name(p.classifier),
+        logger.info("분류 모델 로드: %s (%s)", classifier_name(p.classifier),
                     getattr(p.classifier.model, "device", "cpu"))
     else:
         logger.warning("분류 모델 없음: %s", p.classifier_error)
@@ -66,125 +47,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Seal_LLM", version="0.1.0", description="고객 문의 분류 · 답변 초안 API",
               lifespan=lifespan)
-# 서버가 쓰는 Pipeline. lifespan이 분류 모델을 불러와 바꿔 넣는다 (그 전에는 분류기 없이 label을 준 요청만 처리)
-app.state.pipeline = pipeline.Pipeline()
+app.include_router(routes.router)
+app.add_exception_handler(RequestValidationError, errors.invalid_input)
 
 # 프론트(다른 포트 · 주소)가 브라우저에서 직접 부를 수 있게 허용한다. 미들웨어는 앱을 만들 때 붙여야 해서 여기서 .env를 읽는다
-_cors_origins = pipeline.ApiConfig.from_env().cors_origins()
+_cors_origins = ApiConfig.from_env().cors_origins()
 if _cors_origins:
     app.add_middleware(CORSMiddleware, allow_origins=_cors_origins, allow_methods=["GET", "POST"],
                        allow_headers=["*"])
-
-
-def _now() -> str:
-    return datetime.now(ZoneInfo(get_config().timezone)).isoformat(timespec="seconds")
-
-
-def _error_response(code: str, message: str, provider: str | None, label: str = "unknown",
-                    classification: RoutingResult | None = None) -> AnswerResponse:
-    config = get_config()
-    provider = provider if provider in PROVIDERS else config.default_provider
-    return AnswerResponse(
-        request_id=str(uuid.uuid4()), status="error", label=label, answer=None, provider=provider,
-        model=model_name(provider, config), prompt_version="-", latency_ms=0,
-        error={"code": code, "message": message}, created_at=_now(), classification=classification,
-    )
-
-
-def _error_answer(code: str, message: str, provider: str | None, label: str = "unknown",
-                  classification: RoutingResult | None = None) -> JSONResponse:
-    result = _error_response(code, message, provider, label, classification)
-    return JSONResponse(result.model_dump(), status_code=STATUS_BY_ERROR[code])
-
-
-def _sse(event: str, data: dict) -> str:
-    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
-
-
-@app.exception_handler(RequestValidationError)
-async def invalid_input(request: Request, exc: RequestValidationError) -> JSONResponse:
-    """빈 입력 · 길이 초과 · 잘못된 라벨 · 잘못된 JSON → 400"""
-    message = "; ".join(
-        f"{'.'.join(str(p) for p in e['loc'][1:]) or 'body'}: {e['msg']}" for e in exc.errors())
-    body = exc.body if isinstance(exc.body, dict) else {}
-    return _error_answer("invalid_input", message, body.get("provider"))
-
-
-@app.get("/health")
-async def health() -> dict:
-    p = app.state.pipeline
-    clf = p.classifier
-    return {
-        "status": "ok",
-        "classifier": pipeline.classifier_name(clf) if clf else None,
-        "classifier_device": str(getattr(clf.model, "device", "cpu")) if clf else None,
-        "classifier_error": p.classifier_error,
-        "route_rule_enabled": p.prompt.router.config.route_rule_enabled,
-        "verify_mode": p.prompt.router.config.verify_mode,
-        "default_provider": get_config().default_provider,
-    }
-
-
-@app.post("/api/answer", response_model=AnswerResponse,
-          responses={400: {"model": AnswerResponse}, 500: {"model": AnswerResponse},
-                     502: {"model": AnswerResponse}, 504: {"model": AnswerResponse}})
-async def answer(req: AnswerRequest) -> JSONResponse:
-    """질문 → 분류 → 프롬프트 → 답변 (LCEL 체인 Pipeline.answer_chain). label을 넣으면 분류를 건너뛴다."""
-    p = app.state.pipeline
-    if req.label is None and p.classifier is None:
-        return _error_answer("config_error", f"분류 모델을 불러오지 못했습니다: {p.classifier_error}", req.provider)
-    response = await p.answer_chain().ainvoke(
-        {"text": req.text, "label": req.label, "provider": req.provider})
-    status = STATUS_BY_ERROR[response.error.code] if response.error else 200
-    return JSONResponse(response.model_dump(), status_code=status)
-
-
-@app.post("/api/answer/stream", response_class=StreamingResponse,
-          responses={200: {"content": {"text/event-stream": {}}}, 400: {"model": AnswerResponse}})
-async def answer_stream(req: AnswerRequest) -> StreamingResponse:
-    """/api/answer와 같은 처리를 SSE로 흘려보낸다. 오류도 done 이벤트(status=error)로 보낸다."""
-
-    async def events() -> AsyncIterator[str]:
-        ctx: dict = {}  # 오류가 나도 그때까지 정해진 라벨 · 분류 결과를 done에 담는다
-        try:
-            async for chunk in _answer_events(req, ctx):
-                yield chunk
-        except Exception as e:  # 스트림이 열린 뒤에는 상태 코드를 바꿀 수 없어 done으로 알린다
-            logger.exception("스트리밍 중 오류")
-            err = _error_response("llm_error", f"{type(e).__name__}: {e}", req.provider,
-                                  ctx.get("label", "unknown"), ctx.get("classification"))
-            yield _sse("done", err.model_dump())
-
-    # 프록시 · 브라우저가 모아서 보내지 않게 한다
-    return StreamingResponse(events(), media_type="text/event-stream",
-                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
-
-
-async def _answer_events(req: AnswerRequest, ctx: dict) -> AsyncIterator[str]:
-    """status · classification · delta · done 이벤트 (SSE 문자열). ctx에 정해진 label · classification을 남긴다"""
-    def status(stage: str) -> str:
-        return _sse("status", {"stage": stage, "message": STAGE_MESSAGES[stage]})
-
-    p = app.state.pipeline
-    if req.label is None:
-        if p.classifier is None:
-            err = _error_response("config_error", f"분류 모델을 불러오지 못했습니다: {p.classifier_error}",
-                                  req.provider)
-            yield _sse("done", err.model_dump())
-            return
-        yield status("classifying")
-
-    # 분류 → 프롬프트는 /api/answer와 같은 체인의 앞부분, 답변만 글자 조각으로 흘린다
-    prepared = await p.prepare_chain().ainvoke({"text": req.text, "label": req.label})
-    classification, label = prepared["classification"], prepared["label"]
-    ctx.update(classification=classification, label=label)
-    if classification is not None:
-        yield _sse("classification", asdict(classification))
-
-    yield status("adventure" if label == "unknown" else "answering")
-    async for event in p.answer_stream(prepared["prompt"], req.provider):
-        if event["type"] == "delta":
-            yield _sse("delta", {"text": event["text"]})
-        else:
-            response = AnswerResponse(**event["result"].model_dump(), classification=classification)
-            yield _sse("done", response.model_dump())

@@ -19,6 +19,7 @@ from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool, StructuredTool
 
 from theseal.answer.answer_generator import generate
+from theseal.answer.config import AnswerConfig
 from theseal.answer.tools import get_tools_for
 from theseal.common.config import LLMConfig
 
@@ -43,7 +44,8 @@ def recording_tools(tools: list[BaseTool], outputs: list[dict]) -> list[BaseTool
     return [wrap(t) for t in tools]
 
 
-async def call_service(case: dict, *, chain: Runnable, provider: str, config: LLMConfig, classifier: str,
+async def call_service(case: dict, *, chain: Runnable, provider: str, config: LLMConfig,
+                       answer_config: AnswerConfig, classifier: str,
                        llm: BaseChatModel | None = None) -> dict:
     """results.jsonl 한 줄 (채점 전). 채점하면 같은 줄에 module · score가 붙는다 (runner.score_service).
     chain: pipeline.prepare_chain(clf). classifier: 분류 모델 이름 (<모델>/<실행 ID>).
@@ -53,8 +55,9 @@ async def call_service(case: dict, *, chain: Runnable, provider: str, config: LL
     spec, routing = prepared["prompt"], prepared["classification"]
 
     tool_outputs: list[dict] = []
-    tools = recording_tools(get_tools_for(spec.label, config), tool_outputs)
-    result = await generate(spec, provider, config=config, llm=llm, tools=tools)
+    tools = recording_tools(get_tools_for(spec.label, answer_config), tool_outputs)
+    result = await generate(spec, provider, config=config, answer_config=answer_config, llm=llm,
+                            tools=tools)
     answer = result.answer
     return {
         "id": case["id"],
@@ -62,7 +65,7 @@ async def call_service(case: dict, *, chain: Runnable, provider: str, config: LL
         "category": case.get("category"),
         "status": result.status,
         "answer": answer,
-        "error": result.error.model_dump() if result.error else None,
+        "error": asdict(result.error) if result.error else None,
         "trace": {
             "expected_label": case["expected_label"],
             "classifier_label": routing.classifier_label if routing else None,
@@ -73,13 +76,13 @@ async def call_service(case: dict, *, chain: Runnable, provider: str, config: LL
             "prompt_version": spec.prompt_version,
             # 범위 밖 경로의 안내 문구 (unknown 프롬프트의 답변 방식 5, 툴 횟수 초과)를 그대로 썼는지
             "fallback": answer is not None and answer.strip() == config.fallback_answer.strip(),
-            "tools_used": [t.model_dump() for t in result.tools_used],
+            "tools_used": [asdict(t) for t in result.tools_used],
             "tool_outputs": tool_outputs,
         },
         "provider": result.provider,
         "model": result.model,
         "classifier": classifier,
-        "usage": result.usage.model_dump(),
+        "usage": asdict(result.usage),
         "answer_latency_ms": result.latency_ms,
         "e2e_latency_ms": round((time.perf_counter() - start) * 1000),
     }

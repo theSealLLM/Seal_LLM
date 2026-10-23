@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 import uuid
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Sequence
+from contextlib import aclosing
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
-from zoneinfo import ZoneInfo
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import (
@@ -21,11 +22,14 @@ from langchain_core.messages import (
 )
 from langchain_core.tools import BaseTool
 
-from ..common.client import ConfigError, llm_options, make_llm, model_name
-from ..common.config import LLMConfig, get_config
-from ..common.schemas import AnswerResult, ErrorInfo, PromptSpec, ToolRecord, Usage
-from .tool_caller import ToolCaller, ToolCallOutcome, add_usage
-from .tools import get_tools_for
+from theseal.answer.config import AnswerConfig
+from theseal.answer.tool_caller import TokenUsage, ToolCaller, ToolCallOutcome
+from theseal.answer.tools import get_tools_for
+from theseal.common.client import ConfigError, llm_options, make_llm, model_name
+from theseal.common.config import TIMEZONE, LLMConfig
+from theseal.common.schemas import AnswerResult, ErrorInfo, PromptSpec, ToolRecord, Usage
+
+logger = logging.getLogger(__name__)
 
 EMPTY_ANSWER = ErrorInfo(code="llm_error", message="모델이 빈 답변을 반환했습니다.")
 
@@ -36,95 +40,115 @@ class AnswerRun:
 
     spec: PromptSpec
     provider: str
-    tools: list[BaseTool]
+
+    tools: Sequence[BaseTool]
     """이 답변에 쓰는 툴. 비어 있으면 LLM 1회 호출"""
 
     start: float = field(default_factory=time.perf_counter)
     """지연(latency_ms)을 재는 시작 시각"""
 
-    usage: Usage = field(default_factory=Usage)
+    usage: TokenUsage = field(default_factory=TokenUsage)
     records: list[ToolRecord] = field(default_factory=list)
 
 
 class AnswerGenerator:
     """라벨에 켜진 툴이 있으면 툴 호출 반복(ToolCaller), 없으면 LLM 1회 호출로 답한다.
+
     LLM 분기(local · openai)는 client.make_llm 한 곳에서 하고, 예외를 밖으로 던지지 않고 항상 AnswerResult를 돌려준다.
 
         result = await AnswerGenerator().generate(spec, "local")
         result.status, result.answer  →  'ok', '배송 안내입니다 …'
+
+    Args:
+      config: LLM 연결 · 안내 문구 · LLM 호출 시간 제한. 없으면 .env + 코드 기본값.
+      answer_config: 툴 · 툴 반복 횟수 · 답변 시간 제한. 없으면 .env + 코드 기본값.
+      llm: 넘기면 provider와 상관없이 그 객체를 쓴다 (테스트용 흉내 객체 등).
+      tools: None이면 라벨별 설정(TOOLS_BY_LABEL)을 따른다. []이면 툴 없이 답한다.
     """
 
-    def __init__(self, config: LLMConfig | None = None, *, llm: BaseChatModel | None = None,
-                 tools: list[BaseTool] | None = None) -> None:
-        """config: 없으면 .env + 코드 기본값
-        llm: 넘기면 provider와 상관없이 그 객체를 쓴다 (테스트용 흉내 객체 등)
-        tools: None이면 라벨별 설정(TOOLS_BY_LABEL)을 따른다. []이면 툴 없이 답한다"""
-        self.config = config or get_config()
+    def __init__(self, config: LLMConfig | None = None, answer_config: AnswerConfig | None = None, *,
+                 llm: BaseChatModel | None = None, tools: Sequence[BaseTool] | None = None) -> None:
+        self.config = config or LLMConfig.from_env()
+        self.answer_config = answer_config or AnswerConfig.from_env()
         self.llm = llm
         self.tools = tools
 
     async def generate(self, spec: PromptSpec, provider: str | None = None) -> AnswerResult:
-        """답변 하나. provider: local · openai (없으면 DEFAULT_PROVIDER)"""
-        config = self.config
+        """답변 하나를 돌려준다. provider: local · openai (없으면 DEFAULT_PROVIDER)."""
+        return await self._generate(self._start(spec, provider))
+
+    async def stream(self, spec: PromptSpec,
+                     provider: str | None = None) -> AsyncIterator[dict[str, Any]]:
+        """generate와 같은 답변을 이벤트로 흘려보낸다.
+
+        툴을 쓰는 경로는 툴 결과를 본 뒤에야 답이 정해지므로 generate 결과만 보낸다.
+        도중에 오류가 나면 done의 result가 status=error다 (이미 보낸 조각은 버린다).
+
+        Yields:
+          {"type": "delta", "text": "..."}: 답변 글자 조각 (툴을 쓰는 경로는 보내지 않는다).
+          {"type": "done", "result": AnswerResult}: 마지막 한 번. answer는 조각을 이어 앞뒤 공백을 지운 전체 답변.
+        """
         run = self._start(spec, provider)
+        if run.tools:
+            yield {"type": "done", "result": await self._generate(run)}
+            return
+        try:
+            llm = self.llm or make_llm(run.provider, self.config, with_tools=False)
+            merged: AIMessageChunk | None = None
+            # 시간 제한은 LLM 조각을 기다린 시간에만 건다. yield에서 멈춘 동안(받는 쪽이 전송하는 시간)은 넣지 않는다
+            async with aclosing(llm.astream(_to_messages(spec))) as stream:
+                async for chunk in _within_budget(stream, self.config.llm_timeout_sec):
+                    merged = chunk if merged is None else merged + chunk
+                    text = _content_text(chunk.content)
+                    if text:
+                        yield {"type": "delta", "text": text}
+            if merged is not None:
+                run.usage.add(merged)
+            answer = _extract_text(merged) if merged is not None else ""
+            yield {"type": "done",
+                   "result": self._result(run, answer=answer) if answer else self._result(run, error=EMPTY_ANSWER)}
+        except Exception as e:  # generate와 같은 오류 형식
+            logger.exception("답변 스트리밍 실패 (provider=%s, label=%s)",
+                             run.provider, spec.label)
+            yield {"type": "done", "result": self._result(run, error=_error_info(e, self.config))}
+
+    def _start(self, spec: PromptSpec, provider: str | None) -> AnswerRun:
+        tools = get_tools_for(spec.label, self.answer_config) if self.tools is None else self.tools
+        return AnswerRun(spec=spec, provider=provider or self.config.default_provider, tools=tools)
+
+    async def _generate(self, run: AnswerRun) -> AnswerResult:
+        config, answer_config = self.config, self.answer_config
         deadline: asyncio.Timeout | None = None
         try:
             llm = self.llm or make_llm(run.provider, config, with_tools=bool(run.tools))
-            messages = to_messages(spec)
-            async with asyncio.timeout(config.answer_timeout_sec) as deadline:  # 호출 · 툴을 다 합친 상한
+            messages = _to_messages(run.spec)
+            # 호출 · 툴을 다 합친 상한
+            async with asyncio.timeout(answer_config.answer_timeout_sec) as deadline:
                 if run.tools:
                     outcome = ToolCallOutcome(records=run.records, usage=run.usage)
-                    await ToolCaller.from_config(llm, run.tools, config).run(messages, outcome)
+                    caller = ToolCaller.from_config(llm, run.tools, config, answer_config)
+                    await caller.run(messages, outcome)
                     if outcome.exhausted:
                         return self._result(run, answer=config.fallback_answer)
                     ai = outcome.final
                 else:
                     ai = await asyncio.wait_for(llm.ainvoke(messages), config.llm_timeout_sec)
-                    add_usage(run.usage, ai)
+                    run.usage.add(ai)
 
-            answer = extract_text(ai)
+            answer = _extract_text(ai)
             return self._result(run, answer=answer) if answer else self._result(run, error=EMPTY_ANSWER)
 
-        except Exception as e:  # noqa: BLE001 — 연결 실패(Ollama 꺼짐), API 오류 등은 error JSON으로
+        except Exception as e:  # 연결 실패(Ollama 꺼짐), API 오류 등은 error JSON으로
+            logger.exception("답변 생성 실패 (provider=%s, label=%s)",
+                             run.provider, run.spec.label)
             if isinstance(e, TimeoutError) and deadline is not None and deadline.expired():
                 return self._result(run, error=ErrorInfo(
-                    code="llm_timeout", message=f"답변 생성 전체 시간 초과 ({config.answer_timeout_sec}초)"))
-            return self._result(run, error=error_info(e, config))
-
-    async def stream(self, spec: PromptSpec, provider: str | None = None) -> AsyncIterator[dict]:
-        """generate와 같은 답변을 이벤트로 흘려보낸다.
-
-        {"type": "delta", "text": "..."}  답변 글자 조각 (툴을 쓰는 경로는 보내지 않는다)
-        {"type": "done", "result": AnswerResult}  마지막 한 번. answer는 조각을 이어 앞뒤 공백을 지운 전체 답변
-        툴을 쓰는 경로는 툴 결과를 본 뒤에야 답이 정해지므로 generate 결과만 보낸다.
-        도중에 오류가 나면 done의 result가 status=error다 (이미 보낸 조각은 버린다)
-        """
-        run = self._start(spec, provider)
-        if run.tools:
-            yield {"type": "done", "result": await self.generate(spec, provider)}
-            return
-        try:
-            llm = self.llm or make_llm(run.provider, self.config, with_tools=False)
-            merged: AIMessageChunk | None = None
-            async with asyncio.timeout(self.config.llm_timeout_sec):
-                async for chunk in llm.astream(to_messages(spec)):
-                    merged = chunk if merged is None else merged + chunk
-                    text = content_text(chunk.content)
-                    if text:
-                        yield {"type": "delta", "text": text}
-            if merged is not None:
-                add_usage(run.usage, merged)
-            answer = extract_text(merged) if merged is not None else ""
-            yield {"type": "done",
-                   "result": self._result(run, answer=answer) if answer else self._result(run, error=EMPTY_ANSWER)}
-        except Exception as e:  # noqa: BLE001 — generate와 같은 오류 형식
-            yield {"type": "done", "result": self._result(run, error=error_info(e, self.config))}
-
-    def _start(self, spec: PromptSpec, provider: str | None) -> AnswerRun:
-        tools = get_tools_for(spec.label, self.config) if self.tools is None else self.tools
-        return AnswerRun(spec=spec, provider=provider or self.config.default_provider, tools=tools)
+                    code="llm_timeout",
+                    message=f"답변 생성 전체 시간 초과 ({answer_config.answer_timeout_sec}초)"))
+            return self._result(run, error=_error_info(e, config))
 
     def _result(self, run: AnswerRun, answer: str | None = None, error: ErrorInfo | None = None) -> AnswerResult:
+        """쌓인 값을 결과(frozen AnswerResult)로 한 번에 담는다. 누적 토큰(TokenUsage)은 여기서 Usage로 옮긴다."""
         config = self.config
         return AnswerResult(
             request_id=str(uuid.uuid4()),
@@ -134,20 +158,38 @@ class AnswerGenerator:
             provider=run.provider,
             model=model_name(run.provider, config),
             prompt_version=run.spec.prompt_version,
-            tools_used=run.records,
+            tools_used=tuple(run.records),
             latency_ms=round((time.perf_counter() - run.start) * 1000),
-            usage=run.usage,
+            usage=Usage(input_tokens=run.usage.input_tokens, output_tokens=run.usage.output_tokens),
             llm_options=llm_options(run.provider, config, with_tools=bool(run.tools)),
             error=error,
-            created_at=datetime.now(ZoneInfo(config.timezone)).isoformat(timespec="seconds"),
+            created_at=datetime.now(TIMEZONE).isoformat(timespec="seconds"),
         )
 
 
-def to_messages(spec: PromptSpec) -> list[BaseMessage]:
+async def _within_budget(stream: AsyncIterator[AIMessageChunk],
+                         budget_sec: float) -> AsyncIterator[AIMessageChunk]:
+    """LLM 스트림의 조각을 차례로 꺼낸다. 조각을 기다린 시간의 합이 budget_sec를 넘으면 TimeoutError.
+
+    받는 쪽이 조각을 처리하는 시간은 셈에 넣지 않는다 (asyncio.timeout 블록 안에서 yield하면 그 시간까지 들어간다).
+    """
+    loop = asyncio.get_running_loop()
+    remaining = budget_sec
+    while True:
+        start = loop.time()
+        try:
+            chunk = await asyncio.wait_for(anext(stream), max(remaining, 0))
+        except StopAsyncIteration:
+            return
+        remaining -= loop.time() - start
+        yield chunk
+
+
+def _to_messages(spec: PromptSpec) -> list[BaseMessage]:
     return [SystemMessage(spec.system), HumanMessage(spec.customer_inquiry)]
 
 
-def content_text(content: Any) -> str:
+def _content_text(content: str | list[str | dict[str, Any]]) -> str:
     """content가 문자열이 아니라 블록 목록(Responses API, 추론 블록 등)일 수 있으므로 텍스트만 뽑는다."""
     if isinstance(content, str):
         return content
@@ -160,11 +202,11 @@ def content_text(content: Any) -> str:
     return "".join(parts)
 
 
-def extract_text(ai: AIMessage) -> str:
-    return content_text(ai.content).strip()
+def _extract_text(ai: AIMessage) -> str:
+    return _content_text(ai.content).strip()
 
 
-def error_info(e: Exception, config: LLMConfig) -> ErrorInfo:
+def _error_info(e: Exception, config: LLMConfig) -> ErrorInfo:
     if isinstance(e, ConfigError):
         return ErrorInfo(code="config_error", message=str(e))
     if isinstance(e, TimeoutError):
@@ -173,13 +215,20 @@ def error_info(e: Exception, config: LLMConfig) -> ErrorInfo:
 
 
 # API · E2E · 비교 스크립트가 부르는 함수 (AnswerGenerator를 그때그때 만든다)
-async def generate(spec: PromptSpec, provider: str | None = None, *, config: LLMConfig | None = None,
-                   llm: BaseChatModel | None = None, tools: list[BaseTool] | None = None) -> AnswerResult:
-    return await AnswerGenerator(config, llm=llm, tools=tools).generate(spec, provider)
+async def generate(spec: PromptSpec, provider: str | None = None, *,
+                   config: LLMConfig | None = None, answer_config: AnswerConfig | None = None,
+                   llm: BaseChatModel | None = None,
+                   tools: Sequence[BaseTool] | None = None) -> AnswerResult:
+    """`AnswerGenerator(config, answer_config, llm=llm, tools=tools).generate()`의 단축 함수."""
+    generator = AnswerGenerator(config, answer_config, llm=llm, tools=tools)
+    return await generator.generate(spec, provider)
 
 
-async def generate_stream(spec: PromptSpec, provider: str | None = None, *, config: LLMConfig | None = None,
-                          llm: BaseChatModel | None = None, tools: list[BaseTool] | None = None
-                          ) -> AsyncIterator[dict]:
-    async for event in AnswerGenerator(config, llm=llm, tools=tools).stream(spec, provider):
+async def generate_stream(spec: PromptSpec, provider: str | None = None, *,
+                          config: LLMConfig | None = None, answer_config: AnswerConfig | None = None,
+                          llm: BaseChatModel | None = None,
+                          tools: Sequence[BaseTool] | None = None) -> AsyncIterator[dict[str, Any]]:
+    """`AnswerGenerator(config, answer_config, llm=llm, tools=tools).stream()`의 단축 함수."""
+    generator = AnswerGenerator(config, answer_config, llm=llm, tools=tools)
+    async for event in generator.stream(spec, provider):
         yield event

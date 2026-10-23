@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import json
 import time
+from dataclasses import asdict
 from datetime import datetime
 from pathlib  import Path
 from zoneinfo import ZoneInfo
@@ -118,8 +119,8 @@ async def generate_prompt_responses_for_case(
                 "prompt_method": prompt_method,
                 "prompt_structure": prompt_structure,
                 "prompt_generation_ms": prompt_generation_ms,
-                "prompt_spec": prompt_spec.model_dump(),
-                "answer_result": answer_result.model_dump(),
+                "prompt_spec": asdict(prompt_spec),
+                "answer_result": asdict(answer_result),
                 "required_points": case["required_points"],
                 "forbidden_claims": case["forbidden_claims"],
                 "rubric_note": case.get("rubric_note"),

@@ -12,9 +12,12 @@ OpenAI 답변의 점수는 서비스를 다시 테스트해도 바뀌지 않으�
 
 from __future__ import annotations
 
+from dataclasses import asdict
+
 from langchain_core.language_models import BaseChatModel
 
 from theseal.answer.answer_generator import generate
+from theseal.answer.config import AnswerConfig
 from theseal.answer.tools import get_tools_for
 from theseal.common.config import LLMConfig
 from theseal.prompt import Prompt
@@ -40,16 +43,18 @@ def reference_version(case: dict) -> str:
     return f"{prompt_for_label(gold_label(case), case['text']).prompt_version}+{JUDGE_VERSION}"
 
 
-async def make_reference(case: dict, *, config: LLMConfig, llm: BaseChatModel, limiter: RateLimiter) -> dict:
+async def make_reference(case: dict, *, config: LLMConfig, answer_config: AnswerConfig, llm: BaseChatModel,
+                         limiter: RateLimiter) -> dict:
     """문의 하나의 검증용 데이터 한 줄. llm: make_llm("openai", config) 하나를 모든 호출이 같이 쓴다."""
     spec = prompt_for_label(gold_label(case), case["text"])
     # 서비스처럼 라벨에 켜진 툴을 쓰되 (unknown: 날짜 · 날씨 · 검색), 채점에 쓰도록 툴 결과를 남긴다
     tool_outputs: list[dict] = []
-    tools = recording_tools(get_tools_for(spec.label, config), tool_outputs)
+    tools = recording_tools(get_tools_for(spec.label, answer_config), tool_outputs)
 
     async def answer():
         tool_outputs.clear()  # 다시 보낼 때 앞 시도의 툴 결과가 섞이지 않게
-        return await generate(spec, PROVIDER, config=config, llm=llm, tools=tools)
+        return await generate(spec, PROVIDER, config=config, answer_config=answer_config, llm=llm,
+                              tools=tools)
 
     result = await limiter.call(
         answer, error_of=lambda r: None if r.status == "ok" else f"{r.error.code}: {r.error.message}",
@@ -63,8 +68,8 @@ async def make_reference(case: dict, *, config: LLMConfig, llm: BaseChatModel, l
         "provider": result.provider,
         "model": result.model,
         "answer": result.answer,
-        "tools_used": [t.model_dump() for t in result.tools_used],
+        "tools_used": [asdict(t) for t in result.tools_used],
         "tool_outputs": tool_outputs,
-        "usage": result.usage.model_dump(),
+        "usage": asdict(result.usage),
         "score": score,
     }
